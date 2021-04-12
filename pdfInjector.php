@@ -53,6 +53,26 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $this->fieldData = $pdf->getFieldData();
     }
 
+    public function setLastInjectionID(Int $id) {        
+        $this->setProjectSetting("last-injection-id", $id);
+    }
+
+    public function addNewEntryToJSON() {
+        if (!class_exists("Injection")) include_once("classes/Injection.php");
+
+        $fields = [
+            "field_firstname" => "Firstname",
+            "field_lastname" => "Lastname",
+            "refuser" => false
+        ];
+
+        $injection = new Injection("New Document", "This is another document for testing", $fields);
+
+        dump($injection);
+
+
+    }
+
     
    /**
     * Include JavaScript files

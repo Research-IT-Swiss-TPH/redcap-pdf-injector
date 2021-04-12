@@ -23,13 +23,34 @@
 
     "enable-every-page-hooks-on-system-pages": false,
 
-    "links":{},
+    "links":{
+        "project": [
+            {
+                "name": "PDF Injector",
+                "key": "pdf-injector",
+                "icon": "fas fa-syringe",
+                "url": "index.php",
+                "show-header-and-footer": true
+            }
+        ]
+    },
 
     "no-auth-pages": [],
 
     "system-settings": [],
 
-    "project-settings": [],
+    "project-settings": [
+        {
+            "key": "injections",
+            "name": "Injections",
+            "type": "json",
+            "hidden": true
+        },
+        {
+            "key": "last-injection-id",
+            "hidden": true
+        }
+    ],
 
     "crons": [],
 
