@@ -3,7 +3,7 @@
 
     "namespace": "STPH\\pdfInjector", 
 
-    "description": "Fill your PDF form fields with REDCap data.",
+    "description": "Fill form fields of your PDFs with your redcap data.",
 
     "documentation": "README.md",
 
