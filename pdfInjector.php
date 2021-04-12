@@ -3,12 +3,14 @@
 // Set the namespace defined in your config file
 namespace STPH\pdfInjector;
 
+require 'vendor/autoload.php';
 
 
 // Declare your module class, which must extend AbstractExternalModule 
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
-    private $moduleName = "PDF Injector";  
+    private $moduleName = "PDF Injector";
+    public $fieldData;
 
    /**
     * Constructs the class
@@ -35,8 +37,20 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     private function renderModule() {
         
         $this->includeJavascript();                
-        $this->includeCSS();        
+        $this->includeCSS();
+        
+        $this->readPDF();
+        //dump($this->fieldData);
 
+    }
+
+    private function readPDF() {
+        if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
+
+        $filePath = __DIR__ . '/test.pdf';
+        $pdf = new FPDMH($filePath);
+
+        $this->fieldData = $pdf->getFieldData();
     }
 
     

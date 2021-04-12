@@ -1,0 +1,72 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "45c0ff9a7f7a0fcf68c9b628cb0daed1",
+    "packages": [
+        {
+            "name": "tmw/fpdm",
+            "version": "2.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/codeshell/fpdm.git",
+                "reference": "2db6f6a8cf7f0d593c13dbbe10df0737d9526313"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/codeshell/fpdm/zipball/2db6f6a8cf7f0d593c13dbbe10df0737d9526313",
+                "reference": "2db6f6a8cf7f0d593c13dbbe10df0737d9526313",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/fpdm.php",
+                    "src/filters/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Olivier Plathey",
+                    "email": "oliver@fpdf.org",
+                    "homepage": "http://www.fpdf.org/",
+                    "role": "Author"
+                },
+                {
+                    "name": "codeshell",
+                    "homepage": "https://github.com/codeshell/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PDF form filling using FPDM Class written by FPDF author Olivier",
+            "homepage": "https://github.com/codeshell/fpdm",
+            "keywords": [
+                "Forms",
+                "fields",
+                "fill",
+                "fpdf",
+                "fpdm",
+                "pdf",
+                "populate"
+            ],
+            "time": "2019-06-11T23:37:41+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
