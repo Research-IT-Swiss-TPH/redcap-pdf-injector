@@ -1,0 +1,40 @@
+{
+    "name": "PDF Injector",
+
+    "namespace": "STPH\\pdfInjector", 
+
+    "description": "Fill your PDF form fields with REDCap data.",
+
+    "documentation": "README.md",
+
+    "authors": [
+        {
+             "name": "Ekin Tertemiz",
+             "email": "ekin.tertemiz@swisstph.ch",
+             "institution": "Swiss Tropical and Public Health Institute"
+         }
+     ],
+
+    "framework-version": 6,
+
+    "permissions": [
+        "redcap_every_page_top"
+    ],
+
+    "enable-every-page-hooks-on-system-pages": false,
+
+    "links":{},
+
+    "no-auth-pages": [],
+
+    "system-settings": [],
+
+    "project-settings": [],
+
+    "crons": [],
+
+    "compatibility": {
+        "php-version-min": "5.4.0",
+        "redcap-version-min": "8.0.0"
+    }
+ }
