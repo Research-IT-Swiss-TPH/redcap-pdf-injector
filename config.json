@@ -24,7 +24,7 @@
     "enable-every-page-hooks-on-system-pages": false,
 
     "links":{
-        "project": [
+        "project": [                 
             {
                 "name": "PDF Injector",
                 "key": "pdf-injector",
@@ -41,8 +41,13 @@
 
     "project-settings": [
         {
-            "key": "injections",
-            "name": "Injections",
+            "key": "javascript-debug",
+            "name": "Output debug information to the browser console",
+            "type": "checkbox"
+        },        
+        {
+            "key": "pdf-injections",
+            "name": "PDF Injections",
             "type": "json",
             "hidden": true
         },
