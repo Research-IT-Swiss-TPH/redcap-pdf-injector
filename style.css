@@ -15,6 +15,17 @@
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);	
 }
 
+/* Bootstrap Helpers */
+.is-loading {
+    border-color: #bdc3c7;
+    padding-right: calc(1.5em + .75rem);
+    background-image: url("data:image/svg+xml,%3Csvg width='20' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform='translate(40, 40)'%3E%3Ccircle id='loading-spinner' stroke-dasharray='220' stroke-dashoffset='75' stroke-linecap='round' fill='transparent' stroke='%23bdc3c7' stroke-width='14' cx='0' cy='0' r='33'%3E%3CanimateTransform attributeName='transform' attributeType='XML' type='rotate' from='0' to='360' dur='0.65s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right calc(.375em + .1875rem) center;
+    background-size: calc(.75em + .375rem) calc(.75em + .375rem);
+    
+}
+
 /* Copied from Alert.css */
 .modal-header .close {
     position: absolute;

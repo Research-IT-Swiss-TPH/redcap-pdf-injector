@@ -1,0 +1,13 @@
+<svg width="20" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(40, 40)">
+    <circle id="loading-spinner" stroke-dasharray="220" stroke-dashoffset="75" stroke-linecap="round" fill="transparent" stroke="#2f3d4c" stroke-width="16" cx="0" cy="0" r="32">
+     <animateTransform attributeName="transform"
+                          attributeType="XML"
+                          type="rotate"
+                          from="0"
+                          to="360"
+                          dur="0.75s"
+                          repeatCount="indefinite"/>
+    </circle>
+    </g>
+</svg>

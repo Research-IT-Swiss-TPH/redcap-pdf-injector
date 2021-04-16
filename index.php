@@ -196,26 +196,68 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 							</div>
 
 							<div class="form-group">
+
 								<label class="fs14 boldish"><?=$module->tt("injector_14")?></label>
 
-								<div class="form-group">								
-									<div class="input-group mb-2 mr-sm-2">
+								<div class="form-row align-items-center">
+									<div class="col-auto">
+									<label class="sr-only" for="inlineFormInputGroup">Variable 1</label>
+									<div class="input-group mb-2">
 										<div class="input-group-prepend">
 										<div class="input-group-text">field_name_1</div>
+										</div>
+										<input type="text" class="form-control is-invalid" id="inlineFormInputGroup" placeholder="Variable 1">
 									</div>
-									<input type="text" class="form-control" id="inlineFormInputGroupUsername1" placeholder="Variable 1">
+									</div>
+									<div class="col-auto">
+										<div class="form-check mb-2">
+											<label class="form-check-label" for="autoSizingCheck">
+												<small id="variableHelpLine1" class="text-danger">Variable is invalid!</small>
+											</label>
+										</div>
+									</div>
 								</div>
 
-								<div class="form-group">								
-									<div class="input-group mb-2 mr-sm-2">
+								<div class="form-row align-items-center">
+									<div class="col-auto">
+									<label class="sr-only" for="inlineFormInputGroup">Variable 2</label>
+									<div class="input-group mb-2">
 										<div class="input-group-prepend">
 										<div class="input-group-text">field_name_2</div>
+										</div>
+										<input type="text" class="form-control is-valid" id="inlineFormInputGroup" placeholder="Variable 2">
 									</div>
-									<input type="text" class="form-control" id="inlineFormInputGroupUsername2" placeholder="Variable 2">
+									</div>
+									<div class="col-auto">
+										<div class="form-check mb-2">
+											<label class="form-check-label" for="autoSizingCheck">						
+											<small id="variableHelpLine2" class="text-success">Variable is valid!</small>
+											</label>
+										</div>
 									</div>
 								</div>
 
+								<div class="form-row align-items-center">
+									<div class="col-auto">
+									<label class="sr-only" for="inlineFormInputGroup">Variable 3</label>
+									<div class="input-group mb-2">
+										<div class="input-group-prepend">
+										<div class="input-group-text">field_name_3</div>
+										</div>
+										<input type="text" class="form-control is-loading" id="inlineFormInputGroup" placeholder="Variable 3" disabled>
+									</div>
+									</div>
+									<div class="col-auto">
+										<div class="form-check mb-2">
+											<label class="form-check-label" for="autoSizingCheck">								
+											<small id="variableHelpLine3" class="text-muted">Checking..</small>
+											</label>
+										</div>
+									</div>
+								</div>	
+
 							</div>
+
 
 							<!-- STEP 3: Set title and description -->
 							<div class="form-control-custom-title clearfix mb-2">
