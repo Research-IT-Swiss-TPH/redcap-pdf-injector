@@ -54,13 +54,58 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $this->setProjectSetting("last-injection-id", $id);
     }
 
-    private function readPDF() {
-        if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
+    public function scanFile(){
 
-        $filePath = __DIR__ . '/test.pdf';
-        $pdf = new FPDMH($filePath);
+        if(isset($_FILES['file']['name'])){
 
-        $this->fieldData = $pdf->getFieldData();
+            $filename = $_FILES['file']['name'];
+            $ext =  strtolower(pathinfo($filename,PATHINFO_EXTENSION));
+            $tmp_file = $_FILES['file']['tmp_name'];
+
+            //  Process PDF with FPDM - Helper Class (FPDMH)
+            if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
+            $pdf = new FPDMH($tmp_file);
+            $fieldData = $pdf->getFieldData();
+
+            if($pdf->hasError) {
+            //  Check for errors
+                header("HTTP/1.1 400 Bad Request");
+                header('Content-Type: application/json; charset=UTF-8');                
+                die(json_encode(array('message' => $pdf->errorMessage)));
+                
+            } else {
+            //  Return as json response                
+                $response = array('file' => $filename, 'fieldData' => $fieldData);
+                header('Content-Type: application/json; charset=UTF-8');                
+                echo json_encode($response);
+                exit();
+            }
+
+         }
+         else {
+                header("HTTP/1.1 400 Bad Request");
+                die(json_encode(array('message' => "Unknown Error")));
+         }
+    }
+    
+    public function checkField($fieldname) {
+
+        $pid = PROJECT_ID;
+
+        $sql = 'SELECT * FROM redcap_metadata WHERE project_id = ? AND field_name = ?';
+
+        $result = $this->query($sql, [$pid, $fieldname]);
+
+        if($result->num_rows == 1) {
+            header('Content-Type: application/json; charset=UTF-8');                
+            echo json_encode(array("fieldName" => $fieldname));
+        } else {
+            header("HTTP/1.1 400 Bad Request");
+            header('Content-Type: application/json; charset=UTF-8');
+            die();
+
+        }
+             
     }
 
     public function base64FromId($doc_id) {
@@ -90,6 +135,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <script src="<?php print $this->getUrl('js/Injector.js'); ?>"></script>
         <script>
             STPH_pdfInjector.params = <?= json_encode($js_params) ?>;
+            STPH_pdfInjector.requestHandlerUrl = "<?= $this->getUrl("requestHandler.php") ?>";
+            STPH_pdfInjector.templateURL = "<?= $this->getUrl("template/field_variable_list.php") ?>";
             $(function() {
                 $(document).ready(function(){
                     STPH_pdfInjector.init();
