@@ -5,7 +5,6 @@ namespace STPH\pdfInjector;
 
 require 'vendor/autoload.php';
 
-
 // Declare your module class, which must extend AbstractExternalModule 
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
@@ -22,6 +21,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     {        
         parent::__construct();
        // Other code to run when object is instantiated
+
     }
 
    /**
@@ -44,6 +44,56 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */
     public function initModule() {
         $this->injections = $this->getProjectSetting("pdf-injections");
+        $this->handlePost();
+
+    }
+
+    private function handlePost() {
+
+
+        if($_POST) {
+            //  Check if a new injection or update of given one
+            //  if update: only change if diff; if new file than delete this and create new
+            //  add date updated
+            
+            //  if new:
+            //  New Injection
+            if($_FILES)  {
+
+                //  Upload File to REDCap
+                $docId = \Files::uploadFile($_FILES['file']);
+                
+                //  If file successfully Uploaded create new Injection entry in database
+                if($docId != 0) {
+
+                    //  Prepare new injection
+                    $newInjection = [
+                        "title" => $_POST["title"],
+                        "fileName" => $_FILES['file']['name'],
+                        "description" => $_POST["description"],
+                        "doc_id" => $docId,
+                        "thumb64" => $_POST["thumbnail"],
+                        "created" => date("Y-m-d"),
+                        "updated" => NULL,
+                        "fields" => $_POST["fields"]
+                    ];
+
+                    //  Insert new injectio to injections array
+                    $injections = $this->injections;
+                    $injections[$docId] = $newInjection;
+
+                    //  Save into module data base
+                    $this->setProjectSetting("pdf-injections", $injections);
+
+                } else {
+                    print "Error";
+                }
+            }
+
+        }   
+
+
+
     }
 
    /**
@@ -74,8 +124,9 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 die(json_encode(array('message' => $pdf->errorMessage)));
                 
             } else {
-            //  Return as json response                
-                $response = array('file' => $filename, 'fieldData' => $fieldData);
+            //  Return as json response
+                $data = file_get_contents( $tmp_file );
+                $response = array('file' => $filename, 'fieldData' => $fieldData, 'pdf64' => base64_encode($data));
                 header('Content-Type: application/json; charset=UTF-8');                
                 echo json_encode($response);
                 exit();
@@ -108,6 +159,18 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
              
     }
 
+
+    public function base64ToImage($base64_string, $output_file) {
+        $file = fopen($output_file, "wb");
+    
+        $data = explode(',', $base64_string);
+    
+        fwrite($file, base64_decode($data[1]));
+        fclose($file);
+    
+        return $output_file;
+    }
+
     public function base64FromId($doc_id) {
 
         $path = EDOC_PATH . \Files::getEdocName( $doc_id, true );
@@ -132,7 +195,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             );
 
         ?>
-        <script src="<?php print $this->getUrl('js/Injector.js'); ?>"></script>
+        <script src="<?php print $this->getUrl('js/pdfjs/pdf.js'); ?>"></script>
+        <script src="<?php print $this->getUrl('js/Injections.js'); ?>"></script>
         <script>
             STPH_pdfInjector.params = <?= json_encode($js_params) ?>;
             STPH_pdfInjector.requestHandlerUrl = "<?= $this->getUrl("requestHandler.php") ?>";
@@ -205,7 +269,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             $data3 = [
                 "title" => "Lalalalaa Bar",
                 "description" => "Lorem Ipsum dolor es achme lach net.",
-                "doc_id" => null,
+                "doc_id" => 7,
                 "created" => "2021-04-13",
                 "fields" => [
                         "field_firstname" => "otra",
@@ -215,12 +279,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 ];		
         
                 $data = [];
-                $data[0] = $data1;
-                $data[4] = $data2;
-                $data[3] = $data3;
+                $data[14] = $data1;
+                $data[2] = $data2;
+                $data[7] = $data3;
         
         
-        $module->setProjectSetting("pdf-injections", $data);        
+        $this->setProjectSetting("pdf-injections", $data);        
     }
 
     

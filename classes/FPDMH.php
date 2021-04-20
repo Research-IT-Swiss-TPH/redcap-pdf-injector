@@ -10,6 +10,7 @@ class FPDMH extends FPDM {
     public $errorMessage;
 
     public function getFieldData() {
+        
         $this->merge();
         $fieldData = $this->value_entries;
 
@@ -21,7 +22,7 @@ class FPDMH extends FPDM {
 
     function Error($msg) {
         $this->hasError = true;
-        $this->errorMessage = $msg;        
+        $this->errorMessage = $msg;
     }
     
 }

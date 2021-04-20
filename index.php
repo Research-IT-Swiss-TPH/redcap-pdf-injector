@@ -12,7 +12,7 @@ use RCView;
 
 # 2. Add title, description, and field associations
 
-# Submit File to Check: Check if file is valid, save temporarly
+# Submit File to Check: Check if file is valid continue
 # Save edoc to database, return ready for scan
 # Scan file, return field data to client, save field data to database
 # Files::getEdocName
@@ -52,23 +52,19 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						$injection_number++;
 						$fields = $attr["fields"];
 
-						$description = "<b class=\"fs14\"><i class=\"fas fa-info-circle\"></i></b> <span class=\"boldish\">{$attr['description']}</span>";
-						$fieldInfo = "<b class=\"fs14\"><i class=\"fa fa-th-list\"></i></b> <span class=\"boldish\">Has a total of ".count($fields)." fields to  inject:</span>";
+						$description = "<b class=\"fs14\"><i class=\"fas fa-info-circle\"></i></b> <span class=\"boldish\">Description: {$attr['description']}</span>";
+						$fieldInfo = "<b class=\"fs14\"><i class=\"fa fa-th-list\"></i></b> <span class=\"boldish\">Number of fields: ".count($fields)."</span>";
 						$fieldList= "";
 
 						foreach ($fields as $key => $value) {
 							if($value == "") {
-								$fieldList .= "<li>{$key}: <span style=\"color:red;\">not assigned to any variable</span></li>";
+								$fieldList .= "<li>{$key}: <span style=\"color:red;\"><b>undefined</b></span></li>";
 							} else {
 								$fieldList .= "<li>{$key}: <span class=\"code\" style=\"font-size:85%;\">[{$value}]</span></li>";
 							}
 						}
 
-						if(!isset($attr["doc_id"])) {
-							$thumbnailPath = $module->getUrl("img/PDF_file_icon.svg");
-						} else {
-							$thumbnailPath = $module->base64FromId($attr["doc_id"]);
-						}
+						$thumbnailPath = $attr["thumb64"];
 
 						$activityBox = '<div class="clearfix">
 											<div class="float-left boldish" style="color:#6320ac;width:90px;">
@@ -107,7 +103,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 										</div>																		
 										</td>";
 						
-						$injections .= "<td class='pt-3 pb-4' style='width:250px;border-left:0;'>
+						$injections .= "<td class='pt-3 pb-4' style='width:400px;border-left:0;'>
 										<div class='card'>
 										<div class='card-header bg-light py-1 px-3 clearfix' style='color:#004085;background-color:#d5e3f3 !important;'>
 											<div class='float-left'><i class='fas fa-file-pdf'></i> PDF</div>
@@ -124,7 +120,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 											</div>
 										</div>
 										<div style=\"text-align:center\" class='card-body p-0'>
-											<img class=\"my-shadow\" style=\"padding:15px;margin-top:15px;margin-bottom:15px;\"  width=\"125\" src=\"{$thumbnailPath}\" />
+											<img class=\"my-shadow\" style=\"padding:15px;margin-top:15px;margin-bottom:15px;\"  width=\"250\" src=\"{$thumbnailPath}\" />
 										</div>
 									</div>
 									</td>";
@@ -143,7 +139,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 
 
 	<div class="col-md-12">
-		<form class="form-horizontal" action="" method="post" id="saveAlert">
+		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" id="saveInjection">
 			<div class="modal fade" id="external-modules-configure-modal" name="external-modules-configure-modal" data-module="" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true">
 				<div class="modal-dialog" role="document" style="max-width: 950px !important;">
 					<div class="modal-content">
@@ -155,31 +151,41 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 
 						<div class="modal-body pt-2">
 							<div id="errMsgContainerModal" class="alert alert-danger col-md-12" role="alert" style="display:none;margin-bottom:20px;"></div>
-
 							<!-- Modal Explanation Text -->
 							<div class="mb-2">
 								<?=$module->tt("injector_5")?>
 							</div>
-
 							<!-- STEP 1: Choose a valid PDF -->
 							<section>
-								<div class="form-control-custom-title clearfix mb-2">
-									<div class="boldish fs14" style="margin-top:2px;"><i class="fas fa-file-upload"></i> <?= $module->tt("injector_10") ?></div>
-								</div>
+							<div class="form-control-custom-title clearfix mb-2">								
+								<div class="boldish fs14" style="margin-top:2px;"><i class="fas fa-file-upload"></i> <?= $module->tt("injector_10") ?></div>
+							</div>
 
+							<div class="row">
 								<!-- File Input: if file has not been submitted yet or is not valid -->
-								<div class="form-group">
+								<div class="form-group col-md-8">
 									<label class="fs14 boldish"><?=$module->tt("injector_8")?></label>
 									<div class="custom-file mb-3">
 										<input id="file" name="file" type="file" class="custom-file-input">
 										<label id="fileLabel" class="custom-file-label" >Choose file...</label>
-										<div id="fpdm-error" class="invalid-feedback d-none"></div>
+										<div id="fpdm-error" class="invalid-feedback d-none mb-3"></div>
 										<div id="fpdm-success" class="valid-feedback">Test</div>
-
-										<div id="invalid-scan" class="invalid-feedback d-none">The file you have submitted could not be scanned.</div>
-										<div id="invalid-fields" class="invalid-feedback d-none">The file you have submitted has no form fields.</div>
 									</div>
-								</div>			
+									<label class="fs14 boldish"><?=$module->tt("injector_6")?></label>
+									<input type="text" name="title" class="form-control mb-3" placeholder="New Injection Title">									
+									<label class="fs14 boldish"><?=$module->tt("injector_7")?></label>
+									<textarea name="description" class="form-control mb-3" rows="2" placeholder="Describe your PDF Injection with a few words.."></textarea>									
+								</div>								
+								<div class="form-group col-md-4">
+									<input type="hidden" name="thumbnail" value="">
+									<div id="new-pdf-thumbnail" class="pdf-thumbnail my-shadow d-flex justify-content-center align-items-center">
+									<div id="pdf-preview-spinner" class="d-none spinner-border text-secondary" style="width: 3rem; height: 3rem;" role="status">
+										<span class="sr-only">Loading...</span>
+									</div>
+									</div>
+								</div>
+							</div>
+		
 							</section>
 							<!-- STEP 2: Assign Fields to variables -->
 							<section id="step-2" class="disabled">
@@ -200,27 +206,10 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 								
 								</div>
 							</section>
-							<!-- STEP 3: Set title and description -->
-							<section id="step-3" class="disabled">
-								<div class="form-control-custom-title clearfix mb-2">
-									<div class="boldish fs14" style="margin-top:2px;"><i class="fas fa-tag"></i> <?= $module->tt("injector_12") ?></div>
-								</div>								
-
-								<!-- Title and Description Input-->							
-								<div class="form-group">
-									<label class="fs14 boldish"><?=$module->tt("injector_6")?></label>
-									<input type="text" name="injection-title" class="form-control" placeholder="New Injection Title">
-								</div>
-								<div class="form-group">
-									<label class="fs14 boldish"><?=$module->tt("injector_7")?></label>
-									<textarea name="injection-description" class="form-control" rows="2" placeholder="Describe your PDF Injection with a few words.."></textarea>									
-								</div>										
-							</section>
-
 						</div>
 
 						<div class="modal-footer">
-							<button data-toggle="modal" class="btn btn-rcgreen" id="btnModalsaveAlert" onclick="return false;"><?=$lang['designate_forms_13']?></button>
+							<input class="btn btn-rcgreen" id="btnModalsaveInjection" type="submit" name="submit" value="<?=$lang['designate_forms_13']?>" disabled>							
 							<button class="btn btn-defaultrc" id="btnCloseCodesModal" data-dismiss="modal" onclick="return false;"><?=$lang['global_53']?></button>
 						</div>
 
