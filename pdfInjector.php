@@ -5,6 +5,8 @@ namespace STPH\pdfInjector;
 
 require 'vendor/autoload.php';
 
+use \Exception;
+
 // Declare your module class, which must extend AbstractExternalModule 
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
@@ -70,11 +72,10 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     
                         //  Upload File to REDCap
                         $thumbId = \Files::uploadFile($_FILES['thumbnailFile']);
-                        dump($thumbId);
                     }
                     
                     //  If file successfully Uploaded create new Injection entry in database
-                    if($docId != 0) {
+                    if($docId != 0 && $thumbId != 0) {
     
                         //  Prepare new injection
                         $newInjection = [
@@ -97,11 +98,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         $this->setProjectSetting("pdf-injections", $injections);
     
                     } else {
-                        print "Error";
+                        throw new Exception("Something went wrong! Files could not be saved. Is edoc folder writable?");
                     }
                 }
 
-            } elseif($_POST["mode"] == "UPDATE") {
+            } if($_POST["mode"] == "UPDATE") {
 
             //  Check if a new injection or update of given one
             //  if Update: only change if diff; if new file than delete this and create new
@@ -110,7 +111,25 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             dump("UPDATE");
             dump($_POST);
 
+            } if($_POST["mode"] == "DELETE") {
+                
+                $docId = $_POST["docId"];   
+                $thumbId = $_POST["thumbId"];
+                //  Remove selected injeciton from injections array
+                $injections = $this->injections;
+                unset($injections[$docId]);                
+                //  Delete document from storage
+                $deletedPDF = \Files::deleteFileByDocId($docId);
+                $deletedThumbnail = \Files::deleteFileByDocId($thumbId);
+
+                if($deletedPDF && $deletedThumbnail) {
+                    $this->setProjectSetting("pdf-injections", $injections);
+                } else {
+                    throw new Exception("Something went wrong! Files could not be deleted. Is edoc folder writable?");
+                }
+
             }
+            
             // Force redirect to same page to clear $_POST data
             $this->forceRedirect();
 

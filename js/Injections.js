@@ -96,7 +96,8 @@ STPH_pdfInjector.init = function() {
 
 /*  editInjection(index, InjecNum)
 *   Prepares modal data to Create/Update Injection before triggering the modal
-*  
+*   index: docId and primary key of injection
+*   InjecNum: chronological numbering  
 */
 STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
 
@@ -110,7 +111,7 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
         $('[name="mode"]').val("UPDATE");
         $('#add-edit-title-text').html('Edit Injection #'+InjecNum);
 
-        var attr = STPH_pdfInjector.getInjectionData(index);        
+        var attr = STPH_pdfInjector.getInjectionData(index);
         if(attr) {
             //  Prepare Step 1 form data
             $('[name="title"').val(attr.title);
@@ -140,12 +141,18 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
 }
 
 /*  deleteInjection(index, InjecNum)
-*   Deletes Injection by index, InjecNum
-*  
+*   Deletes Injection by index
+*   index: docId and primary key of injection
+*   InjecNum: chronological numbering  
 */
-STPH_pdfInjector.deleteInjection = function(index=null, InjecNum=null){
+STPH_pdfInjector.deleteInjection = function(index=null, thumbId, InjecNum=null){
     //Show simpleDialog instead & trigger callback
-    alert("Are you sure you want to delete Injection #" + InjecNum + "? \n\n //Show simpleDialog for id "+index+" instead & trigger callback");
+    $('[name="mode"]').val("DELETE");
+    $('#injection-number').text(InjecNum);
+    $('[name=docId]').val(index);
+    $('[name=thumbId').val(thumbId);
+    $('[name=external-modules-configure-modal-delete-confirmation]').modal('show');
+    //alert("Are you sure you want to delete Injection #" + InjecNum + "? \n\n //Show simpleDialog for id "+index+" instead & trigger callback");
 }
 
 /*  getInjectionData(id)

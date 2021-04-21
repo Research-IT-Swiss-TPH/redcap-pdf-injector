@@ -107,12 +107,9 @@
 #field-to-variable-map .variable-input {
     width: 375px;
 }
-
-input.btn.btn-rcgreen {
+input.btn {
     border-left-color: transparent;
     padding: .375rem .75rem;
-	background-color: #41a741;
-	border-color: #3d8e3d;
     border: 1px solid transparent;
     border-top-color: transparent;
     border-right-color: transparent;
@@ -127,7 +124,27 @@ input.btn.btn-rcgreen {
     font-weight: 400;
 }
 
+input.btn.btn-rcgreen {
+   
+	background-color: #41a741;
+	border-color: #3d8e3d;
+    
+}
+
 input.btn.btn-rcgreen:hover {
     background-color: #3d8e3d;
     border-color: #3d8e3d;
+    cursor: pointer;
+}
+
+input.btn.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+input.btn.btn-danger:hover {
+    color: #fff;
+    background-color: #c82333;
+    border-color: #bd2130;
+    cursor: pointer;
 }

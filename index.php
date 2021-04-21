@@ -46,7 +46,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 
 					$injection_number = 0;
 					// Loop through all injections
-					foreach ($module->injections as $injection_id=>$attr) 
+					foreach ($module->injections as $key => $attr) 
 					{
 						$injection_number++;
 						$fields = $attr["fields"];
@@ -55,11 +55,11 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						$fieldInfo = "<b class=\"fs14\"><i class=\"fa fa-th-list\"></i></b> <span class=\"boldish\">Number of fields: ".count($fields)."</span>";
 						$fieldList= "";
 
-						foreach ($fields as $key => $value) {
+						foreach ($fields as $fieldKey => $value) {
 							if($value == "") {
-								$fieldList .= "<li>{$key}: <span style=\"color:red;\"><b>undefined</b></span></li>";
+								$fieldList .= "<li>{$fieldKey}: <span style=\"color:red;\"><b>undefined</b></span></li>";
 							} else {
-								$fieldList .= "<li>{$key}: <span class=\"code\" style=\"font-size:85%;\">[{$value}]</span></li>";
+								$fieldList .= "<li>{$fieldKey}: <span class=\"code\" style=\"font-size:85%;\">[{$value}]</span></li>";
 							}
 						}					
 
@@ -77,10 +77,10 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						$formName = '<div class="clearfix" style="margin-left: -11px;">
 										<div style="max-width:340px;" class="card-header alert-num-box float-left text-truncate"><i class="fas fa-syringe fs13" style="margin-right:5px;"></i>PDF Injection #'.$injection_number.$injectionTitle.'</div>
 										<div class="btn-group nowrap float-left mb-1 ml-2" role="group">
-										  <button style="color:#0061b5;" type="button" class="btn btn-link fs13 py-1 pl-1 pr-2" onclick="STPH_pdfInjector.editInjection('.$injection_id.', '.$injection_number.');">
+										  <button style="color:#0061b5;" type="button" class="btn btn-link fs13 py-1 pl-1 pr-2" onclick="STPH_pdfInjector.editInjection('.$key.', '.$injection_number.');">
 											<i class="fas fa-pencil-alt"></i> '.$lang['global_27'].'
 										  </button>
-										  <button style="color:#0061b5;" type="button" class="btn btn-link fs13 py-1 pl-1 pr-2"  onclick="STPH_pdfInjector.deleteInjection('.$injection_id.', '.$injection_number.');">
+										  <button style="color:#0061b5;" type="button" class="btn btn-link fs13 py-1 pl-1 pr-2"  onclick="STPH_pdfInjector.deleteInjection('.$key.', '.$attr['thumbId'].', '.$injection_number.');">
 											<i class="fas fa-trash"></i> Delete
 										  </button>										  
 										  </div>
@@ -92,7 +92,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 										".$formName."
 										<div class='card mt-3'>
 											<div class='card-body p-2'>
-												<div id=\"injection-descrip{$key}\" class=\"mb-1 trigger-descrip\">{$description}</div>
+												<div id=\"injection-description\" class=\"mb-1 trigger-descrip\">{$description}</div>
 												<div class=\"mt-1\" style=\"color:green;\">{$fieldInfo}</div>
 												<ol  class=\"mt-1\" style=\"padding-left:20px;\">".$fieldList."</ol>
 											</div>
@@ -112,8 +112,8 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 												{$lang['design_699']}
 												</button>
 												<div class=\"dropdown-menu\" aria-labelledby=\"btnGroupDrop2\">
-												<a class=\"dropdown-item\" href=\"#\" onclick=\"previewEmailAlert('$injection_id','$injection_number')\"><i class=\"far fa-envelope\"></i> {$module->tt("injector_3")}</a>
-												<a class=\"dropdown-item\" href=\"#\" onclick=\"previewEmailAlertRecord('$injection_id','$injection_number')\"><i class=\"far fa-envelope\"></i> {$module->tt("injector_4")}</a>
+												<a class=\"dropdown-item\" href=\"#\" onclick=\"previewInjection('$key','$injection_number')\"><i class=\"far fa-envelope\"></i> {$module->tt("injector_3")}</a>
+												<a class=\"dropdown-item\" href=\"#\" onclick=\"previewInjectionRecord('$key','$injection_number')\"><i class=\"far fa-envelope\"></i> {$module->tt("injector_4")}</a>
 												</div>
 											</div>
 											</div>
@@ -136,7 +136,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 			<?php endif; ?>
 	</div>
 
-
+	<!-- Create/Update Modal -->
 	<div class="col-md-12">
 		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" id="saveInjection">
 			<div class="modal fade" id="external-modules-configure-modal" name="external-modules-configure-modal" data-module="" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true">
@@ -146,7 +146,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						<div class="modal-header py-2">
 							<button type="button" class="py-2 close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 							<h4 id="add-edit-title-text" class="modal-title form-control-custom"></h4>
-							<input type="hidden" name="mode" value="testing">
+							<input type="hidden" name="mode" value="">
 						</div>
 
 						<div class="modal-body pt-2">
@@ -218,4 +218,33 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 			</div>
 		</form>
 	</div>
+
+	<!-- Delete Modal -->
+	<div class="modal fade" id="external-modules-configure-modal-delete-confirmation" name="external-modules-configure-modal-delete-confirmation" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
+		<form class="form-horizontal" action="" method="post" id='deleteForm'>
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">Delete Injection</h4>
+						<input type="hidden" name="mode" value="">
+					</div>
+					<div class="modal-body">
+						<span>Are you sure you want to delete this Injection? (Injection #<span id="injection-number"></span>)</span>
+						<input type="hidden" name="docId" value="" />
+						<input type="hidden" name="thumbId" value="" />
+						<br/>
+						<span style="color:red;font-weight: bold"> *This will permanently delete the Injection and the associated PDF document. </span>
+						<input type="hidden" value="" id="index_modal_delete" name="index_modal_delete">
+					</div>
+
+					<div class="modal-footer">
+						<input class="btn btn-danger" id="btnModaldeleteInjection" type="submit" name="submit" value="<?=$lang['global_19']?>">						
+						<button class="btn btn-defaultrc btn-cancel" data-dismiss="modal"><?=$lang['global_53']?></button>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+
 <?php 
