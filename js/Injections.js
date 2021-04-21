@@ -65,6 +65,7 @@ STPH_pdfInjector.init = function() {
         $("#fpdm-error").addClass("d-none");
         $("#fileLabel").text("Choose file...");
         $("#file").removeClass("is-invalid").removeClass("is-valid");
+        $('[name=hasFileChanged').val(0);
         //  Thumbnail
         $("#pdf-preview-img").remove();
         $('[name="thumbnail"]').val("");
@@ -117,6 +118,7 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
             $('[name="title"').val(attr.title);
             $('[name="description"').val(attr.description);
             $('[name="file"').addClass("is-valid");
+            $('[name="docId"]').val(index);
             $("#fpdm-success").html("File is valid.");
             $('#fileLabel').text(attr.fileName);
             $("section#step-2").removeClass("disabled");
@@ -133,6 +135,8 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
                 fieldData[index] = {"fieldName": key, "fieldValue": attr.fields[key]}
             })
             STPH_pdfInjector.renderFields(fieldData);
+            $("#btnModalsaveInjection").attr("disabled", false);
+
         }
     }
     //  Trigger Modal
@@ -238,6 +242,7 @@ STPH_pdfInjector.scanFile = function (file) {
         $("#fpdm-error").removeClass("d-none");
         $("#fileLabel").text("Choose another file...");
         $("section#step-2").addClass("disabled");
+        $("#btnModalsaveInjection").attr("disabled", true);
     }
 
     function fileScanSuccess(fileData, fileName, fileBase64) {
@@ -249,6 +254,7 @@ STPH_pdfInjector.scanFile = function (file) {
         $("#fileLabel").text(fileName);
         $("section#step-2").removeClass("disabled");
         $("#pdf-preview-spinner").removeClass("d-none");
+        $('[name=hasFileChanged').val(1);
         $("#btnModalsaveInjection").attr("disabled", false);
 
         STPH_pdfInjector.renderFields(fileData);

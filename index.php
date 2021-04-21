@@ -147,6 +147,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 							<button type="button" class="py-2 close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 							<h4 id="add-edit-title-text" class="modal-title form-control-custom"></h4>
 							<input type="hidden" name="mode" value="">
+							<input type="hidden" name="docId" value="">
 						</div>
 
 						<div class="modal-body pt-2">
@@ -167,6 +168,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 									<label class="fs14 boldish"><?=$module->tt("injector_8")?></label>
 									<div class="custom-file mb-3">
 										<input id="file" name="file" type="file" class="custom-file-input">
+										<input type="hidden" name="hasFileChanged" value="0">
 										<label id="fileLabel" class="custom-file-label" >Choose file...</label>
 										<div id="fpdm-error" class="invalid-feedback d-none mb-3"></div>
 										<div id="fpdm-success" class="valid-feedback">Test</div>

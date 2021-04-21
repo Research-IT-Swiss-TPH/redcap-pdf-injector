@@ -6,6 +6,7 @@ namespace STPH\pdfInjector;
 require 'vendor/autoload.php';
 
 use \Exception;
+use \Files;
 
 // Declare your module class, which must extend AbstractExternalModule 
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
@@ -50,6 +51,23 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     }
 
+    private function saveThumbnail($docId, $base64) {
+
+        if ( isset( $base64 ) &&  $base64 != '' ) {        
+            //  Retrieve Thumbnail as Base64 String and save to docs
+            $_FILES['thumbnailFile']['type'] = "image/png";
+            $_FILES['thumbnailFile']['name'] = "thumbnail_injection_" . $docId . ".png";
+            $_FILES['thumbnailFile']['tmp_name'] = APP_PATH_TEMP . "thumbnail_injection_" . $docId . "_" . substr(sha1(mt_rand()), 0, 12) . ".png";
+            $saveSuccessfully = file_put_contents($_FILES['thumbnailFile']['tmp_name'], base64_decode(str_replace(' ', '+', $base64)));
+            $_FILES['thumbnailFile']['size'] = filesize($_FILES['thumbnailFile']['tmp_name']);
+
+            //  Upload File to REDCap
+            return Files::uploadFile($_FILES['thumbnailFile']);
+
+        } else return 0;
+
+    }
+
     private function handlePost() {
 
         if($_POST) {           
@@ -59,38 +77,28 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
                 if($_FILES)  {
 
-                    //  Upload File to REDCap
-                    $docId = \Files::uploadFile($_FILES['file']);
+                    //  Upload PDF to REDCap
+                    $docId = Files::uploadFile($_FILES['file']);
     
-                    if (isset($_POST['thumbnail_base64']) && $_POST['thumbnail_base64'] != '') {
-                        //  Retrieve Thumbnail as Base64 String and save to docs
-                        $_FILES['thumbnailFile']['type'] = "image/png";
-                        $_FILES['thumbnailFile']['name'] = "thumbnail_injection_" . $docId . ".png";
-                        $_FILES['thumbnailFile']['tmp_name'] = APP_PATH_TEMP . "thumbnail_injection_" . $docId . "_" . substr(sha1(mt_rand()), 0, 12) . ".png";
-                        $saveSuccessfully = file_put_contents($_FILES['thumbnailFile']['tmp_name'], base64_decode(str_replace(' ', '+', $_POST['thumbnail_base64'])));
-                        $_FILES['thumbnailFile']['size'] = filesize($_FILES['thumbnailFile']['tmp_name']);
-    
-                        //  Upload File to REDCap
-                        $thumbId = \Files::uploadFile($_FILES['thumbnailFile']);
-                    }
+                    //  Upload Thumbnail to REDCap
+                    $thumbId = $this->saveThumbnail($docId, $_POST['thumbnail_base64']);
                     
-                    //  If file successfully Uploaded create new Injection entry in database
+                    //  If file successfully uploaded create new Injection entry in database
                     if($docId != 0 && $thumbId != 0) {
     
                         //  Prepare new injection
                         $newInjection = [
                             "title" => $_POST["title"],
-                            "fileName" => $_FILES['file']['name'],
                             "description" => $_POST["description"],
-                            "doc_id" => $docId,
-                            //"thumb64" => $_POST["thumbnail"],
+                            "fields" => $_POST["fields"],
+                            "fileName" => $_FILES['file']['name'],
+                            "docId" => $docId,                            
                             "thumbId" => $thumbId,
                             "created" => date("Y-m-d"),
-                            "updated" => NULL,
-                            "fields" => $_POST["fields"]
+                            "updated" => NULL
                         ];
     
-                        //  Insert new injectio to injections array
+                        //  Insert new injection to injections array
                         $injections = $this->injections;
                         $injections[$docId] = $newInjection;
     
@@ -104,12 +112,71 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
             } if($_POST["mode"] == "UPDATE") {
 
-            //  Check if a new injection or update of given one
-            //  if Update: only change if diff; if new file than delete this and create new
-            //  add date updated
+                dump($_POST);
 
-            dump("UPDATE");
-            dump($_POST);
+                if($_FILES)  {
+
+                    $newDocId = $_POST["docId"];
+
+                    //  current/old injection
+                    $injections = $this->injections;
+                    $oldInjection = $injections[$newDocId];
+
+                    $oldDocId = $oldInjection["docId"];
+
+                    //  new Injection
+                    $newInjection = $oldInjection;
+                    $newInjection["title"] =  $_POST["title"];
+                    $newInjection["description"] = $_POST["description"];
+                    $newInjection["fields"] = $_POST["fields"];
+
+                    $hasFileChanged = $_POST["hasFileChanged"];
+                    // Save new file if file has changed
+                    if($hasFileChanged) {
+
+                        //  Upload PDF to REDCap
+                        $docId = Files::uploadFile($_FILES['file']);
+        
+                        //  Upload Thumbnail to REDCap
+                        $thumbId = $this->saveThumbnail($docId, $_POST['thumbnail_base64']);
+
+                        //  If file successfully uploaded create new Injection update in database
+                        if($docId != 0 && $thumbId != 0) {
+                            //  Update docId
+                            $newDocId = $docId;
+                            //  Delete document from storage
+                            $oldThumbId = $oldInjection["thumbId"];
+                            $deletedPDF = Files::deleteFileByDocId($oldDocId);
+                            $deletedThumbnail = Files::deleteFileByDocId($oldDocId+1);
+                            //  to do: get thumb id from modal
+                            
+                            if($deletedPDF) {
+                                $newInjection["fileName"] = $_FILES['file']['name'];
+                                $newInjection["docId"] = $docId;
+                                $newInjection["thumbId"] = $thumbId;
+                                //  Remove old injection
+                                unset($injections[$oldDocId]);
+                            } else {
+                                throw new Exception("Something went wrong! Files could not be deleted. Is edoc folder writable?");
+                            }
+
+                        } else {
+                            throw new Exception("Something went wrong! Files could not be saved. Is edoc folder writable?");
+                        }
+                    }
+
+                    //  Update injections array in database if new injection is different to the old injection
+                    $hasDiff = !empty(array_diff($oldInjection, $newInjection));
+                    if($hasDiff) {
+                        //  Add Updated Date
+                        $newInjection["updated"] = date("Y-m-d");
+                        //  Add new (updated) injection
+                        $injections[$newDocId] = $newInjection;
+                        //  Save into module data base
+                        $this->setProjectSetting("pdf-injections", $injections);
+                    }
+                }
+
 
             } if($_POST["mode"] == "DELETE") {
                 
@@ -119,8 +186,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 $injections = $this->injections;
                 unset($injections[$docId]);                
                 //  Delete document from storage
-                $deletedPDF = \Files::deleteFileByDocId($docId);
-                $deletedThumbnail = \Files::deleteFileByDocId($thumbId);
+                $deletedPDF = Files::deleteFileByDocId($docId);
+                $deletedThumbnail = Files::deleteFileByDocId($thumbId);
 
                 if($deletedPDF && $deletedThumbnail) {
                     $this->setProjectSetting("pdf-injections", $injections);
@@ -129,7 +196,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 }
 
             }
-            
+
             // Force redirect to same page to clear $_POST data
             $this->forceRedirect();
 
@@ -224,7 +291,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     public function base64FromId($doc_id) {
 
-        $path = EDOC_PATH . \Files::getEdocName( $doc_id, true );
+        $path = EDOC_PATH . Files::getEdocName( $doc_id, true );
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
 
