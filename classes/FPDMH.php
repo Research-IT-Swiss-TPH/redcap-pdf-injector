@@ -9,15 +9,15 @@ class FPDMH extends FPDM {
     public $hasError = false;
     public $errorMessage;
 
-    public function getFieldData() {
+    public function getFieldNames() {
         
         $this->merge();
-        $fieldData = $this->value_entries;
+        $fieldNames = $this->value_entries;
 
         //  Remove xref information
-        unset($fieldData["\$_XREF_$"]);
+        unset($fieldNames["\$_XREF_$"]);
 
-        return array_keys($fieldData);
+        return array_keys($fieldNames);
     }
 
     function Error($msg) {

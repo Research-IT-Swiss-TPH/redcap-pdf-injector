@@ -137,7 +137,17 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             //  Process PDF with FPDM - Helper Class (FPDMH)
             if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
             $pdf = new FPDMH($tmp_file);
-            $fieldData = $pdf->getFieldData();
+            $fieldNames = $pdf->getFieldNames();
+
+            //  Bring array in correct form so it works also with Updates
+            $fieldData = [];
+            foreach ($fieldNames as $key => $fieldName) {
+                $fieldData[] = [
+                    "fieldName" => $fieldName,
+                    "fieldValue" => ""
+                ];
+            }
+
 
             if($pdf->hasError) {
             //  Check for errors

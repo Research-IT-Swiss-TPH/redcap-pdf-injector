@@ -126,22 +126,14 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
             img.attr('src', src);
             img.appendTo('#new-pdf-thumbnail');            
 
-            //  Prepare Step 2 form data
-            var fieldNames = [];
+            //  Prepare Step 2 form data        
+            var fieldData = [];
             Object.keys(attr.fields).map(function(key, index) {
-                fieldNames[index] = key;
+                fieldData[index] = {"fieldName": key, "fieldValue": attr.fields[key]}
             })
-
-            var fieldValues = [];
-            Object.keys(attr.fields).map(function(key, index) {
-                fieldValues[index] = attr.fields[key];
-            })
-            
-            STPH_pdfInjector.renderFields(fieldNames);
-
+            STPH_pdfInjector.renderFields(fieldData);
         }
     }
-
     //  Trigger Modal
     $('[name=external-modules-configure-modal]').modal('show');
 
@@ -241,18 +233,20 @@ STPH_pdfInjector.scanFile = function (file) {
         $("section#step-2").addClass("disabled");
     }
 
-    function fileScanSuccess(response) {
+    function fileScanSuccess(fileData, fileName, fileBase64) {
+
         $("#file").removeClass("is-invalid");
         $("#file").addClass("is-valid");
-        $("#fpdm-success").html("Your file has been successfully processed. A total of <b>"+ response.fieldData.length +" fields</b> has been detected.")
+        $("#fpdm-success").html("Your file has been successfully processed. A total of <b>"+ fileData.length +" fields</b> has been detected.")
         $("#fpdm-error").addClass("d-none");
-        $("#fileLabel").text(response.file);
+        $("#fileLabel").text(fileName);
         $("section#step-2").removeClass("disabled");
         $("#pdf-preview-spinner").removeClass("d-none");
         $("#btnModalsaveInjection").attr("disabled", false);
 
-        STPH_pdfInjector.renderFields(response.fieldData);
-        STPH_pdfInjector.createThumbnail(response.pdf64);
+        STPH_pdfInjector.renderFields(fileData);
+        STPH_pdfInjector.createThumbnail(fileBase64);
+
     } 
 
     //  Send file via ajax post & formdata
@@ -267,7 +261,7 @@ STPH_pdfInjector.scanFile = function (file) {
        processData: false,
        success: function(response){
             STPH_pdfInjector.log(response);
-            fileScanSuccess(response);
+            fileScanSuccess(response.fieldData, response.file, response.pdf64);
        },
        error: function(error) {
             STPH_pdfInjector.log(error.responseJSON.message);
