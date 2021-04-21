@@ -110,7 +110,9 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
 
     if (index == null) {
         $('#add-edit-title-text').html("Create New Injection");
+        $('[name="mode"]').val("CREATE");
     } else {
+        $('[name="mode"]').val("UPDATE");
         //  Pre-Fill Data
         var attr = STPH_pdfInjector.getInjectionData(index);
         
@@ -123,8 +125,10 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
             $("#fpdm-success").html("File is valid.");
             $('#fileLabel').text(attr.fileName);
 
-            var img = $('<img id="pdf-preview-img">'); //Equivalent: $(document.createElement('img'))
-            img.attr('src', attr.thumb64);
+            //  Set thumbnail image
+            var img = $('<img id="pdf-preview-img">');
+            var src = $('#pdf-preview-main-'+InjecNum).attr('src');
+            img.attr('src', src);
             img.appendTo('#new-pdf-thumbnail');            
 
             var fieldNames = [];
@@ -298,7 +302,7 @@ STPH_pdfInjector.scanFile = function (file) {
                 .then(function (canvas) {
                     var img = new Image();
                     img.src = canvas.toDataURL();
-                    $('[name="thumbnail"]').val(img.src);
+                    $('[name="thumbnail_base64"]').val(img.src.split(';base64,')[1]);
                     //  .split(';base64,')[1]
                     img.id = "pdf-preview-img";
                     div.appendChild(img);

@@ -50,49 +50,71 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     private function handlePost() {
 
-
-        if($_POST) {
-            //  Check if a new injection or update of given one
-            //  if update: only change if diff; if new file than delete this and create new
-            //  add date updated
-            
-            //  if new:
+        if($_POST) {           
+            //  if Create:
             //  New Injection
-            if($_FILES)  {
+            if($_POST["mode"] == "CREATE") {
 
-                //  Upload File to REDCap
-                $docId = \Files::uploadFile($_FILES['file']);
-                
-                //  If file successfully Uploaded create new Injection entry in database
-                if($docId != 0) {
+                if($_FILES)  {
 
-                    //  Prepare new injection
-                    $newInjection = [
-                        "title" => $_POST["title"],
-                        "fileName" => $_FILES['file']['name'],
-                        "description" => $_POST["description"],
-                        "doc_id" => $docId,
-                        "thumb64" => $_POST["thumbnail"],
-                        "created" => date("Y-m-d"),
-                        "updated" => NULL,
-                        "fields" => $_POST["fields"]
-                    ];
-
-                    //  Insert new injectio to injections array
-                    $injections = $this->injections;
-                    $injections[$docId] = $newInjection;
-
-                    //  Save into module data base
-                    $this->setProjectSetting("pdf-injections", $injections);
-
-                } else {
-                    print "Error";
+                    //  Upload File to REDCap
+                    $docId = \Files::uploadFile($_FILES['file']);
+    
+                    if (isset($_POST['thumbnail_base64']) && $_POST['thumbnail_base64'] != '') {
+                        //  Retrieve Thumbnail as Base64 String and save to docs
+                        $_FILES['thumbnailFile']['type'] = "image/png";
+                        $_FILES['thumbnailFile']['name'] = "thumbnail_injection_" . $docId . ".png";
+                        $_FILES['thumbnailFile']['tmp_name'] = APP_PATH_TEMP . "thumbnail_injection_" . $docId . "_" . substr(sha1(mt_rand()), 0, 12) . ".png";
+                        $saveSuccessfully = file_put_contents($_FILES['thumbnailFile']['tmp_name'], base64_decode(str_replace(' ', '+', $_POST['thumbnail_base64'])));
+                        $_FILES['thumbnailFile']['size'] = filesize($_FILES['thumbnailFile']['tmp_name']);
+    
+                        //  Upload File to REDCap
+                        $thumbId = \Files::uploadFile($_FILES['thumbnailFile']);
+                        dump($thumbId);
+                    }
+                    
+                    //  If file successfully Uploaded create new Injection entry in database
+                    if($docId != 0) {
+    
+                        //  Prepare new injection
+                        $newInjection = [
+                            "title" => $_POST["title"],
+                            "fileName" => $_FILES['file']['name'],
+                            "description" => $_POST["description"],
+                            "doc_id" => $docId,
+                            //"thumb64" => $_POST["thumbnail"],
+                            "thumbId" => $thumbId,
+                            "created" => date("Y-m-d"),
+                            "updated" => NULL,
+                            "fields" => $_POST["fields"]
+                        ];
+    
+                        //  Insert new injectio to injections array
+                        $injections = $this->injections;
+                        $injections[$docId] = $newInjection;
+    
+                        //  Save into module data base
+                        $this->setProjectSetting("pdf-injections", $injections);
+    
+                    } else {
+                        print "Error";
+                    }
                 }
+
+            } elseif($_POST["mode"] == "UPDATE") {
+
+            //  Check if a new injection or update of given one
+            //  if Update: only change if diff; if new file than delete this and create new
+            //  add date updated
+
+            dump("UPDATE");
+            dump($_POST);
+
             }
+            // Force redirect to same page to clear $_POST data
+            $this->forceRedirect();
 
-        }   
-
-
+        }
 
     }
 
@@ -160,7 +182,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     }
 
 
-    public function base64ToImage($base64_string, $output_file) {
+/*     public function base64ToImage($base64_string, $output_file) {
         $file = fopen($output_file, "wb");
     
         $data = explode(',', $base64_string);
@@ -169,7 +191,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         fclose($file);
     
         return $output_file;
-    }
+    } */
 
     public function base64FromId($doc_id) {
 
@@ -238,6 +260,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         dump($injection);
 
 
+    }
+
+    private function forceRedirect() {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
+        || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://';
+        header('Location: '.$protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
     }
 
 

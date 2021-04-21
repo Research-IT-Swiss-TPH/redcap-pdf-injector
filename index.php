@@ -18,7 +18,6 @@ use RCView;
 # Files::getEdocName
 # https://github.com/mozilla/pdf.js
 
-$module->initModule();
 
 renderPageTitle('<i class="fas fa-syringe"></i> PDF Injector');
 print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 mb-2">'.$module->tt("injector_1").'</div>';
@@ -62,9 +61,9 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 							} else {
 								$fieldList .= "<li>{$key}: <span class=\"code\" style=\"font-size:85%;\">[{$value}]</span></li>";
 							}
-						}
+						}					
 
-						$thumbnailPath = $attr["thumb64"];
+						$thumbnailBase64 = $module->base64FromId($attr["thumbId"]);
 
 						$activityBox = '<div class="clearfix">
 											<div class="float-left boldish" style="color:#6320ac;width:90px;">
@@ -120,7 +119,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 											</div>
 										</div>
 										<div style=\"text-align:center\" class='card-body p-0'>
-											<img class=\"my-shadow\" style=\"padding:15px;margin-top:15px;margin-bottom:15px;\"  width=\"250\" src=\"{$thumbnailPath}\" />
+											<img id=\"pdf-preview-main-$injection_number\" class=\"my-shadow\" style=\"padding:15px;margin-top:15px;margin-bottom:15px;\"  width=\"250\" src=\"$thumbnailBase64\" />
 										</div>
 									</div>
 									</td>";
@@ -147,6 +146,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						<div class="modal-header py-2">
 							<button type="button" class="py-2 close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 							<h4 id="add-edit-title-text" class="modal-title form-control-custom"></h4>
+							<input type="hidden" name="mode" value="testing">
 						</div>
 
 						<div class="modal-body pt-2">
@@ -177,7 +177,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 									<textarea name="description" class="form-control mb-3" rows="2" placeholder="Describe your PDF Injection with a few words.."></textarea>									
 								</div>								
 								<div class="form-group col-md-4">
-									<input type="hidden" name="thumbnail" value="">
+									<input type="hidden" name="thumbnail_base64" value="">
 									<div id="new-pdf-thumbnail" class="pdf-thumbnail my-shadow d-flex justify-content-center align-items-center">
 									<div id="pdf-preview-spinner" class="d-none spinner-border text-secondary" style="width: 3rem; height: 3rem;" role="status">
 										<span class="sr-only">Loading...</span>
