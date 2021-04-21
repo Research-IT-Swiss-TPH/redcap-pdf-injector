@@ -56,12 +56,7 @@ STPH_pdfInjector.init = function() {
     //  Bindings
     STPH_pdfInjector.log("PDF Injector - Adding Binding(s)");
 
-    $('#addNewInjection').click(() => {
-        STPH_pdfInjector.editInjection();
-    });
-
-
-    //  Reset Modal on close
+    //  Reset Modal on modal close
     $('[name=external-modules-configure-modal]').on('hidden.bs.modal', function () {
         //  Reset form
         document.getElementById("saveInjection").reset();
@@ -80,6 +75,7 @@ STPH_pdfInjector.init = function() {
         $("#btnModalsaveInjection").attr("disabled", false);
     });    
 
+    //  Trigger Scan File on file change
     $(':file').on('change', function () {
         var file = this.files[0];
       
@@ -90,47 +86,47 @@ STPH_pdfInjector.init = function() {
           alert('File type has to be PDF');  
         }
         else {
+            //  Reset PDF Thumbnail
+            $("#pdf-preview-img").remove();            
             STPH_pdfInjector.scanFile(file);
-        }        
-        
+        }                
       });
 
 }
 
-//  New/Edit Injection Modal
+/*  editInjection(index, InjecNum)
+*   Prepares modal data to Create/Update Injection before triggering the modal
+*  
+*/
 STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
 
-    // returns a new object with the values at each key mapped using mapFn(value)
-    function objectMap(object, mapFn) {
-        return Object.keys(object).reduce(function(result, key) {
-            result[key] = mapFn(object[key])
-            return result
-        }, {})
-    }
-
+    //  Prepare modal data
     if (index == null) {
-        $('#add-edit-title-text').html("Create New Injection");
+        //  Create Injection
         $('[name="mode"]').val("CREATE");
+        $('#add-edit-title-text').html("Create Injection");
     } else {
+        //  Update Injection
         $('[name="mode"]').val("UPDATE");
-        //  Pre-Fill Data
-        var attr = STPH_pdfInjector.getInjectionData(index);
-        
+        $('#add-edit-title-text').html('Edit Injection #'+InjecNum);
+
+        var attr = STPH_pdfInjector.getInjectionData(index);        
         if(attr) {
-            //  Pre-Fill Data
-            $('#add-edit-title-text').html('Edit Injection #'+InjecNum);
+            //  Prepare Step 1 form data
             $('[name="title"').val(attr.title);
             $('[name="description"').val(attr.description);
             $('[name="file"').addClass("is-valid");
             $("#fpdm-success").html("File is valid.");
             $('#fileLabel').text(attr.fileName);
+            $("section#step-2").removeClass("disabled");
 
-            //  Set thumbnail image
+            //  Prepare Step 1 thumbnail
             var img = $('<img id="pdf-preview-img">');
             var src = $('#pdf-preview-main-'+InjecNum).attr('src');
             img.attr('src', src);
             img.appendTo('#new-pdf-thumbnail');            
 
+            //  Prepare Step 2 form data
             var fieldNames = [];
             Object.keys(attr.fields).map(function(key, index) {
                 fieldNames[index] = key;
@@ -146,194 +142,136 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
         }
     }
 
-    //  Show Modal
+    //  Trigger Modal
     $('[name=external-modules-configure-modal]').modal('show');
 
 }
 
+/*  deleteInjection(index, InjecNum)
+*   Deletes Injection by index, InjecNum
+*  
+*/
 STPH_pdfInjector.deleteInjection = function(index=null, InjecNum=null){
     //Show simpleDialog instead & trigger callback
     alert("Are you sure you want to delete Injection #" + InjecNum + "? \n\n //Show simpleDialog for id "+index+" instead & trigger callback");
 }
 
+/*  getInjectionData(id)
+*   Gets Injection Data for an id
+*  
+*/
 STPH_pdfInjector.getInjectionData = function(id) {
-
     return STPH_pdfInjector.params.injections[id];
-
 }
 
+/*  validateField(id)
+*   Validates an input field on focus out if the entered value equals a variable
+*  
+*/
 STPH_pdfInjector.validateField = function(id) {
+    
+    function setFieldState(state) {
+        var helper = $("#variableHelpLine-"+id);
+        var helperTextClass = getHelperTextClass(state);
 
-    var field = $("#fieldVariableMatch-"+id);
-    var value = field.val();
-    var helper = $("#variableHelpLine-"+id);
+        helper.removeClass("text-muted text-warning text-success text-danger");
+        helper.addClass(helperTextClass);
+        helper.text("Variable is "+state);
 
-    function resetField(newClass) {
-        field.removeClass("is-loading");
-        field.removeClass("is-empty");
-        field.removeClass("is-valid");
-        field.removeClass("is-invalid");
-        field.addClass(newClass);
+        field.removeClass("is-empty is-loading is-valid is-invalid");
+        field.addClass("is-"+state);        
     }
 
-    function resetHelper(newText, newClass) {
-        helper.removeClass("text-muted");
-        helper.removeClass("text-warning");
-        helper.removeClass("text-success");
-        helper.removeClass("text-danger");
-        helper.addClass(newClass);
-        helper.text(newText);
-    }
-
-    function checkField(fieldName) {
-        $.post(STPH_pdfInjector.requestHandlerUrl + "&action=checkField", {fieldName:fieldName})
-        .done(function(response){
-            resetField("is-valid");
-            resetHelper("Variable is valid.", "text-success");
-        })
-        .fail(function(response){
-            resetField("is-invalid");
-            resetHelper("Variable is invalid.", "text-danger");
-        })
+    function getHelperTextClass(state) {
+        var helperTextClass = "";
+        switch(state) {
+            case "valid":
+                helperTextClass = "text-success";
+                break;
+            case "invalid":
+                helperTextClass = "text-danger";
+                break;
+            case "empty":
+                helperTextClass = "text-warning"
+                break;
+            case "loading":
+                helperTextClass = "text-muted"
+                break;
+        }
+        return helperTextClass;
     }
 
     function isEmptyOrSpaces(str){
         return str === null || str.match(/^ *$/) !== null;
     }
 
-    function triggerValidation() { 
-        resetField("is-loading");
-        resetHelper("Checking..", "text-muted");
-        checkField(value);
+    function checkField(fieldValue) {
+        fieldValue = $.trim( fieldValue );
+        field.val(fieldValue);
+
+        $.post(STPH_pdfInjector.requestHandlerUrl + "&action=fieldCheck", {fieldValue:fieldValue})
+        .done(function(){
+            setFieldState("valid");
+        })
+        .fail(function(){
+            setFieldState("invalid");
+        })
     }
 
+    var field = $("#fieldVariableMatch-"+id);
+    var fieldValue = field.val();
     
-    if(!isEmptyOrSpaces(value)) {
-        $("#fieldVariableMatch-"+id).val( $.trim(value));
-        triggerValidation();
+    if(!isEmptyOrSpaces(fieldValue)) {
+        setFieldState("loading");        
+        checkField(fieldValue);
     } else {
-        resetField("is-empty");
-        resetHelper("No variable defined", "text-warning");
+        setFieldState("empty")
     }
     
 }
 
 STPH_pdfInjector.scanFile = function (file) {
 
-    function uploadError(msg) {
+    function fileScanError(msg) {
         $("#file").addClass("is-invalid");
         $("#fpdm-success").addClass("d-none");
-        //$("#fpdm-error").text("There was a problem processing your file: " + msg);
         $("#fpdm-error").html("The file you selected could not be processed. It seems like your PDF is not valid or not readable. <a style=\"font-size:10.4px\" href=\"#docs-pdftk\">Read more</a> on how to prepare your PDF to make it injectable!")
         $("#fpdm-error").removeClass("d-none");
         $("#fileLabel").text("Choose another file...");
         $("section#step-2").addClass("disabled");
-        $("section#step-3").addClass("disabled");
     }
 
-    function uploadSuccess(response) {
-
+    function fileScanSuccess(response) {
         $("#file").removeClass("is-invalid");
         $("#file").addClass("is-valid");
         $("#fpdm-success").html("Your file has been successfully processed. A total of <b>"+ response.fieldData.length +" fields</b> has been detected.")
         $("#fpdm-error").addClass("d-none");
         $("#fileLabel").text(response.file);
-        //$("#file").attr("disabled", true);
         $("section#step-2").removeClass("disabled");
-
-        renderFields(response.fieldData);
-        renderPDF(response.pdf64);
-        $("#btnModalsaveInjection").attr("disabled", false);
-    }
-
-    function renderFields(fields) {
-
-        //  Reset fields
-        $("#load-output").html("");
-
-        if(fields.length > 0) {
-            $.post( STPH_pdfInjector.templateURL, {fields: fields})
-            .done(function( data ) {
-                $("#load-output").append( data );
-            });
-        } else {
-            $("#load-output").html("The uploaded PDF has no fields.");
-        }     
-
-    }
-
-    function base64ToUint8Array(base64) {
-        // convert base64 to int 8 Array
-        var raw = atob(base64);
-        var uint8Array = new Uint8Array(raw.length);
-        for (var i = 0; i < raw.length; i++) {
-          uint8Array[i] = raw.charCodeAt(i);
-        }
-        return uint8Array;
-    }
-
-    function makeThumb(page) {
-        // draw page to fit into 96x96 canvas
-        var vp = page.getViewport({ scale: 1, });
-        var canvas = document.createElement("canvas");
-        var scalesize = 1;
-        canvas.width = vp.width * scalesize;
-        canvas.height = vp.height * scalesize;
-        var scale = Math.min(canvas.width / vp.width, canvas.height / vp.height);
-        console.log(vp.width, vp.height, scale);
-        return page.render({ canvasContext: canvas.getContext("2d"), viewport: page.getViewport({ scale: scale }) }).promise.then(function () {
-            return canvas; 
-        });
-      }
-
-    function renderPDF(base64Data) {
-        
         $("#pdf-preview-spinner").removeClass("d-none");
-        var pdfData = base64ToUint8Array(base64Data);
-        var div = document.getElementById("new-pdf-thumbnail");
-        
+        $("#btnModalsaveInjection").attr("disabled", false);
 
-        pdfjsLib.getDocument(pdfData).promise.then(function (doc) {
-            var pages = []; while (pages.length < 1) pages.push(pages.length + 1);
-            return Promise.all(pages.map(function (num) {
-                // create a div for each page and build a small canvas for it
-                
-                return doc.getPage(num).then(makeThumb)
-                .then(function (canvas) {
-                    var img = new Image();
-                    img.src = canvas.toDataURL();
-                    $('[name="thumbnail_base64"]').val(img.src.split(';base64,')[1]);
-                    //  .split(';base64,')[1]
-                    img.id = "pdf-preview-img";
-                    div.appendChild(img);
-                    $("#pdf-preview-spinner").addClass("d-none");
-                });
-            }));
-            }).catch(console.error);
+        STPH_pdfInjector.renderFields(response.fieldData);
+        STPH_pdfInjector.createThumbnail(response.pdf64);
+    } 
 
-            console.log("ok2")
-    }
-
-    //  Reset PDF Thumbnail
-    $("#pdf-preview-img").remove();
-
-    //  Post send file via ajax formdata
+    //  Send file via ajax post & formdata
     var fd = new FormData();   
     fd.append('file',file);
 
     $.ajax({
-       url: STPH_pdfInjector.requestHandlerUrl + "&action=fileUpload",
+       url: STPH_pdfInjector.requestHandlerUrl + "&action=fileScan",
        type: 'post',
        data: fd,
        contentType: false,
        processData: false,
        success: function(response){
             STPH_pdfInjector.log(response);
-            uploadSuccess(response);
+            fileScanSuccess(response);
        },
        error: function(error) {
             STPH_pdfInjector.log(error.responseJSON.message);
-            uploadError(error.responseJSON.message);
+            fileScanError(error.responseJSON.message);
        }
     });
 
@@ -353,4 +291,53 @@ STPH_pdfInjector.renderFields = function(fields) {
         $("#load-output").html("The uploaded PDF has no fields.");
     }     
 
+}
+
+STPH_pdfInjector.createThumbnail = function(base64Data) {
+
+    function base64ToUint8Array(base64) {
+        // convert base64 to int 8 Array
+        var raw = atob(base64);
+        var uint8Array = new Uint8Array(raw.length);
+        for (var i = 0; i < raw.length; i++) {
+          uint8Array[i] = raw.charCodeAt(i);
+        }
+        return uint8Array;
+    }
+
+    function makeThumb(page) {
+        // draw page to fit into 96x96 canvas
+        var vp = page.getViewport({ scale: 1, });
+        var canvas = document.createElement("canvas");
+        var scalesize = 1;
+        canvas.width = vp.width * scalesize;
+        canvas.height = vp.height * scalesize;
+        var scale = Math.min(canvas.width / vp.width, canvas.height / vp.height);
+        //console.log(vp.width, vp.height, scale);
+        return page.render({ canvasContext: canvas.getContext("2d"), viewport: page.getViewport({ scale: scale }) }).promise.then(function () {
+            return canvas; 
+        });
+    }
+
+    var pdfData = base64ToUint8Array(base64Data);
+    
+    //  PDFJS Script
+    pdfjsLib.getDocument(pdfData).promise.then(function (doc) {
+        var pages = []; while (pages.length < 1) pages.push(pages.length + 1);
+        return Promise.all(pages.map(function (num) {
+            // create a div for each page and build a small canvas for it
+            
+            return doc.getPage(num).then(makeThumb)
+            .then(function (canvas) {
+                var div = document.getElementById("new-pdf-thumbnail");
+                var img = new Image();
+                img.src = canvas.toDataURL();
+                $('[name="thumbnail_base64"]').val(img.src.split(';base64,')[1]);
+                //  .split(';base64,')[1]
+                img.id = "pdf-preview-img";
+                div.appendChild(img);
+                $("#pdf-preview-spinner").addClass("d-none");
+            });
+        }));
+    }).catch(console.error);
 }

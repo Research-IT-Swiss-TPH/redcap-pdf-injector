@@ -161,17 +161,17 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
          }
     }
     
-    public function checkField($fieldname) {
+    public function checkField($fieldValue) {
 
         $pid = PROJECT_ID;
 
         $sql = 'SELECT * FROM redcap_metadata WHERE project_id = ? AND field_name = ?';
 
-        $result = $this->query($sql, [$pid, $fieldname]);
+        $result = $this->query($sql, [$pid, $fieldValue]);
 
         if($result->num_rows == 1) {
             header('Content-Type: application/json; charset=UTF-8');                
-            echo json_encode(array("fieldName" => $fieldname));
+            echo json_encode(array("fieldValue" => $fieldValue));
         } else {
             header("HTTP/1.1 400 Bad Request");
             header('Content-Type: application/json; charset=UTF-8');

@@ -12,7 +12,7 @@ foreach ($fields as $key => $value) {
     $response .= '<div class="input-group-prepend"><div class="input-group-text">'.$value.'</div></div>';
     $response .= '<input type="text" class="form-control is-empty variable-input" name="fields['.$value.']" id="fieldVariableMatch-'.$key.'" placeholder="" onfocusout="STPH_pdfInjector.validateField('.$key.');">';
     $response .= '</div></div><div class="col-auto"><div class="form-check mb-2"> <label class="form-check-label" for="autoSizingCheck">';
-    $response .= '<small id="variableHelpLine-'.$key.'" class="text-warning">No variable defined!</small>';
+    $response .= '<small id="variableHelpLine-'.$key.'" class="text-warning">Variable is empty</small>';
     $response .= '</label></div></div></div>';
 }
 

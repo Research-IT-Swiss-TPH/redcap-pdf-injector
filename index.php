@@ -27,7 +27,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 <!-- ALERTS TABLE -->
 <div style="width:950px;max-width:950px;">
 			<div class="mb-1 clearfix">
-				<button id='addNewInjection' type="button" class="btn btn-sm btn-success float-left"><i class="fas fa-plus"></i> <?= $module->tt("injector_2") ?></button>				
+				<button id='addNewInjection' type="button" class="btn btn-sm btn-success float-left" onclick="STPH_pdfInjector.editInjection()"><i class="fas fa-plus"></i> <?= $module->tt("injector_2") ?></button>				
 				<div class="float-right mt-2 mr-1">
 				</div>
 			</div>
