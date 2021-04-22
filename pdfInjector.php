@@ -21,7 +21,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     {        
         parent::__construct();
         // Other code to run when object is instantiated
-        $this->injections = $this->getProjectSetting("pdf-injections");
+
     }
 
    /**
@@ -31,7 +31,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     function redcap_every_page_top($project_id = null) {
         //  Include Javascript and Styles on module page
         if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {
-            $this->initModule();
+            $this->initModule();            
         }
     }
 
@@ -101,7 +101,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             header("HTTP/1.1 400 Bad Request");
             header('Content-Type: application/json; charset=UTF-8');
             die();
-
         }        
     }
 
@@ -131,6 +130,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     private function initModule() {
+        $this->injections = self::getProjectSetting("pdf-injections");
         $this->includePageJavascript();
         $this->includePageCSS();
         $this->handlePost();
@@ -151,7 +151,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     $document_id = Files::uploadFile($_FILES['file']);
                     $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']);
                     
-                    //  If file successfully uploaded create new Injection entry in database
+                    //  Create new Injection entry in database if upload successful
                     if($document_id != 0 && $thumbnail_id != 0) {
 
                         if (!class_exists("Injection")) include_once("classes/Injection.php");
@@ -169,7 +169,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         $this->saveInjection( $injection );
     
                     } else {
-                        throw new Exception("Something went wrong! Files could not be saved. Is edoc folder writable?");
+                        throw new Exception($this->tt("injector_15"));            
                     }
                 }
 
@@ -177,80 +177,62 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
                 if($_FILES)  {
 
-                    $n_document_id = $_POST["document_id"];
+                    if (!class_exists("Injection")) include_once("classes/Injection.php");
 
-                    //  current/old injection
-                    $injections = $this->injections;
-                    $oldInjection = $injections[$n_document_id];
+                    //  Create old injection instance by id
+                    $oldInjection = new Injection;
+                    $oldInjection->setInjectionById($this->injections, $_POST["document_id"] );
 
-                    $o_document_id = $oldInjection["document_id"];
+                    $document_id = $_POST["document_id"];
+                    $thumbnail_id = $_POST["thumbnail_id"];
+                    $filename = $oldInjection->get("fileName");
+                    
+                    //  If file has changed overwrite document and thumbnail ids
+                    if( $_POST["hasFileChanged"] ) {
 
-                    //  new Injection
-                    $newInjection = $oldInjection;
-                    $newInjection["title"] =  $_POST["title"];
-                    $newInjection["description"] = $_POST["description"];
-                    $newInjection["fields"] = $_POST["fields"];
-
-                    $hasFileChanged = $_POST["hasFileChanged"];
-                    // Save new file if file has changed
-                    if($hasFileChanged) {
-
-                        //  Upload PDF to REDCap
+                        //  Upload PDF and Thumbnail to REDCap edoc storage
                         $document_id = Files::uploadFile($_FILES['file']);
-        
-                        //  Upload Thumbnail to REDCap
                         $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']);
+                        $filename = $_FILES['file']['name'];
+                        if( $document_id != 0 && $thumbnail_id != 0 ) {
+                            //  Remove old injection with old id
+                            $this->deleteInjection( $oldInjection );
+                        } else throw new Exception($this->tt("injector_15")); 
 
-                        //  If file successfully uploaded create new Injection update in database
-                        if($document_id != 0 && $thumbnail_id != 0) {
-                            //  Update document_id
-                            $n_document_id = $document_id;
-                            //  Delete document from storage
-                            $o_thumbnail_id = $oldInjection["thumbnail_id"];
-                            $deletedPDF = Files::deleteFileByDocId($o_document_id);
-                            $deletedThumbnail = Files::deleteFileByDocId($o_thumbnail_id);
-                            //  ?
-                            if($deletedPDF && $deletedThumbnail) {
-                                $newInjection["fileName"] = $_FILES['file']['name'];
-                                $newInjection["document_id"] = $document_id;
-                                $newInjection["thumbnail_id"] = $thumbnail_id;
-                                //  Remove old injection
-                                unset($injections[$o_document_id]);
-                            } else {
-                                throw new Exception("Something went wrong! Files could not be deleted. Is edoc folder writable?");
-                            }
+                    } 
 
-                        } else {
-                            throw new Exception("Something went wrong! Files could not be saved. Is edoc folder writable?");
-                        }
-                    }
+                    //  Create new injection instance
+                    $newInjection = new Injection;
+                    $newInjection->setValues(
+                        $_POST["title"],
+                        $_POST["description"],
+                        $_POST["fields"],
+                        $filename,
+                        intval($document_id),                            
+                        intval($thumbnail_id),
+                        $oldInjection->get("created")
+                    );
 
-                    //  Update injections array in database if new injection is different to the old injection
-                    $hasDiff = !empty(array_diff($oldInjection, $newInjection));
-                    if($hasDiff) {
-                        //  Add Updated Date
-                        $newInjection["updated"] = date("Y-m-d");
-                        //  Add new (updated) injection
-                        $injections[$n_document_id] = $newInjection;
-                        //  Save into module data base
-                        $this->setProjectSetting("pdf-injections", $injections);
-                    }
+                    $hasUpdate  = $this->hasUpdate( $oldInjection, $newInjection );
+                    if( $hasUpdate ) {
+                        //  Save Injection to Storage
+                        $this->saveInjection( $newInjection );
+                    } 
+
                 }
-
 
             } if($_POST["mode"] == "DELETE") {
                 
+                if (!class_exists("Injection")) include_once("classes/Injection.php");
+                $injection = new Injection;
+                $injection->setInjectionById( $this->injections, $_POST["document_id"]);
+
                 //  Delete Injection from Storage
-                $this->deleteInjection(
-                    $_POST["document_id"], 
-                    $_POST["thumbnail_id"]
-                );
+                $this->deleteInjection( $injection );
 
             }
 
-            // Force redirect to same page to clear $_POST data
             $this->forceRedirect();
-
         }
 
     }
@@ -266,7 +248,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             file_put_contents($_FILES['thumbnailFile']['tmp_name'], base64_decode(str_replace(' ', '+', $b64)));
             $_FILES['thumbnailFile']['size'] = filesize($_FILES['thumbnailFile']['tmp_name']);
 
-            //  Upload File to REDCap
+            //  Upload File to REDCap, returns edoc id
             return Files::uploadFile($_FILES['thumbnailFile']);
 
         } else return 0;
@@ -282,26 +264,52 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Save injections data into module data base
         $this->setProjectSetting("pdf-injections", $injections);
     }
+
+    private function updateInjection( Injection $injection ) {
+        $injections = $this->injections;
+    }
     
-    private function deleteInjection(int $d_id, $t_id) {
+    private function deleteInjection( Injection $injection ) {
         $injections = $this->injections;
         
         //  Remove injection from Injections Array
-        unset($injections[$d_id]);
+        unset( $injections [$injection->get("document_id") ] );
 
         //  Remove documents from storage
-        $deletedPDF = Files::deleteFileByDocId($d_id);
-        $deletedThumbnail = Files::deleteFileByDocId($t_id);
+        $deletedPDF = Files::deleteFileByDocId( $injection->get("document_id") );
+        $deletedThumbnail = Files::deleteFileByDocId( $injection->get("thumbnail_id") );
 
-        //  Save injections data into module data base
+        //  Save updated injections data into module data base
         if($deletedPDF && $deletedThumbnail) {
             $this->setProjectSetting("pdf-injections", $injections);
+            return true;
         } else {
-            throw new Exception($this->tt("injector_15"));
+            throw new Exception($this->tt("injector_15"));            
         }
     }
 
-    //  Redirect page so same page
+    //  Checks if update is given by comparing array on every level
+    private function hasUpdate(Injection $oldInjection, Injection $newInjection ) {
+
+        $o_arr = $oldInjection->getValuesAsArray();
+        $n_arr = $newInjection->getValuesAsArray();
+
+        unset($o_arr["created"]);
+        unset($n_arr["created"]);
+        unset($o_arr["updated"]);
+        unset($n_arr["updated"]);
+
+        $diff_level_1 = !empty(array_diff_assoc($o_arr, $n_arr));
+
+        $o_arr_f = $o_arr["fields"];
+        $n_arr_f = $n_arr["fields"];
+
+        $diff_level_2 = !empty(array_diff_assoc($o_arr_f, $n_arr_f));
+
+        return ( $diff_level_1 || $diff_level_2 );
+    }
+
+    //  Force redirect to same page to clear $_POST data
     private function forceRedirect() {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
         || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://';

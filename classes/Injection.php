@@ -21,15 +21,27 @@ class Injection
     private $created;
     private $updated;
 
+    //  MySQL Date format
     const MYSQL_DATE_FORMAT = "Y-m-d H:i:s";
 
-    function __construct(){
-        //  MySQL Date format
+    function __construct(){        
         $this->created = date(self::MYSQL_DATE_FORMAT);
         $this->updated = NULL;
     }
 
-    public function setValues(string $title, string $description, array $fields, string $fileName, int $document_id, int $thumbnail_id) {
+    public function setInjectionById( array $injections, int $id) {
+
+        $injectionValues = $injections[$id];
+
+        foreach($injectionValues as $key => $value) {
+
+            $this->$key = $value;
+
+        }
+
+    }
+
+    public function setValues(string $title, string $description, array $fields, string $fileName, int $document_id, int $thumbnail_id, string $created = null) {
 
         $this->title = $title;
         $this->description = $description;
@@ -37,6 +49,12 @@ class Injection
         $this->fileName = $fileName;
         $this->document_id = $document_id;
         $this->thumbnail_id = $thumbnail_id;
+        
+        if($created != null) {
+            //  Keep created date and add updated date
+            $this->created = $created;
+            $this->updated = date(self::MYSQL_DATE_FORMAT);
+        }
 
     }
 
@@ -47,6 +65,11 @@ class Injection
     public function getId() {
         return $this->document_id;
     }
+
+    public function get($key) {
+        return $this->$key;
+    }
+
     
 
 }
