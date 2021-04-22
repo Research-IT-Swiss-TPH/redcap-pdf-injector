@@ -119,6 +119,8 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
             $('[name="description"').val(attr.description);
             $('[name="file"').addClass("is-valid");
             $('[name="document_id"]').val(index);
+            $('[name="thumbnail_id"]').val(attr.thumbnail_id);
+
             $("#fpdm-success").html("File is valid.");
             $('#fileLabel').text(attr.fileName);
             $("section#step-2").removeClass("disabled");
