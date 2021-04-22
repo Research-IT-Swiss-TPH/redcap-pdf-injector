@@ -97,7 +97,7 @@ STPH_pdfInjector.init = function() {
 
 /*  editInjection(index, InjecNum)
 *   Prepares modal data to Create/Update Injection before triggering the modal
-*   index: docId and primary key of injection
+*   index: document_id and primary key of injection
 *   InjecNum: chronological numbering  
 */
 STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
@@ -118,7 +118,7 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
             $('[name="title"').val(attr.title);
             $('[name="description"').val(attr.description);
             $('[name="file"').addClass("is-valid");
-            $('[name="docId"]').val(index);
+            $('[name="document_id"]').val(index);
             $("#fpdm-success").html("File is valid.");
             $('#fileLabel').text(attr.fileName);
             $("section#step-2").removeClass("disabled");
@@ -146,15 +146,15 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
 
 /*  deleteInjection(index, InjecNum)
 *   Deletes Injection by index
-*   index: docId and primary key of injection
+*   index: document_id and primary key of injection
 *   InjecNum: chronological numbering  
 */
-STPH_pdfInjector.deleteInjection = function(index=null, thumbId, InjecNum=null){
-    //Show simpleDialog instead & trigger callback
+STPH_pdfInjector.deleteInjection = function(index=null, thumbnail_id, InjecNum=null){
+    console.log("ok");
     $('[name="mode"]').val("DELETE");
     $('#injection-number').text(InjecNum);
-    $('[name=docId]').val(index);
-    $('[name=thumbId').val(thumbId);
+    $('[name=document_id]').val(index);
+    $('[name=thumbnail_id').val(thumbnail_id);
     $('[name=external-modules-configure-modal-delete-confirmation]').modal('show');
     //alert("Are you sure you want to delete Injection #" + InjecNum + "? \n\n //Show simpleDialog for id "+index+" instead & trigger callback");
 }

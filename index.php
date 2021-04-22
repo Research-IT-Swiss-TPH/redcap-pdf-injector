@@ -63,7 +63,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 							}
 						}					
 
-						$thumbnailBase64 = $module->base64FromId($attr["thumbId"]);
+						$thumbnailBase64 = $module->base64FromId($attr["thumbnail_id"]);
 
 						$activityBox = '<div class="clearfix">
 											<div class="float-left boldish" style="color:#6320ac;width:90px;">
@@ -80,7 +80,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 										  <button style="color:#0061b5;" type="button" class="btn btn-link fs13 py-1 pl-1 pr-2" onclick="STPH_pdfInjector.editInjection('.$key.', '.$injection_number.');">
 											<i class="fas fa-pencil-alt"></i> '.$lang['global_27'].'
 										  </button>
-										  <button style="color:#0061b5;" type="button" class="btn btn-link fs13 py-1 pl-1 pr-2"  onclick="STPH_pdfInjector.deleteInjection('.$key.', '.$attr['thumbId'].', '.$injection_number.');">
+										  <button style="color:#0061b5;" type="button" class="btn btn-link fs13 py-1 pl-1 pr-2"  onclick="STPH_pdfInjector.deleteInjection('.$key.', '.$attr['thumbnail_id'].', '.$injection_number.');">
 											<i class="fas fa-trash"></i> Delete
 										  </button>										  
 										  </div>
@@ -147,7 +147,9 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 							<button type="button" class="py-2 close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
 							<h4 id="add-edit-title-text" class="modal-title form-control-custom"></h4>
 							<input type="hidden" name="mode" value="">
-							<input type="hidden" name="docId" value="">
+							<input type="hidden" name="document_id" value="">
+							<input type="hidden" name="thumbnail_id" value="">
+
 						</div>
 
 						<div class="modal-body pt-2">
@@ -233,8 +235,8 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 					</div>
 					<div class="modal-body">
 						<span>Are you sure you want to delete this Injection? (Injection #<span id="injection-number"></span>)</span>
-						<input type="hidden" name="docId" value="" />
-						<input type="hidden" name="thumbId" value="" />
+						<input type="hidden" name="document_id" value="" />
+						<input type="hidden" name="thumbnail_id" value="" />
 						<br/>
 						<span style="color:red;font-weight: bold"> *This will permanently delete the Injection and the associated PDF document. </span>
 						<input type="hidden" value="" id="index_modal_delete" name="index_modal_delete">
