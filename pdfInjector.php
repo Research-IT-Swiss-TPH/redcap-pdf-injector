@@ -69,7 +69,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             } else {
             //  Return as json response
                 $data = file_get_contents( $tmp_file );
-                $response = array('file' => $filename, 'fieldData' => $fieldData, 'pdf64' => base64_encode($data));
+                $response = array(
+                    'file' => $filename,
+                    'fieldData' => $fieldData,
+                    'pdf64' => base64_encode($data)
+                );
                 header('Content-Type: application/json; charset=UTF-8');                
                 echo json_encode($response);
                 exit();
@@ -168,9 +172,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         //  Save Injection to Storage
                         $this->saveInjection( $injection );
     
-                    } else {
-                        throw new Exception($this->tt("injector_15"));            
-                    }
+                    } else throw new Exception($this->tt("injector_15"));
                 }
 
             } if($_POST["mode"] == "UPDATE") {
@@ -197,6 +199,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         if( $document_id != 0 && $thumbnail_id != 0 ) {
                             //  Remove old injection with old id
                             $this->deleteInjection( $oldInjection );
+
                         } else throw new Exception($this->tt("injector_15")); 
 
                     } 
@@ -264,11 +267,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Save injections data into module data base
         $this->setProjectSetting("pdf-injections", $injections);
     }
-
-    private function updateInjection( Injection $injection ) {
-        $injections = $this->injections;
-    }
-    
+  
     private function deleteInjection( Injection $injection ) {
         $injections = $this->injections;
         
@@ -283,9 +282,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         if($deletedPDF && $deletedThumbnail) {
             $this->setProjectSetting("pdf-injections", $injections);
             return true;
-        } else {
-            throw new Exception($this->tt("injector_15"));            
-        }
+
+        } else throw new Exception($this->tt("injector_15"));
     }
 
     //  Checks if update is given by comparing array on every level
