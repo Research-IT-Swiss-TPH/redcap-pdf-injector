@@ -35,27 +35,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         //  Include Javascript and Styles on module page
         if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {
-
-            if (!class_exists("FPDMH")) include_once("classes/Injection.php");
-            $injection = new Injection;
-
-            $injection->setValues(
-               "My title",
-               "My awesome description",
-                [
-                    "field_1" => "value_1",
-                    "field_2" => "value_2"
-                ],
-                "document.pdf",
-                7,                            
-                8
-            );
-
-            $injectionValues = $injection->getValuesAsArray();
-
-            dump($injectionValues);
-
-
             $this->initModule();
             $this->includePageJavascript();
             $this->includePageCSS();
@@ -136,8 +115,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 }
 
             } if($_POST["mode"] == "UPDATE") {
-
-                dump($_POST);
 
                 if($_FILES)  {
 
@@ -375,9 +352,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         ];
 
         $injection = new Injection("New Document", "This is another document for testing", $fields);
-
-        dump($injection);
-
 
     }
 
