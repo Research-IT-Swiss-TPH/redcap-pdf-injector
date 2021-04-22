@@ -71,6 +71,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 $data = file_get_contents( $tmp_file );
                 $response = array(
                     'file' => $filename,
+                    'title' => $this->generateTitle($filename),
+                    'description' => "This is an amazing description",
                     'fieldData' => $fieldData,
                     'pdf64' => base64_encode($data)
                 );
@@ -127,6 +129,13 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $data = file_get_contents($path);
 
         return 'data:image/' . $type . ';base64,' . base64_encode($data);    
+    }
+
+    public function generateTitle($fileName) {
+        $s = substr($fileName, 0, -4);
+        $s = str_replace("_", " ", $fileName);
+        $s = str_replace("-", " ", $fileName);
+        return $s;
     }
     
    /**

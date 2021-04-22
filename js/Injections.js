@@ -247,7 +247,13 @@ STPH_pdfInjector.scanFile = function (file) {
         $("#btnModalsaveInjection").attr("disabled", true);
     }
 
-    function fileScanSuccess(fileData, fileName, fileBase64) {
+    function fileScanSuccess( response ) {
+
+        var fileData = response.fieldData;
+        var fileName = response.file;
+        var fileBase64 = response.pdf64;
+        var title = response.title;
+        var description = response.description;
 
         $("#file").removeClass("is-invalid");
         $("#file").addClass("is-valid");
@@ -258,6 +264,8 @@ STPH_pdfInjector.scanFile = function (file) {
         $("#pdf-preview-spinner").removeClass("d-none");
         $('[name=hasFileChanged').val(1);
         $("#btnModalsaveInjection").attr("disabled", false);
+        $('[name=title]').val(title);
+        $('[name=description]').val(description);
 
         STPH_pdfInjector.renderFields(fileData);
         STPH_pdfInjector.createThumbnail(fileBase64);
@@ -276,7 +284,7 @@ STPH_pdfInjector.scanFile = function (file) {
        processData: false,
        success: function(response){
             STPH_pdfInjector.log(response);
-            fileScanSuccess(response.fieldData, response.file, response.pdf64);
+            fileScanSuccess(response);
        },
        error: function(error) {
             STPH_pdfInjector.log(error.responseJSON.message);
