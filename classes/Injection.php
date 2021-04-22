@@ -43,6 +43,10 @@ class Injection
     public function getValuesAsArray() {
         return get_object_vars($this);
     }
+
+    public function getId() {
+        return $this->document_id;
+    }
     
 
 }
