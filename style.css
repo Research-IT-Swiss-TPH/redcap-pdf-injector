@@ -74,6 +74,9 @@
     right: 20px;
 }
 
+#external-modules-configure-modal .modal-dialog, #external-modules-configure-modal-record .modal-dialog, #external-modules-configure-modal-preview .modal-dialog {
+	max-width: 900px !important;
+}
 .form-control-custom input[type="text"], .form-control-custom select, .form-control-custom textarea{
     display: block;
     width: 100%;

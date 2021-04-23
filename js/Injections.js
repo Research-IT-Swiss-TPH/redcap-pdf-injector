@@ -240,7 +240,7 @@ STPH_pdfInjector.scanFile = function (file) {
     function fileScanError(msg) {
         $("#file").addClass("is-invalid");
         $("#fpdm-success").addClass("d-none");
-        $("#fpdm-error").html("The file you selected could not be processed. It seems like your PDF is not valid or not readable. <a style=\"font-size:10.4px\" href=\"#docs-pdftk\">Read more</a> on how to prepare your PDF to make it injectable!")
+        $("#fpdm-error").html("The file you selected could not be processed. It seems like your PDF is not valid or not readable. <a style=\"font-size:10.4px\" href=\"#docs-pdftk\">Read more</a> on how to prepare your PDF to make it injectable! <code>FPDM error message: "+msg+"</code>")
         $("#fpdm-error").removeClass("d-none");
         $("#fileLabel").text("Choose another file...");
         $("section#step-2").addClass("disabled");
@@ -287,8 +287,8 @@ STPH_pdfInjector.scanFile = function (file) {
             fileScanSuccess(response);
        },
        error: function(error) {
-            STPH_pdfInjector.log(error.responseJSON.message);
-            fileScanError(error.responseJSON.message);
+            STPH_pdfInjector.log(error);
+            fileScanError(error.responseText);
        }
     });
 
@@ -357,4 +357,33 @@ STPH_pdfInjector.createThumbnail = function(base64Data) {
             });
         }));
     }).catch(console.error);
+}
+
+/**
+ * Function to preview the PDF Injection
+ * @param index, the injection unique id
+ */
+ STPH_pdfInjector.previewInjection = function(index, injectionnumber, record_id = null){
+
+    $.post(STPH_pdfInjector.requestHandlerUrl + "&action=previewInjection", 
+    {
+        document_id:index,
+        record_id: record_id
+    })
+    .done(function(response){
+        console.log(response);
+        $('#modal-pdf-preview').remove();
+        var embed = '<object id="modal-pdf-preview" type="application/pdf" frameBorder="0" scrolling="auto" height="100%" width="100%" data="'+response.data+'">'
+        $('#modal_message_preview').append(embed);
+        $('#modal_message_preview').css("max-height", $(document).height() * 0.75 );
+
+        $('#modalPreviewNumber').text("- Preview Injection #"+injectionnumber);
+        $('#myModalLabelA').show();
+        $('#myModalLabelB').hide();
+        $('#external-modules-configure-modal-preview').modal('show'); 
+    })
+    .fail(function(error){
+        alert(error.responseText);
+    })
+
 }

@@ -30,7 +30,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */
     function redcap_every_page_top($project_id = null) {
         //  Include Javascript and Styles on module page
-        if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {
+        if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
             $this->initModule();            
         }
     }
@@ -62,9 +62,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
             if($pdf->hasError) {
             //  Check for errors
-                header("HTTP/1.1 400 Bad Request");
-                header('Content-Type: application/json; charset=UTF-8');                
-                die(json_encode(array('message' => $pdf->errorMessage)));
+                $this->errorResponse($pdf->errorMessage);
                 
             } else {
             //  Return as json response
@@ -83,8 +81,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
          }
          else {
-                header("HTTP/1.1 400 Bad Request");
-                die(json_encode(array('message' => "Unknown Error")));
+                $this->errorResponse("Unknown Error");
          }
     }
     
@@ -104,10 +101,53 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             header('Content-Type: application/json; charset=UTF-8');                
             echo json_encode(array("fieldValue" => $fieldValue));
         } else {
-            header("HTTP/1.1 400 Bad Request");
-            header('Content-Type: application/json; charset=UTF-8');
-            die();
+            $this->errorResponse("Field is invalid");
         }        
+    }
+
+    public function renderInjection($doc_id, $rec_id = null) {
+        $injections = self::getProjectSetting("pdf-injections");
+        $injection = $injections[$doc_id];
+        //  Check if doc_id exists
+        if(!$injections[$doc_id]) {
+            $this->errorResponse("Injection does not exist.");
+        }
+
+        //  get Edoc 
+        $path = EDOC_PATH . Files::getEdocName( $doc_id, true );
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $file = file_get_contents($path);
+
+
+        //  Get Fields
+        $fields = $injection["fields"];
+
+        if($rec_id !== null){
+            //  check if rec_id exists
+            $exists = true;
+            if(!$exists) {
+                $this->errorResponse("Record does not exist.");
+            } 
+
+            //  fetch field data for record
+            //  map
+        }
+
+        if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
+        $pdf = new FPDMH($path);
+
+        $pdf->Load($fields,true);
+        $pdf->Merge();
+
+        $string = $pdf->Output( "S" );
+        $base64_string = base64_encode($string);
+
+        $data =  'data:application/' . $type . ';base64,' . base64_encode($string);
+
+        header('Content-Type: application/json; charset=UTF-8');
+        header("HTTP/1.1 200 ");
+        echo json_encode(array("data" => $data, "test"=> $test));
+
     }
 
    /**
@@ -323,9 +363,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         header('Location: '.$protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
     }
 
-
-
-
+    private function errorResponse($msg) {
+        header("HTTP/1.1 400 Bad Request");
+        header('Content-Type: application/json; charset=UTF-8');
+        die($msg);
+    }
 
 
 /*     public function base64ToImage($base64_string, $output_file) {
