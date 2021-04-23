@@ -29,7 +29,7 @@
                 "name": "PDF Injector",
                 "key": "pdf-injector",
                 "icon": "fas fa-syringe",
-                "url": "index.php",
+                "url": "Injections.php",
                 "show-header-and-footer": true
             }
         ]
