@@ -62,10 +62,6 @@ class Injection
         return get_object_vars($this);
     }
 
-    public function getId() {
-        return $this->document_id;
-    }
-
     public function get($key) {
         return $this->$key;
     }

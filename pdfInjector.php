@@ -271,7 +271,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $injections = $this->injections;
 
         //  Insert new injection to injections array
-        $injections[ $injection->getId() ] = $injection->getValuesAsArray();
+        $injections[ $injection->get("document_id") ] = $injection->getValuesAsArray();
 
         //  Save injections data into module data base
         $this->setProjectSetting("pdf-injections", $injections);
