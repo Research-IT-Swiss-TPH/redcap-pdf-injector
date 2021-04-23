@@ -72,7 +72,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 $response = array(
                     'file' => $filename,
                     'title' => $this->generateTitle($filename),
-                    'description' => "This is an amazing description",
+                    'description' => "",
                     'fieldData' => $fieldData,
                     'pdf64' => base64_encode($data)
                 );
@@ -133,11 +133,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     public function generateTitle($fileName) {
         $s = substr($fileName, 0, -4);
-        $s = str_replace("_", " ", $fileName);
-        $s = str_replace("-", " ", $fileName);
+        $s = str_replace("_", " ", $s);
+        $s = str_replace("-", " ", $s);
         return $s;
     }
-    
+   
    /**
     * Initializes the module
     *
