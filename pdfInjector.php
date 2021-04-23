@@ -315,6 +315,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         //  Save injections data into module data base
         $this->setProjectSetting("pdf-injections", $injections);
+        $this->injections = self::getProjectSetting("pdf-injections");
     }
   
     private function deleteInjection( Injection $injection ) {
@@ -330,6 +331,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Save updated injections data into module data base
         if($deletedPDF && $deletedThumbnail) {
             $this->setProjectSetting("pdf-injections", $injections);
+            $this->injections = self::getProjectSetting("pdf-injections");
             return true;
 
         } else throw new Exception($this->tt("injector_15"));
