@@ -96,11 +96,14 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 												<div class=\"mt-1\" style=\"color:green;\">{$fieldInfo}</div>
 												<ol  class=\"mt-1\" style=\"padding-left:20px;\">".$fieldList."</ol>
 											</div>
-										</div>
+										</div>																
+										</td>";
+
+										/* Activity Box
 										<div class='card mt-3'>
 											<div class='card-body p-2'>{$activityBox}</div>
-										</div>																		
-										</td>";
+										</div>	 
+										*/	
 						
 						$injections .= "<td class='pt-3 pb-4' style='width:400px;border-left:0;'>
 										<div class='card'>
@@ -112,8 +115,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 												{$lang['design_699']}
 												</button>
 												<div class=\"dropdown-menu\" aria-labelledby=\"btnGroupDrop2\">
-												<a class=\"dropdown-item\" href=\"#\" onclick=\"STPH_pdfInjector.previewInjection('$key','$injection_number')\"><i class=\"fas fa-eye\"></i> {$module->tt("injector_3")}</a>
-												<a class=\"dropdown-item\" href=\"#\" onclick=\"STPH_pdfInjector.previewInjectionRecord('$key','$injection_number')\"><i class=\"fas fa-eye\"></i> {$module->tt("injector_4")}</a>
+												<a class=\"dropdown-item\" href=\"#\" onclick=\"STPH_pdfInjector.previewInjection('$key','$injection_number')\"><i class=\"fas fa-eye\"></i> {$module->tt("injector_3")}</a>												
 												</div>
 											</div>
 											</div>
@@ -273,5 +275,3 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 				</div>
 			</div>
 		</div>
-
-<?php 
