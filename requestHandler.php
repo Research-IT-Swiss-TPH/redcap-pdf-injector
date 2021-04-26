@@ -5,11 +5,11 @@ if ($_REQUEST['action'] == 'fileScan') {
     $module->scanFile();
 }
 
-if($_REQUEST['action'] == 'fieldCheck') {
+else if($_REQUEST['action'] == 'fieldCheck') {
     $module->checkField($_POST["fieldValue"]);
 }
 
-if($_REQUEST['action'] == 'previewInjection') {
+else if($_REQUEST['action'] == 'previewInjection') {
     $module->renderInjection(
         $_POST["document_id"],
         $_POST["record_id"]
