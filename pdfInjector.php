@@ -89,7 +89,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   -> Called via RequestHandler.php over AJAX
     *   Checks a given field value if is a variable
     */
-    public function checkField($fieldValue) {
+    public function scanField($fieldValue) {
 
         $pid = PROJECT_ID;
 

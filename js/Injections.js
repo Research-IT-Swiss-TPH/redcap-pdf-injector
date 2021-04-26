@@ -214,7 +214,7 @@ STPH_pdfInjector.validateField = function(id) {
         fieldValue = $.trim( fieldValue );
         field.val(fieldValue);
 
-        $.post(STPH_pdfInjector.requestHandlerUrl + "&action=fieldCheck", {fieldValue:fieldValue})
+        $.post(STPH_pdfInjector.requestHandlerUrl + "&action=fieldScan", {fieldValue:fieldValue})
         .done(function(){
             setFieldState("valid");
         })
