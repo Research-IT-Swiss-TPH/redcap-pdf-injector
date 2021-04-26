@@ -132,14 +132,19 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             if( !\Records::recordExists($project_id, $record_id) ) {
                 $this->errorResponse("Record does not exist.");
             }
-            
+           
             foreach ($fields as $key => &$value) {
                 
                 //  fetch variable value for each variable inside field
                 $fieldname = $value;
-                $sql = "SELECT value FROM redcap_data WHERE record = 12 AND project_id = 15 AND field_name = ? LIMIT 0, 1";
-                $result = $this->query($sql, [$fieldname]);
-
+                $sql = "SELECT value FROM redcap_data WHERE record = ? AND project_id = ? AND field_name = ? LIMIT 0, 1";
+                $result = $this->query($sql, 
+                    [
+                        $record_id,
+                        $project_id,
+                        $fieldname,
+                    ]
+                );
                 $value = $result->fetch_object()->value;
             }
         }
@@ -148,7 +153,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $pdf = new FPDMH($path);
 
         $pdf->Load($fields,false);
-        $pdf->Merge(true);
+        $pdf->Merge();
 
         $string = $pdf->Output( "S" );
         $base64_string = base64_encode($string);
