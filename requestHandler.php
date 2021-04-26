@@ -6,7 +6,7 @@ if ($_REQUEST['action'] == 'fileScan') {
 }
 
 else if($_REQUEST['action'] == 'fieldScan') {
-    $module->scanField($_POST["fieldValue"]);
+    $module->scanField($_POST["fieldName"]);
 }
 
 else if($_REQUEST['action'] == 'previewInjection') {

@@ -89,22 +89,21 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   -> Called via RequestHandler.php over AJAX
     *   Checks a given field value if is a variable
     */
-    public function scanField($fieldValue) {
+    public function scanField($fieldName) {
 
-        $pid = PROJECT_ID;
+        $valid = $this->checkSingleField($fieldName);
 
-        $sql = 'SELECT * FROM redcap_metadata WHERE project_id = ? AND field_name = ?';
-
-        $result = $this->query($sql, [$pid, $fieldValue]);
-
-        if($result->num_rows == 1) {
+        if($valid) {
             header('Content-Type: application/json; charset=UTF-8');                
-            echo json_encode(array("fieldValue" => $fieldValue));
-        } else {
-            $this->errorResponse("Field is invalid");
-        }        
+            echo json_encode(array("fieldName" => $fieldName));
+        } else  $this->errorResponse("Field is invalid");
+    
     }
 
+   /**    
+    *   -> Called via RequestHandler.php over AJAX
+    *   Renders preview for a given Injection and optionally record
+    */
     public function renderInjection($doc_id, $rec_id = null) {
         $injections = self::getProjectSetting("pdf-injections");
         $injection = $injections[$doc_id];
@@ -200,6 +199,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
                 if($_FILES)  {
 
+                    dump($_POST["fields"]);
+
                     //  Upload PDF and Thumbnail to REDCap edoc storage
                     $document_id = Files::uploadFile($_FILES['file']);
                     $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']);
@@ -207,12 +208,15 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     //  Create new Injection entry in database if upload successful
                     if($document_id != 0 && $thumbnail_id != 0) {
 
+                        //  Validate fields before save
+                        $validFields = $this->filterForValidVariables($_POST["fields"]);
+
                         if (!class_exists("Injection")) include_once("classes/Injection.php");
                         $injection = new Injection;
                         $injection->setValues(
                             $_POST["title"],
                             $_POST["description"],
-                            $_POST["fields"],
+                            $validFields,
                             $_FILES['file']['name'],
                             $document_id,                            
                             $thumbnail_id
@@ -251,14 +255,16 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
                         } else throw new Exception($this->tt("injector_15")); 
 
-                    } 
+                    }
+
+                    $validFields = $this->filterForValidVariables($_POST["fields"]);
 
                     //  Create new injection instance
                     $newInjection = new Injection;
                     $newInjection->setValues(
                         $_POST["title"],
                         $_POST["description"],
-                        $_POST["fields"],
+                        $validFields,
                         $filename,
                         intval($document_id),                            
                         intval($thumbnail_id),
@@ -288,6 +294,34 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         }
 
     }
+
+
+    private function checkSingleField($fieldName) {
+        $pid = PROJECT_ID;
+        $sql = 'SELECT * FROM redcap_metadata WHERE project_id = ? AND field_name = ?';
+        $result =  $this->query($sql, [$pid, $fieldName]);
+
+        if($result->num_rows == 1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function filterForValidVariables($fields) {
+
+        foreach ($fields as $fieldName => &$fieldValue) {
+
+            $valid = $this->checkSingleField($fieldValue);
+            if(!$valid) {
+                $fieldValue = "";
+            }
+
+        }
+
+        return $fields;
+
+    }    
 
     //  Saves thumbnail from base64 string source as png into edoc storage
     private function saveThumbnail($d_id, $b64) {

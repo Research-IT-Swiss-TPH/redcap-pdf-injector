@@ -210,11 +210,11 @@ STPH_pdfInjector.validateField = function(id) {
         return str === null || str.match(/^ *$/) !== null;
     }
 
-    function checkField(fieldValue) {
-        fieldValue = $.trim( fieldValue );
-        field.val(fieldValue);
+    function checkField(fieldName) {
+        fieldName = $.trim( fieldName );
+        field.val(fieldName);
 
-        $.post(STPH_pdfInjector.requestHandlerUrl + "&action=fieldScan", {fieldValue:fieldValue})
+        $.post(STPH_pdfInjector.requestHandlerUrl + "&action=fieldScan", {fieldName:fieldName})
         .done(function(){
             setFieldState("valid");
         })
@@ -224,11 +224,11 @@ STPH_pdfInjector.validateField = function(id) {
     }
 
     var field = $("#fieldVariableMatch-"+id);
-    var fieldValue = field.val();
+    var fieldName = field.val();
     
-    if(!isEmptyOrSpaces(fieldValue)) {
+    if(!isEmptyOrSpaces(fieldName)) {
         setFieldState("loading");        
-        checkField(fieldValue);
+        checkField(fieldName);
     } else {
         setFieldState("empty")
     }
@@ -385,5 +385,13 @@ STPH_pdfInjector.createThumbnail = function(base64Data) {
     .fail(function(error){
         alert(error.responseText);
     })
+
+}
+
+STPH_pdfInjector.previewInjectionRecord = function(index, injectionnumber) {
+    $('#index_modal_record_preview').val(index)
+    $('#modalRecordNumber').text("- Preview Injection by record - Injection #"+injectionnumber);
+
+    $('#external-modules-configure-modal-record').modal('show');
 
 }
