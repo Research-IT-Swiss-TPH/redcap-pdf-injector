@@ -29,6 +29,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     function redcap_every_page_top($project_id = null) {
+
         //  Include Javascript and Styles on module page
         if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
             $this->initModule();            
@@ -107,16 +108,17 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   -> Called via RequestHandler.php over AJAX
     *   Renders preview for a given Injection and optionally record
     */
-    public function renderInjection($doc_id, $rec_id = null) {
+    public function renderInjection($document_id, $record_id = null, $project_id = null) {
+
         $injections = self::getProjectSetting("pdf-injections");
-        $injection = $injections[$doc_id];
+        $injection = $injections[$document_id];
         //  Check if doc_id exists
-        if(!$injections[$doc_id]) {
+        if(!$injections[$document_id]) {
             $this->errorResponse("Injection does not exist.");
         }
 
         //  get Edoc 
-        $path = EDOC_PATH . Files::getEdocName( $doc_id, true );
+        $path = EDOC_PATH . Files::getEdocName( $document_id, true );
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $file = file_get_contents($path);
 
@@ -124,15 +126,24 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Get Fields
         $fields = $injection["fields"];
 
-        if($rec_id !== null){
+        if($record_id !== null){
             //  check if rec_id exists
-            $exists = true;
-            if(!$exists) {
-                $this->errorResponse("Record does not exist.");
-            } 
 
-            //  fetch field data for record
-            //  map
+            if( !\Records::recordExists($project_id, $record_id) ) {
+                $this->errorResponse("Record does not exist.");
+            }
+            
+            foreach ($fields as $key => &$value) {
+                
+                //  fetch variable value for each variable inside field
+                $fieldname = $value;
+                $sql = "SELECT value FROM redcap_data WHERE record = 12 AND project_id = 15 AND field_name = ? LIMIT 0, 1";
+                $result = $this->query($sql, [$fieldname]);
+
+                $value = $result->fetch_object()->value;
+                
+
+            }
         }
 
         if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
@@ -193,9 +204,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     private function initModuleTip(){
         $this->injections = self::getProjectSetting("pdf-injections");
-        $this->includePageJavascript();
-        $this->includePageCSS();
-        $this->includeModuleTip();
+        if(count($this->injections) > 0) {
+            $this->includePageJavascript();
+            $this->includePageCSS();
+            $this->includeModuleTip();
+        }
+
     }
 
     //  Post Handler
@@ -321,12 +335,10 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     private function filterForValidVariables($fields) {
 
         foreach ($fields as $fieldName => &$fieldValue) {
-
             $valid = $this->checkSingleField($fieldValue);
             if(!$valid) {
                 $fieldValue = "";
             }
-
         }
 
         return $fields;
@@ -472,6 +484,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     private function includeModuleTip() {
 
         $injections = $this->injections;
+        $pid = $_GET["pid"];
+        $record_id = $_GET["id"];
 
         ?>
 
@@ -483,7 +497,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 <div class="dropdown-menu">          
                 <?php
                 foreach ($injections as $key => $injection) {
-                    print '<a class="dropdown-item" href="javascript:;" id="submit-btn-inject-pdf-'.$key.'" onclick="STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].');">'.$injection["title"].'</a>';
+                    print '<a class="dropdown-item" href="javascript:;" id="submit-btn-inject-pdf-'.$key.'" onclick="STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.$record_id. ', '.$pid.');">'.$injection["title"].'</a>';
                 }
                 ?>
                 </div>           

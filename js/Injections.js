@@ -363,12 +363,13 @@ STPH_pdfInjector.createThumbnail = function(base64Data) {
  * Function to preview the PDF Injection
  * @param index, the injection unique id
  */
- STPH_pdfInjector.previewInjection = function(index, injectionnumber, record_id = null){
+ STPH_pdfInjector.previewInjection = function(index, injectionnumber, record_id = null, project_id = null){
 
     $.post(STPH_pdfInjector.requestHandlerUrl + "&action=previewInjection", 
     {
         document_id:index,
-        record_id: record_id
+        record_id: record_id,
+        project_id: project_id
     })
     .done(function(response){
         console.log(response);
