@@ -115,7 +115,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 												{$lang['design_699']}
 												</button>
 												<div class=\"dropdown-menu\" aria-labelledby=\"btnGroupDrop2\">
-												<a class=\"dropdown-item\" href=\"#\" onclick=\"STPH_pdfInjector.previewInjection('$key','$injection_number')\"><i class=\"fas fa-eye\"></i> {$module->tt("injector_3")}</a>												
+												<a class=\"dropdown-item\" href=\"#\" onclick=\"STPH_pdfInjector.previewInjection('$key','$injection_number')\"><i class=\"fas fa-eye\"></i> {$module->tt("injector_3")}</a>
 												</div>
 											</div>
 											</div>
@@ -255,23 +255,23 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 
 	<!-- Preview Modal -->
 	<div class="modal fade" id="external-modules-configure-modal-preview" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
-			<div class="modal-dialog" role="document" style="width: 800px">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">
-							<span id="myModalLabelA"><?=$lang['alerts_82']?></span>
-							<span id="myModalLabelB"><?=$lang['alerts_83']?></span>
-							<span id="modalPreviewNumber"></span>
-						</h4>
+		<div class="modal-dialog" role="document" style="width: 800px">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">
+						<span id="myModalLabelA"><?=$lang['alerts_82']?></span>
+						<span id="myModalLabelB"><?=$lang['alerts_83']?></span>
+						<span id="modalPreviewNumber"></span>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<div id="modal_message_preview" style="margin:0;width:100%;height:100vh;">
 					</div>
-					<div class="modal-body">
-						<div id="modal_message_preview" style="margin:0;width:100%;height:100vh;">
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-defaultrc" data-dismiss="modal"><?=$lang['calendar_popup_01']?></button>
-					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-defaultrc" data-dismiss="modal"><?=$lang['calendar_popup_01']?></button>
 				</div>
 			</div>
 		</div>
+	</div>

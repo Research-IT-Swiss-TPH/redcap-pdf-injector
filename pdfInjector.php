@@ -33,6 +33,10 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
             $this->initModule();            
         }
+        //  Include Button
+        if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
+            $this->initModuleTip();
+        }
     }
 
    /**    
@@ -70,7 +74,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 $response = array(
                     'file' => $filename,
                     'title' => $this->generateTitle($filename),
-                    'description' => "",
                     'fieldData' => $fieldData,
                     'pdf64' => base64_encode($data)
                 );
@@ -186,6 +189,13 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $this->includePageJavascript();
         $this->includePageCSS();
         $this->handlePost();
+    }
+
+    private function initModuleTip(){
+        $this->injections = self::getProjectSetting("pdf-injections");
+        $this->includePageJavascript();
+        $this->includePageCSS();
+        $this->includeModuleTip();
     }
 
     //  Post Handler
@@ -456,6 +466,52 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     private function includePageCSS() {
         ?>
         <link rel="stylesheet" href="<?= $this->getUrl('style.css')?>">
+        <?php
+    }
+
+    private function includeModuleTip() {
+
+        $injections = $this->injections;
+
+        ?>
+
+        <div id="formSaveTip" style="position: fixed; left: 923px; display: block;">
+            <div class="btn-group nowrap" style="display: block;">
+                <button class="btn btn btn-primaryrc btn-savedropdown dropdown-toggle" tabindex="0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="fas fa-syringe" aria-hidden="true"></span> PDF Injection
+                </button>
+                <div class="dropdown-menu">          
+                <?php
+                foreach ($injections as $key => $injection) {
+                    print '<a class="dropdown-item" href="javascript:;" id="submit-btn-inject-pdf-'.$key.'" onclick="STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].');">'.$injection["title"].'</a>';
+                }
+                ?>
+                </div>           
+            </div>
+        </div>
+
+        <!-- Preview Modal -->
+        <div class="modal fade" id="external-modules-configure-modal-preview" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
+            <div class="modal-dialog" role="document" style="width: 800px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            <span id="myModalLabelA"><?=$lang['alerts_82']?></span>
+                            <span id="myModalLabelB"><?=$lang['alerts_83']?></span>
+                            <span id="modalPreviewNumber"></span>
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modal_message_preview" style="margin:0;width:100%;height:100vh;">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-defaultrc" data-dismiss="modal"><?=$lang['calendar_popup_01']?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <?php
     }
 

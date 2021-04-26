@@ -10,9 +10,9 @@ foreach ($fields as $key => $field) {
         $text = "Variable is empty";
         $class = "warning";
     } else {
-        $state = "";
-        $text = "";
-        $class = "";
+        $state = "is-valid";
+        $text = "Variable is valid";
+        $class = "success";
     }
     
     $response .= '<div class="form-row align-items-center">';
