@@ -1,11 +1,11 @@
 # PDF Injector
-Fill form fields of your PDFs with your redcap data. 
+PDF Injector is a REDCap module that helps you to fill your PDFs with record data.
 
 ## Setup
 
 Install the module from REDCap module repository and enable over Control Center.
 
-## Configuration
+## Configuration & Requirements
 
 After enabling the module for your project navigate to module configuration. You can add a new PDF Injection as follows:
 
@@ -15,12 +15,15 @@ After enabling the module for your project navigate to module configuration. You
 
 Repeat this for any other PDF file.
 
-## Roadmap
+This module requires **FILLABLE PDFS** which means that your PDF has to be in a specific format. To achieve this you need to run `pdftk`:
 
-- n.a. 
+```
+    pdftk document.pdf output document.pdf
 
-## Developer Notice
-- n.a.
+```
+
+You can get pdftk [here](https://www.pdflabs.com/tools/pdftk-server/).
+
 
 ## Changelog
 
