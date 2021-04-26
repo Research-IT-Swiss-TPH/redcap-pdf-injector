@@ -372,16 +372,23 @@ STPH_pdfInjector.createThumbnail = function(base64Data) {
         project_id: project_id
     })
     .done(function(response){
-        console.log(response);
-        $('#modal-pdf-preview').remove();
-        var embed = '<object id="modal-pdf-preview" type="application/pdf" frameBorder="0" scrolling="auto" height="100%" width="100%" data="'+response.data+'">'
-        $('#modal_message_preview').append(embed);
-        $('#modal_message_preview').css("max-height", $(document).height() * 0.75 );
+        if( typeof response === 'string' && response.includes("FPDF-Merge Error:") ){
 
-        $('#modalPreviewNumber').text("- Preview Injection #"+injectionnumber);
-        $('#myModalLabelA').show();
-        $('#myModalLabelB').hide();
-        $('#external-modules-configure-modal-preview').modal('show'); 
+            alert(response);
+            console.log(response);
+
+        } else {
+            $('#modal-pdf-preview').remove();
+            var embed = '<object id="modal-pdf-preview" type="application/pdf" frameBorder="0" scrolling="auto" height="100%" width="100%" data="'+response.data+'">'
+            $('#modal_message_preview').append(embed);
+            $('#modal_message_preview').css("max-height", $(document).height() * 0.75 );
+    
+            $('#modalPreviewNumber').text("- Preview Injection #"+injectionnumber);
+            $('#myModalLabelA').show();
+            $('#myModalLabelB').hide();
+            $('#external-modules-configure-modal-preview').modal('show'); 
+        }
+
     })
     .fail(function(error){
         alert(error.responseText);

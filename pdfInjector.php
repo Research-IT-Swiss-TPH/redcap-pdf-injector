@@ -126,7 +126,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Get Fields
         $fields = $injection["fields"];
 
-        if($record_id !== null){
+        if($record_id != null){
             //  check if rec_id exists
 
             if( !\Records::recordExists($project_id, $record_id) ) {
@@ -141,16 +141,14 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 $result = $this->query($sql, [$fieldname]);
 
                 $value = $result->fetch_object()->value;
-                
-
             }
         }
 
         if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
         $pdf = new FPDMH($path);
 
-        $pdf->Load($fields,true);
-        $pdf->Merge();
+        $pdf->Load($fields,false);
+        $pdf->Merge(true);
 
         $string = $pdf->Output( "S" );
         $base64_string = base64_encode($string);
