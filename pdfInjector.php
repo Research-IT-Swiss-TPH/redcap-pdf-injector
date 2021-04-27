@@ -381,15 +381,16 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         return false;
     }
 
-    private function filterForValidVariables($fields) {
+    private function filterForValidVariables($fields = null) {
 
-        foreach ($fields as $fieldName => &$fieldValue) {
-            $valid = $this->checkSingleField($fieldValue);
-            if(!$valid) {
-                $fieldValue = "";
+        if($fields != null) {
+            foreach ($fields as $fieldName => &$fieldValue) {
+                $valid = $this->checkSingleField($fieldValue);
+                if(!$valid) {
+                    $fieldValue = "";
+                }
             }
         }
-
         return $fields;
 
     }
@@ -550,13 +551,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $pid = $_GET["pid"];
         $record_id = $_GET["id"];
 
-        ?>
-        <script>
-        var el = $('#center');
-        console.log(el);
-        el.hide();
         </script>
-
         <?php
 
     }
@@ -566,7 +561,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $injections = $this->injections;
         $pid = $_GET["pid"];
         $record_id = $_GET["id"];
-
         ?>
 
         <div id="formSaveTip" style="position: fixed; left: 923px; display: block;">
