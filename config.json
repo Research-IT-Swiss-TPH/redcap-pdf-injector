@@ -3,7 +3,7 @@
 
     "namespace": "STPH\\pdfInjector", 
 
-    "description": "Fill form fields of your PDFs with your redcap data.",
+    "description": "PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables.",
 
     "documentation": "README.md",
 

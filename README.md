@@ -1,5 +1,5 @@
 # PDF Injector
-PDF Injector is a REDCap module that helps you to fill your PDFs with record data.
+PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables. 
 
 ![alt text](/img/pdf_injector_screen_1.png "Screenshot 1")
 
