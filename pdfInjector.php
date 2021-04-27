@@ -7,11 +7,15 @@ require 'vendor/autoload.php';
 
 use \Exception;
 use \Files;
+use \Piping;
 
 // Declare your module class, which must extend AbstractExternalModule 
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     private $injections;
+
+    //  Supported Action Tags
+    const SUPPORTED_ACTIONTAGS = ['@TODAY'];
 
    /**
     * Constructs the class
@@ -24,11 +28,39 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     }
 
+    private function replaceActionTagsInLabel($label, $actiontag) {
+        switch ($actiontag) {
+            case '@TODAY':
+                $str =  date("d.m.Y");
+                break;
+            
+            default:
+                $str = "";
+                break;
+        }
+
+        return str_replace($actiontag, $str, $label);
+
+    }
+
    /**
     *   -> Hooked to redcap_every_page_top
     *
     */
     function redcap_every_page_top($project_id = null) {
+
+        if(isset($_GET["page"])) {
+
+            //  Params
+            $record_id = $_GET["id"];
+
+            //  Get fields
+            $form = $_GET["page"];
+            $project  = new \Project;
+            $form = $project->forms[$form];
+            $fields = $form["fields"];
+
+        }
 
         //  Include Javascript and Styles on module page
         if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
@@ -37,7 +69,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Include Button
         if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
             $this->initModuleTip();
-        }
+        } 
     }
 
    /**    
@@ -145,7 +177,31 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         $fieldname,
                     ]
                 );
-                $value = $result->fetch_object()->value;
+                $fieldValue = $result->fetch_object()->value;
+
+                //  Check if field value has variables or action tags
+                $hasVariables = preg_match('/([\[\]])\w+/', $fieldValue);
+                $hasActiontags = preg_match('/([\@])\w+/', $fieldValue);
+
+                if($hasVariables) {
+
+                    $data = \REDCap::getData($project_id, 'array', $record_id);
+                    $value = Piping::replaceVariablesInLabel($fieldValue, $record_id, null, 1, $data, false, $project_id, false,
+                    "", 1, false, false, "", null, true, false, false);
+
+                } 
+                else if($hasActiontags){
+
+                    foreach (self::SUPPORTED_ACTIONTAGS as $key => $actiontag) {
+                        if(\Form::hasActionTag($actiontag, $fieldValue)) {
+                            $value = $this->replaceActionTagsInLabel($fieldValue, $actiontag);                            
+                        }
+                    }
+                }                               
+                else {
+                    $value = $fieldValue;
+                }
+
             }
         }
 
