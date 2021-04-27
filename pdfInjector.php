@@ -208,8 +208,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
         $pdf = new FPDMH($path);
 
-        $pdf->Load($fields,false);
-        $pdf->Merge();
+        $pdf->Load($fields,true);
+        $pdf->Merge();  // Does not support $pdf->Merge(true) yet (which would trigger PDF Flatten to "close" form fields via pdftk)
+        # A issue on Github has been opened: https://github.com/codeshell/fpdm/issues/45
+        # Future support of PDF flattening would be implemented as optional module setting ensuring pdftk is installed on server
+        
 
         $string = $pdf->Output( "S" );
         $base64_string = base64_encode($string);
@@ -267,6 +270,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             $this->includePageJavascript();
             $this->includePageCSS();
             $this->includeModuleTip();
+            $this->includeModuleContainer();
         }
 
     }
@@ -538,6 +542,22 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         ?>
         <link rel="stylesheet" href="<?= $this->getUrl('style.css')?>">
         <?php
+    }
+
+    private function includeModuleContainer(){
+        $injections = $this->injections;
+        $pid = $_GET["pid"];
+        $record_id = $_GET["id"];
+
+        ?>
+        <script>
+        var el = $('#center');
+        console.log(el);
+        el.hide();
+        </script>
+
+        <?php
+
     }
 
     private function includeModuleTip() {
