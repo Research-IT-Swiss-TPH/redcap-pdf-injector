@@ -52,8 +52,24 @@
             "hidden": true
         },
         {
-            "key": "last-injection-id",
-            "hidden": true
+            "key": "ui-mode",
+            "name": "Show PDF Injections on Record Home Page",
+            "type": "dropdown",
+            "choices": [
+                {
+					"name" : "Dropdown Menu",
+					"value" : "1"
+				},
+				{
+					"name" : "Preview Container",
+					"value" : "2"
+				},
+				{
+					"name" : "Both",
+					"value" : "3"
+				}                
+            ]
+
         }
     ],
 

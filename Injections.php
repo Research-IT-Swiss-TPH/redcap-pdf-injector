@@ -51,7 +51,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						$injection_number++;
 						$fields = $attr["fields"];
 
-						$description = "<b class=\"fs14\"><i class=\"fas fa-info-circle\"></i></b> <span class=\"boldish\">Description: {$attr['description']}</span>";
+						$description = "{$attr['description']}</span>";
 						$fieldInfo = "<b class=\"fs14\"><i class=\"fa fa-th-list\"></i></b> <span class=\"boldish\">Number of fields: ".count($fields)."</span>";
 						$fieldList= "";
 

@@ -35,19 +35,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */
     function redcap_every_page_top($project_id = null) {
 
-        if(isset($_GET["page"])) {
-
-            //  Params
-            $record_id = $_GET["id"];
-
-            //  Get fields
-            $form = $_GET["page"];
-            $project  = new \Project;
-            $form = $project->forms[$form];
-            $fields = $form["fields"];
-
-        }
-
         //  Include Javascript and Styles on module page
         if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
             $this->initModule();            
@@ -252,11 +239,21 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     private function initModuleTip(){
         $this->injections = self::getProjectSetting("pdf-injections");
+        $ui = self::getProjectSetting("ui-mode");
+        if(empty($ui)) {
+            self::setProjectSetting("ui-mode", 1);
+        }
+
         if(count($this->injections) > 0) {
             $this->includePageJavascript();
             $this->includePageCSS();
-            $this->includeModuleTip();
-            $this->includeModuleContainer();
+            $this->includePreviewModal();
+            if($ui == 1 || $ui == 3) {
+                $this->includeModuleTip();
+            }
+            if($ui == 2 || $ui == 3) {
+                $this->includeModuleContainer();
+            }
         }
 
     }
@@ -550,7 +547,34 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $injections = $this->injections;
         $pid = $_GET["pid"];
         $record_id = $_GET["id"];
+        $header = '<div style=\"margin:20px 0px 10px;font-size:15px;border-bottom:1px dashed #ccc;padding-bottom:5px !important;\">PDF Injector</div>';
 
+        $row = '<div class=\"row\">';
+        $columns = '';
+        foreach ($injections as $key => $injection) {
+            $thumbnailBase64 = $this->base64FromId($injection["thumbnail_id"]);
+            $column = '';
+            $column = '<div class=\"col-sm-2\">';
+            $column .= '<div onclick=\"STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.$record_id. ', '.$pid.');\" class=\"pdf-thumbnail thumbnail-hover my-shadow d-flex justify-content-center align-items-center\">';
+            $column .= '<img id=\"pdf-preview-img\" src=\"'.$thumbnailBase64.'\">';
+            $column .= '</div>';
+            $column .= '<span style=\"display:block;margin-top:15px;text-align:center;font-weight:bold;letter-spacing:1px;\">'.$injection["title"].'</span>';
+            $column .= '</div>';
+            $columns .= $column;
+        }
+        $row .= $columns . '</div>';
+        $body = '<div class=\"container-fluid\">'.$row.'</div>';
+        $moduleContainer = $header . $body;
+
+        ?>
+        <script type="text/javascript">
+        // IIFE - Immediately Invoked Function Expression
+        (function($, window, document) {
+            $( document ).ready(function() {
+                var moduleContainer = "<?= $moduleContainer ?>" ;                
+                $("#event_grid_table").after(moduleContainer);
+            });
+        }(window.jQuery, window, document));        
         </script>
         <?php
 
@@ -577,7 +601,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 </div>           
             </div>
         </div>
+        <?php
+    }
 
+    private function includePreviewModal() {
+        ?>
         <!-- Preview Modal -->
         <div class="modal fade" id="external-modules-configure-modal-preview" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
             <div class="modal-dialog" role="document" style="width: 800px">
@@ -599,7 +627,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>        
         <?php
     }
 

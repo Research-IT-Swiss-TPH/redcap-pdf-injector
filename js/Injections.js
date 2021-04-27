@@ -383,7 +383,7 @@ STPH_pdfInjector.createThumbnail = function(base64Data) {
             $('#modal_message_preview').append(embed);
             $('#modal_message_preview').css("max-height", $(document).height() * 0.75 );
     
-            $('#modalPreviewNumber').text("- Preview Injection #"+injectionnumber);
+            $('#modalPreviewNumber').text("PDF Injector- Preview Injection #"+injectionnumber);
             $('#myModalLabelA').show();
             $('#myModalLabelB').hide();
             $('#external-modules-configure-modal-preview').modal('show'); 
