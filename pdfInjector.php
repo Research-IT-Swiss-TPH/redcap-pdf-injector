@@ -28,21 +28,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     }
 
-    private function replaceActionTagsInLabel($label, $actiontag) {
-        switch ($actiontag) {
-            case '@TODAY':
-                $str =  date("d.m.Y");
-                break;
-            
-            default:
-                $str = "";
-                break;
-        }
-
-        return str_replace($actiontag, $str, $label);
-
-    }
-
+    
    /**
     *   -> Hooked to redcap_every_page_top
     *
@@ -212,7 +198,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $pdf->Merge();  // Does not support $pdf->Merge(true) yet (which would trigger PDF Flatten to "close" form fields via pdftk)
         # A issue on Github has been opened: https://github.com/codeshell/fpdm/issues/45
         # Future support of PDF flattening would be implemented as optional module setting ensuring pdftk is installed on server
-        
+
 
         $string = $pdf->Output( "S" );
         $base64_string = base64_encode($string);
@@ -406,7 +392,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         return $fields;
 
-    }    
+    }
 
     //  Saves thumbnail from base64 string source as png into edoc storage
     private function saveThumbnail($d_id, $b64) {
@@ -476,6 +462,21 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         return ( $diff_level_1 || $diff_level_2 );
     }
+
+    //  Helper function to render action tags    
+    private function replaceActionTagsInLabel($label, $actiontag) {
+        switch ($actiontag) {
+            case '@TODAY':
+                $str =  date("d.m.Y");
+                break;
+            
+            default:
+                $str = "";
+                break;
+        }
+
+        return str_replace($actiontag, $str, $label);
+    }    
 
     //  Force redirect to same page to clear $_POST data
     private function forceRedirect() {
