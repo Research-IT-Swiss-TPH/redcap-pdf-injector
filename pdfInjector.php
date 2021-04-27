@@ -41,7 +41,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         }
         //  Include Button
         if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
-            $this->initModuleTip();
+            $this->initModuleUI();
         } 
     }
 
@@ -194,7 +194,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         header('Content-Type: application/json; charset=UTF-8');
         header("HTTP/1.1 200 ");
-        echo json_encode(array("data" => $data, "test"=> $test));
+        echo json_encode(array("data" => $data));
 
     }
 
@@ -237,7 +237,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $this->handlePost();
     }
 
-    private function initModuleTip(){
+    private function initModuleUI(){
         $this->injections = self::getProjectSetting("pdf-injections");
         $ui = self::getProjectSetting("ui-mode");
         if(empty($ui)) {
@@ -268,8 +268,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             if($_POST["mode"] == "CREATE") {
 
                 if($_FILES)  {
-
-                    dump($_POST["fields"]);
 
                     //  Upload PDF and Thumbnail to REDCap edoc storage
                     $document_id = Files::uploadFile($_FILES['file']);
@@ -488,19 +486,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         header('Content-Type: application/json; charset=UTF-8');
         die($msg);
     }
-
-
-/*     public function base64ToImage($base64_string, $output_file) {
-        $file = fopen($output_file, "wb");
-    
-        $data = explode(',', $base64_string);
-    
-        fwrite($file, base64_decode($data[1]));
-        fclose($file);
-    
-        return $output_file;
-    } */
-
 
 
    /**
