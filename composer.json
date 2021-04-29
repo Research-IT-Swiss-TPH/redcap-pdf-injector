@@ -1,5 +1,8 @@
 {
     "require": {
         "tmw/fpdm": "^2.9"
+    },
+    "require-dev": {
+        "vimeo/psalm": "^4.7"
     }
 }

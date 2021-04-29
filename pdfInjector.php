@@ -540,7 +540,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             $thumbnailBase64 = $this->base64FromId($injection["thumbnail_id"]);
             $column = '';
             $column = '<div class=\"col-sm-2\">';
-            $column .= '<div onclick=\"STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.$record_id. ', '.$pid.');\" class=\"pdf-thumbnail thumbnail-hover my-shadow d-flex justify-content-center align-items-center\">';
+            $column .= '<div onclick=\"STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.htmlspecialchars($record_id). ', '.htmlspecialchars($pid).');\" class=\"pdf-thumbnail thumbnail-hover my-shadow d-flex justify-content-center align-items-center\">';
             $column .= '<img id=\"pdf-preview-img\" src=\"'.$thumbnailBase64.'\">';
             $column .= '</div>';
             $column .= '<span style=\"display:block;margin-top:15px;text-align:center;font-weight:bold;letter-spacing:1px;\">'.$injection["title"].'</span>';
@@ -580,7 +580,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 <div class="dropdown-menu">          
                 <?php
                 foreach ($injections as $key => $injection) {
-                    print '<a class="dropdown-item" href="javascript:;" id="submit-btn-inject-pdf-'.$key.'" onclick="STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.$record_id. ', '.$pid.');">'.$injection["title"].'</a>';
+                    print '<a class="dropdown-item" href="javascript:;" id="submit-btn-inject-pdf-'.$key.'" onclick="STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.htmlspecialchars($record_id). ', '.htmlspecialchars($pid).');">'.$injection["title"].'</a>';
                 }
                 ?>
                 </div>           
