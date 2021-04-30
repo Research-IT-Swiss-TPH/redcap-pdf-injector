@@ -36,18 +36,22 @@ This module requires **FILLABLE PDFS** which means that your PDF file has to be 
 The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as 
 "Adobe Acrobat Pro" to create PDFs with form fields. [Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
 
-2. Redable PDF format:
+2. Readable PDF format:
 To make the PDF and its fields readable through PDF Injector we have to process the pdf with an open source tool called `pdftk`.
-If you do not do this step, PDF Injector will not be able to scan your document and read the fields or fill them! Download pdftk [here](https://www.pdflabs.com/tools/pdftk-server/) and run the following command from your command line:
+If you do not do this step, PDF Injector will not be able to scan your document and read the fields or fill them!
+
+a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF.
+
+b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and run:
 
 ```
-    pdftk document.pdf output document.pdf
+    $ pdftk document.pdf output document_converted.pdf
 
 ```
 
 ### Supported Action Tags
 Currently the following Action Tags are supported:
-- @TODAY
+- @TODAY: returns date in format "d.m.Y"
 
 ##  Roadmap
 - support PDF flattening (Currently bugged with FPDM )
@@ -59,3 +63,4 @@ Currently the following Action Tags are supported:
 Version | Description
 ------- | --------------------
 v1.0.0  | Initial release.
+v1.0.1  | Minor Security Fix.
