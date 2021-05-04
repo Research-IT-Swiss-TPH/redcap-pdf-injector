@@ -55,6 +55,9 @@ b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and 
 Currently the following Action Tags are supported:
 - @TODAY: returns date in format "d.m.Y"
 
+### Known Issues with Mozilla Firefox: "This PDF document might not be displayed correctly."
+Direct printing within Mozilla Firefox PDF Preview is currently not possible. To ensure proper printing please download the file and open in Adobe Acrobat or use Chrome Browser.
+
 ##  Roadmap
 - support PDF flattening (Currently bugged with FPDM )
 - support more (simple) Action Tags (@NOW, etc.)
