@@ -119,7 +119,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   -> Called via RequestHandler.php over AJAX
     *   Renders preview for a given Injection and optionally record
     */
-    public function renderInjection($document_id, $record_id = null, $project_id = null) {
+    public function renderInjection($document_id, $record_id = null, $project_id = null, $as_b64 = true) {
 
         $injections = self::getProjectSetting("pdf-injections");
         $injection = $injections[$document_id];
@@ -188,20 +188,25 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $pdf = new FPDMH($path);
 
         $pdf->Load($fields,true);
-        $pdf->Merge();  // Does not support $pdf->Merge(true) yet (which would trigger PDF Flatten to "close" form fields via pdftk)
-        # A issue on Github has been opened: https://github.com/codeshell/fpdm/issues/45
+        $pdf->Merge();  // Does not support $pdf->Merge(true) yet (which would trigger PDF Flatten to "close" form fields via pdftk)        
         # Future support of PDF flattening would be implemented as optional module setting ensuring pdftk is installed on server
 
-
         $string = $pdf->Output( "S" );
-        $base64_string = base64_encode($string);
 
-        $data =  'data:application/' . $type . ';base64,' . base64_encode($string);
-
-        header('Content-Type: application/json; charset=UTF-8');
-        header("HTTP/1.1 200 ");
-        echo json_encode(array("data" => $data));
-
+        if( $as_b64 ) {
+            $base64_string = base64_encode($string);
+            $data =  'data:application/' . $type . ';base64,' . base64_encode($string);    
+            header('Content-Type: application/json; charset=UTF-8');
+            header("HTTP/1.1 200 ");
+            echo json_encode(array("data" => $data));
+        } else {
+            $filename = uniqid($record_id) . "_" . $injection["fileName"];
+            header('Content-type: application/pdf');
+            header('Content-Disposition: inline; filename="' . $filename . '"');
+            header('Content-Transfer-Encoding: binary');
+            header('Accept-Ranges: bytes');
+            echo $string;
+        }
     }
 
    /**
@@ -530,6 +535,10 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     }
 
     private function includeModuleContainer(){
+
+        //  Get Output mode from module settings
+        $previewMode = $this->getProjectSetting("preview-mode");
+
         $injections = $this->injections;
         $pid = $_GET["pid"];
         $record_id = $_GET["id"];
@@ -541,9 +550,17 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             $thumbnailBase64 = $this->base64FromId($injection["thumbnail_id"]);
             $column = '';
             $column = '<div class=\"col-sm-2\">';
-            $column .= '<div onclick=\"STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.htmlspecialchars($record_id). ', '.htmlspecialchars($pid).');\" class=\"pdf-thumbnail thumbnail-hover my-shadow d-flex justify-content-center align-items-center\">';
+            if($previewMode == 'modal') {
+                $column .= '<div onclick=\"STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.htmlspecialchars($record_id). ', '.htmlspecialchars($pid).');\" class=\"pdf-thumbnail thumbnail-hover my-shadow d-flex justify-content-center align-items-center\">';
+            } else {
+                $column .= '<div class=\"pdf-thumbnail thumbnail-hover my-shadow d-flex justify-content-center align-items-center\"><a class=\"dropdown-item\" id=\"submit-btn-inject-pdf-'.$key.'\" target=\"_blank\" href=\"'.$this->getUrl("preview.php").'&did='.$injection["document_id"].'&rid='.htmlspecialchars($record_id).'\">';
+            }
             $column .= '<img id=\"pdf-preview-img\" src=\"'.$thumbnailBase64.'\">';
-            $column .= '</div>';
+            if($previewMode == 'modal') {
+                $column .= '</div>';
+            } else {
+                $column .= '</a></div>';
+            }
             $column .= '<span style=\"display:block;margin-top:15px;text-align:center;font-weight:bold;letter-spacing:1px;\">'.$injection["title"].'</span>';
             $column .= '</div>';
             $columns .= $column;
@@ -560,13 +577,16 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 var moduleContainer = "<?= $moduleContainer ?>" ;                
                 $("#event_grid_table").after(moduleContainer);
             });
-        }(window.jQuery, window, document));        
+        }(window.jQuery, window, document));
         </script>
         <?php
 
     }
 
     private function includeModuleTip() {
+
+        //  Get Output mode from module settings
+        $previewMode = $this->getProjectSetting("preview-mode");
 
         $injections = $this->injections;
         $pid = $_GET["pid"];
@@ -581,7 +601,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 <div class="dropdown-menu">          
                 <?php
                 foreach ($injections as $key => $injection) {
-                    print '<a class="dropdown-item" href="javascript:;" id="submit-btn-inject-pdf-'.$key.'" onclick="STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.htmlspecialchars($record_id). ', '.htmlspecialchars($pid).');">'.$injection["title"].'</a>';
+                    if($previewMode == 'modal') {
+                        print '<a class="dropdown-item" href="javascript:;" id="submit-btn-inject-pdf-'.$key.'" onclick="STPH_pdfInjector.previewInjection('.$key.','.$injection["document_id"].', '.htmlspecialchars($record_id). ', '.htmlspecialchars($pid).');">'.$injection["title"].'</a>';
+                    } else {
+                        print '<a class="dropdown-item" id="submit-btn-inject-pdf-'.$key.'" target="_blank" href="'.$this->getUrl("preview.php").'&did='.$injection["document_id"].'&rid='.htmlspecialchars($record_id).'">'.$injection["title"].'</a>';
+                    }
                 }
                 ?>
                 </div>           

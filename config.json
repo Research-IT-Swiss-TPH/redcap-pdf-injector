@@ -70,7 +70,22 @@
 				}                
             ],
             "default": "1"
-
+        },
+        {
+            "key": "preview-mode",
+            "name": "Preview Mode",
+            "type": "dropdown",
+            "choices": [
+                {
+                    "name": "New Tab",
+                    "value": "new-tab"
+                },
+                {
+                    "name": "Modal",
+                    "value": "modal"
+                }
+            ],
+            "default": "new-tab"
         }
     ],
 
