@@ -69,3 +69,4 @@ Version | Description
 ------- | --------------------
 v1.0.0  | Initial release.
 v1.0.1  | Minor Security Fix.
+v1.0.2  | Cleanup & added preview mode 'new tab'.
