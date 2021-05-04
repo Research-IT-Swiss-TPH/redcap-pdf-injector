@@ -1,22 +1,10 @@
 <?php
+/**
+ * Module Page to manage Injections
+ * 
+ */
+
 namespace STPH\pdfInjector;
-
-use RCView;
-
-
-//	Use \Files::uploadFile($_FILES[$key]) to upload file into $edoc
-//	Check out https://github.com/vanderbilt-redcap/big-data-import/blob/master/saveData.php:56
-
-# 1. Upload, validate and scan File. Save if successful to storage, retrieve edoc id 
-# and save as new injection into module data json
-
-# 2. Add title, description, and field associations
-
-# Submit File to Check: Check if file is valid continue
-# Save edoc to database, return ready for scan
-# Scan file, return field data to client, save field data to database
-# Files::getEdocName
-# https://github.com/mozilla/pdf.js
 
 
 renderPageTitle('<i class="fas fa-syringe"></i> PDF Injector');
@@ -73,7 +61,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 										</div>';
 
 						
-						$injectionTitle = (trim($attr['title']) == '') ? '' : $lang['colon'].'<span class="font-weight-normal ml-1">'.RCView::escape($attr['title']).'</span>';						
+						$injectionTitle = (trim($attr['title']) == '') ? '' : $lang['colon'].'<span class="font-weight-normal ml-1">'.\RCView::escape($attr['title']).'</span>';						
 						$formName = '<div class="clearfix" style="margin-left: -11px;">
 										<div style="max-width:340px;" class="card-header alert-num-box float-left text-truncate"><i class="fas fa-syringe fs13" style="margin-right:5px;"></i>PDF Injection #'.$injection_number.$injectionTitle.'</div>
 										<div class="btn-group nowrap float-left mb-1 ml-2" role="group">

@@ -1,7 +1,13 @@
 <?php
 
-// Set the namespace defined in your config file
 namespace STPH\pdfInjector;
+
+/**
+ * REDCap External Module: PDF Injector
+ * PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables.
+ * @author Ekin Tertemiz, Swiss Tropical and Public Health Institute
+ * 
+ */
 
 require 'vendor/autoload.php';
 

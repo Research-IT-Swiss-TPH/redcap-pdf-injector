@@ -1,4 +1,8 @@
 <?php
+/**
+ * Template file used via Ajax
+ * 
+ */
 
 $response = "";
 $fields = $_POST["fields"];

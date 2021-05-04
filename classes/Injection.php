@@ -5,7 +5,7 @@ namespace STPH\pdfInjector;
  * Class Injection
  *
  * A class for helping to store and manage Injections Data
- * Author: Ekin Tertemiz
+ * @author Ekin Tertemiz, Swiss Tropical and Public Health Institute
  * 
  */
 

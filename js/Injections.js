@@ -240,7 +240,7 @@ STPH_pdfInjector.scanFile = function (file) {
     function fileScanError(msg) {
         $("#file").addClass("is-invalid");
         $("#fpdm-success").addClass("d-none");
-        $("#fpdm-error").html("The file you selected could not be processed. It seems like your PDF is not valid or not readable. <a style=\"font-size:10.4px\" href=\"#docs-pdftk\">Read more</a> on how to prepare your PDF to make it injectable! <code>FPDM error message: "+msg+"</code>")
+        $("#fpdm-error").html("The file you selected could not be processed. It seems like your PDF is not valid or not readable. Please read the docs \"Requirements & Limitations\" to learn how to make your <b>PDF fillable</b>! <code>FPDM error message: "+msg+"</code>")
         $("#fpdm-error").removeClass("d-none");
         $("#fileLabel").text("Choose another file...");
         $("section#step-2").addClass("disabled");

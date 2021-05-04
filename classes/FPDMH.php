@@ -1,6 +1,14 @@
 <?php
 namespace STPH\pdfInjector;
 
+/**
+ * Class FPDMH
+ *
+ * A class for helping to read field names from a PDF file extending FPDM class
+ * @author Ekin Tertemiz, Swiss Tropical and Public Health Institute
+ * 
+ */
+
 use \FPDM;
 use \Exception;
 
