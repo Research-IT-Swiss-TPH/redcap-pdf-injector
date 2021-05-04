@@ -19,7 +19,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 				<div class="float-right mt-2 mr-1">
 				</div>
 			</div>
-            <?php if (count( $module->getInjections() ) > 0) : ?>
+            <?php if ( $module->getInjections() !== null && count( $module->getInjections() ) > 0) : ?>
 				<table class="table table-bordered table-hover email_preview_forms_table" id="injectionsPreview" style="display:none;width:100%;table-layout: fixed;">
 					<thead>
 						<tr class="table_header d-none">
