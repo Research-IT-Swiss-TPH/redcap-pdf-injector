@@ -33,7 +33,7 @@ To define how your Injections should be displayed on the Record Home Page, choos
 ## Requirements & Limitations
 
 ### Fillable PDFs
-This module requires **FILLABLE PDFS** which means that your PDF file has to be in a specific format:
+This module requires **FILLABLE PDF** which means that your PDF file has to be in a specific format:
 1. Form fields:
 The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as 
 "Adobe Acrobat Pro" to create PDFs with form fields. [Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
