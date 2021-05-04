@@ -609,7 +609,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-defaultrc" data-dismiss="modal"><?=$lang['calendar_popup_01']?></button>
+                        <button type="button" class="btn btn-defaultrc" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
