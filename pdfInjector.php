@@ -246,10 +246,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     private function initModuleUI(){
         $this->injections = self::getProjectSetting("pdf-injections");
         $ui = self::getProjectSetting("ui-mode");
-        if(empty($ui)) {
-            self::setProjectSetting("ui-mode", 1);
-        }
-
         if(count($this->injections) > 0) {
             $this->includePageJavascript();
             $this->includePageCSS();
@@ -261,7 +257,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 $this->includeModuleContainer();
             }
         }
-
     }
 
     //  Post Handler
