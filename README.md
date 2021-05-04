@@ -25,6 +25,8 @@ Repeat this for any other PDF file.
 
 ### Set UI Mode
 To define how your Injections should be displayed on the Record Home Page, choose the option in module configuration that suits you best.
+![alt text](/img/pdf_injector_screen_config.png "Screenshot Configuration")
+
 ![alt text](/img/pdf_injector_screen_3.png "Screenshot 3")
 
 
