@@ -42,7 +42,7 @@
     "project-settings": [
         {
             "key": "javascript-debug",
-            "name": "Output debug information to the browser console",
+            "name": "<b>Debug</b><br>Output debug information to the browser console",
             "type": "checkbox"
         },        
         {
@@ -53,7 +53,7 @@
         },
         {
             "key": "ui-mode",
-            "name": "Show PDF Injections on Record Home Page",
+            "name": "<b>UI Mode</b><br>Define how to trigger PDF Injections on Record Home Page",
             "type": "dropdown",
             "choices": [
                 {
@@ -73,7 +73,7 @@
         },
         {
             "key": "preview-mode",
-            "name": "Preview Mode",
+            "name": "<b>Preview Mode</b><br>Define how filled PDF should be previewed",
             "type": "dropdown",
             "choices": [
                 {
