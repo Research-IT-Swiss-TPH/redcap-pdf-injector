@@ -184,6 +184,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             }
         }
 
+
         if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
         $pdf = new FPDMH($path);
 
@@ -192,6 +193,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         # Future support of PDF flattening would be implemented as optional module setting ensuring pdftk is installed on server
 
         $string = $pdf->Output( "S" );
+
 
         if( $as_b64 ) {
             $base64_string = base64_encode($string);
