@@ -41,14 +41,24 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */
     function redcap_every_page_top($project_id = null) {
 
-        //  Include Javascript and Styles on module page
-        if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
-            $this->initModule();            
+        try {
+            //  Check if user is logged in
+            if($this->getUser()->username) {
+
+                //  Include Javascript and Styles on module page
+                if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
+                    $this->initModule();            
+                }
+
+                //  Include Button
+                if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
+                    $this->initModuleUI();
+                } 
+            }
+        } catch(Exception $e) {
+            //  Do nothing...
         }
-        //  Include Button
-        if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
-            $this->initModuleUI();
-        } 
+
     }
 
    /**    
