@@ -372,8 +372,12 @@ STPH_pdfInjector.createThumbnail = function(base64Data) {
         project_id: project_id
     })
     .done(function(response){
+        console.log(response);
+        if (response.error) {
+            // handle the error
+            throw response.error.msg;
+        }
         if( typeof response === 'string' && response.includes("FPDF-Merge Error:") ){
-
             alert(response);
             console.log(response);
 
