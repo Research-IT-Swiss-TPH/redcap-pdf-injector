@@ -197,6 +197,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
         $pdf = new FPDMH($path);
+        //  Add checkbox support
+        $pdf->useCheckboxParser = true;
 
         $pdf->Load($fields,true);
         $pdf->Merge();  // Does not support $pdf->Merge(true) yet (which would trigger PDF Flatten to "close" form fields via pdftk)        
