@@ -65,6 +65,11 @@ Direct printing within Mozilla Firefox PDF Preview is currently not possible. To
 ### PDF form fields accessible
 Filled form fields will still be accessible after render. This means that anybody can edit their content which is not best practise. To "close" form fields an additional step called "flattening" is necessary which currently is not supported by the module. A future is in consideration though (see Roadmap below).
 
+### Supported PDF fields
+Currently the following PDF field types are supported:
+- Textfield: Insert text as one line or also as multiline (option multline for textfield has to be active)
+- Checkbox: Insert a value that is true or false to tick or untick the checkbox.
+
 ### Supported Action Tags
 Currently the following Action Tags are supported:
 - @TODAY: returns date in format "d.m.Y"
@@ -72,7 +77,7 @@ Currently the following Action Tags are supported:
 ##  Roadmap
 - support PDF flattening (currently bugged within FPDM, exec pdftk directly or use of alternative libraries such as pdfcairo, external web service)
 - support additional (simple) Action Tags (@NOW, etc.), improve Action tag support (e.g. formating for dates)
-- support additional PDF form field types (barcodes, checkboxes, etc.)
+- support additional PDF form field types (barcodes, ~~checkboxes~~, etc.)
 
 ## Changelog
 
@@ -81,3 +86,4 @@ Version | Description
 v1.0.0  | Initial release.
 v1.0.1  | Minor Security Fix.
 v1.0.2  | Cleanup & added preview mode 'new tab'.
+v1.1.0  | Add form field type checkbox support.
