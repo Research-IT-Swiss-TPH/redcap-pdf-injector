@@ -13,7 +13,7 @@ Documentation Overview:
 
 ### Installation
 
-**Important:** Please read [Requirements and Limitations](#requirements) before your proceed to setup and use the module!
+*Important:* Please read [Requirements and Limitations](#requirements) before your proceed to setup and use the module!
 
 **Install automatically from REDCap Repo**<br>
 You can download and install the latest version of PDF Injector from [REDCap Repository of External Modules](https://redcap.vanderbilt.edu/consortium/modules/). If you open the Repo link from your REDCap instance, than automatic install will be triggered.
@@ -28,7 +28,7 @@ After successfully installing the module you should be able to enable the module
 **Set UI Mode**<br>To define how your Injections should be displayed on the Record Home Page, choose the option in module configuration that suits you best.
 
 **Set Preview Mode**<br>
-You can choose in module configuration settings how the filled PDF should be previewed on the record page: either within a modal or in a new tab. Previewing in a new tab has the advantage that you can configure your browser to directly open the PDF in Adobe Reader, that enhances given browsers issues as described below. [Learn here how to configure Firefox to chose another viewer for PDFs](https://support.mozilla.org/en-US/kb/view-pdf-files-firefox-or-choose-another-viewer).
+You can choose in module configuration settings how the filled PDF should be previewed on the record page: either within a modal or in a new tab. Previewing in a new tab has the advantage that you can configure your browser to directly open the PDF in Adobe Reader, that enhances given browsers issues as described below. <br>[Learn here how to configure Firefox to chose another viewer for PDFs](https://support.mozilla.org/en-US/kb/view-pdf-files-firefox-or-choose-another-viewer).
 
 ### How to use
 
@@ -51,7 +51,7 @@ Repeat this for any other PDF file.
 Please notice that the current module version has several requirements. Ensure to test your setup before use in production.
 
 #### Requirement: form fields
-The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as "Adobe Acrobat Pro" to create PDFs with form fields. [Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
+The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as "Adobe Acrobat Pro" to create PDFs with form fields. <br>[Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
 
 2. Requirement: readable and fillable
 To make the PDF and its fields readable & fillable through PDF Injector we have to process the pdf with an open source tool called `pdftk`.
@@ -59,7 +59,7 @@ To make the PDF and its fields readable & fillable through PDF Injector we have 
 
 *There are two ways of processing your PDFs with pdftk:*
 
-a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF. Alternatively, you can setup the pdftk web service on your own server/localhost. [Get repo to setup pdftk web service](https://github.com/tertek/pdftk-web-service)
+a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF. Alternatively, you can setup the pdftk web service on your own server/localhost. <br>[Get repo to setup pdftk web service](https://github.com/tertek/pdftk-web-service)
 
 b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and run:
 
