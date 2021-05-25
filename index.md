@@ -6,27 +6,25 @@ PDF Injector is a REDCap module that enables you to populate fillable PDFs with 
 2. [Installation](#installation)
 3. [Configuration](#configuration)
 4. [Usage](#usage)
-5. [Limitations](#limitations)
+5. [Requirements](#requirements)
 6. [Known Issues](#known-issues)
 
 ### Features
-**supported PDF fields**
-
+#### supported PDF fields
 Currently the following PDF field types are supported:
-1. Textfield: Insert text as one line or also as multiline (option multline for textfield has to be active)
-2. Checkbox: Insert a value that is true or false to tick or untick the checkbox.
+- Textfield: Insert text as one line or also as multiline (option multline for textfield has to be active)
+- Checkbox: Insert a value that is true or false to tick or untick the checkbox.
 
-**supported Action Tags**
-
+#### supported Action Tags
 Currently the following Action Tags are supported:
-1. @TODAY: returns date in format "d.m.Y"
+- @TODAY: returns date in format "d.m.Y"
 
 
 ### Installation
 
-**Important:** Please read limitations before your proceed to setup and use the module!
+**Important:** Please read [Requirements](#requirements) before your proceed to setup and use the module!
 
-**Install automatically from REDCap Repo:**
+#### Install automatically from REDCap Repo
 You can download and install the latest version of PDF Injector from [REDCap Repository of External Modules](https://redcap.vanderbilt.edu/consortium/modules/). If you open the Repo link from your REDCap instance, than automatic install will be triggered.
 
 **Install manually from Github Repository:**
@@ -59,14 +57,12 @@ Repeat this for any other PDF file.
 
 **Download Injection**
 
-### Limitations
-Please notice that the current module version has several limitations. Ensure to test your setup before use in production.
-
-**Fillable PDFs**
+### Requirements
+Please notice that the current module version has several requirements. Ensure to test your setup before use in production.
 
 This module requires <u>fillable PDF files</u> which means that your file has to satisfy the following requirements so that the module can be of actual use:
 
-1. Requirement: form fields
+#### Requirement: form fields
 The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as "Adobe Acrobat Pro" to create PDFs with form fields. [Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
 
 2. Requirement: readable and fillable
@@ -82,7 +78,6 @@ b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and 
 ```
     $ pdftk document.pdf output document_converted.pdf
 ```
-
 
 ### Known Issues
 
