@@ -38,6 +38,7 @@ You can choose in module configuration settings how the filled PDF should be pre
 
 
 ### How to use
+The standard procedure to use PDF Injector is to upload your ready made PDFs to REDCap, create an Injection and then Inject Record Data into a PDF. ADditionaly, you can edit, preview or delete your Injection. 
 
 **Create Injection**<br>
 You can add a new PDF Injection as follows:
