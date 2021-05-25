@@ -68,9 +68,29 @@ A modal opens up where you can add your new Injection
 <ul>Advanced use:</ul><br>If you would like to fill multiple variables into a form field, you can use @CALCTEXT inside the field annotation of that field. PDF Injector can handle fields with CALCTEXT and also in combination with Smart Variables and Action Tags (please check Supported Action Tags section).
 ***
 
+**Preview Injection**<br>
+You can preview your Injection to check if the variable that you have binded to PDF fields are shown correctly on the document. To preview an Injection click on "Preview" next to the Injection thumbnail.
+![alt text](img/screens/pdfi_screen_preview_0.png "Preview 0")
+![alt text](img/screens/pdfi_screen_preview_1.png "Preview 1")
+
 **Edit or Delete Injection**<br>
 To edit an Injection click on "Edit" on the Injections overview page. A modal will open up where you can edit all data for that Injection. To delete click on "Delete" and Confirm your decision. This action cannot be undone.
 ![alt text](img/screens/pdfi_screen_edit_or_delete.png "How 2")
+
+**Inject Record Data**<br>
+To Inject Data for a Record and retrieve the PDF proceed as follows:
+0.Ensure you have entered values for the variables that you have binded to your PDF fields.
+![alt text](img/screens/pdfi_screen_inject_1.png "Inject 0")
+
+1.On the Record Home Page for the record that you entered the data you will see a button "PDJ Injection"
+![alt text](img/screens/pdfi_screen_inject_0.png "Inject 1")
+
+2.Depending on your Preview Mode you will see after clicking on the relevant Injection your injected record data within a modal or in a new tab.
+![alt text](img/screens/pdfi_screen_inject_2.png "Inject 2")
+
+***
+<ul>Advanced use:</ul><br>To populate checkbox fields you need to return either a 'true' or 'false' value to that variable. The easiest way to achieve this is with REDCap field type "True/False", but can also be done by returning true of false within @CALCTEXT.
+***
 
 
 ### Requirements and Limitations
