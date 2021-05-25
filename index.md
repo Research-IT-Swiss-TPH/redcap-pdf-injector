@@ -43,17 +43,21 @@ You can choose in module configuration settings how the filled PDF should be pre
 You can add a new PDF Injection as follows:
 
 0.Click on "Add new Injection"
+
 ![alt text](img/screens/pdfi_screen_how_0.png "How 1")
 
 A modal opens up where you can add your new Injection
+
 ![alt text](img/screens/pdfi_screen_how_1.png "How 2")
 
 1.Upload your PDF that [satisfies given requirements and limitations](#requirements-and-limitations). If the file is valid and has readable fields,  than an automatic thumbnail of the PDF will be inserted and available fields will be listed under Step 2.
 
 2.Add your title and description. This is important for organizing your documents.
+
 ![alt text](img/screens/pdfi_screen_how_2.png "How 3")
 
 3.Bind variables to given form fields.
+
 ![alt text](img/screens/pdfi_screen_how_3.png "How 4")
 
 4.Save (only valid "field - to - variable - bindings" are going to be saved). Anything invalid is going to be ignored. If everything goes fine you should see your new Injection in the overview.
@@ -66,6 +70,7 @@ A modal opens up where you can add your new Injection
 
 **Preview Injection**<br>
 You can preview your Injection to check if the variable that you have binded to PDF fields are shown correctly on the document. To preview an Injection click on "Preview" next to the Injection thumbnail.
+
 ![alt text](img/screens/pdfi_screen_preview_0.png "Preview 0")
 ![alt text](img/screens/pdfi_screen_preview_1.png "Preview 1")
 
@@ -76,12 +81,15 @@ To edit an Injection click on "Edit" on the Injections overview page. A modal wi
 **Inject Record Data**<br>
 To Inject Data for a Record and retrieve the PDF proceed as follows:
 0.Ensure you have entered values for the variables that you have binded to your PDF fields.
+
 ![alt text](img/screens/pdfi_screen_inject_1.png "Inject 0")
 
 1.On the Record Home Page for the record that you entered the data you will see a button "PDJ Injection"
+
 ![alt text](img/screens/pdfi_screen_inject_0.png "Inject 1")
 
 2.Depending on your Preview Mode you will see after clicking on the relevant Injection your injected record data within a modal or in a new tab.
+
 ![alt text](img/screens/pdfi_screen_inject_2.png "Inject 2")
 
 ***
