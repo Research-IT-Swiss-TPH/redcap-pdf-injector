@@ -2,11 +2,12 @@
 
 PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables.
 
-0. [Features](#features)
-1. [Limitations](#limitations)
+1. [Features](#features)
 2. [Installation](#installation)
-2. [Configuration](#configuration)
-
+3. [Configuration](#configuration)
+4. [Usage](#usage)
+5. [Limitations](#limitations)
+6. [Known Issues](#known-issues)
 
 ### Features
 **supported PDF fields**
@@ -19,31 +20,6 @@ Currently the following PDF field types are supported:
 
 Currently the following Action Tags are supported:
 1. @TODAY: returns date in format "d.m.Y"
-
-### Limitations
-Please notice that the current module version has several limitations. Ensure to test your setup before use in production.
-
-**Fillable PDFs**
-
-This module requires **FILLABLE PDF** which means that your PDF file has to satisfy specific conditions:
-
-1. Form fields:
-The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as "Adobe Acrobat Pro" to create PDFs with form fields. [Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
-
-2. Readable PDF format:
-To make the PDF and its fields readable through PDF Injector we have to process the pdf with an open source tool called `pdftk`.
-If you do not do this step, PDF Injector will not be able to scan your document and read the fields or fill them!
-
-*There are two ways of processing your PDFs:*
-
-a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF. Alternatively, you can setup the pdftk web service on your own server/localhost. [pdftk-web-service repository](https://github.com/tertek/pdftk-web-service)
-
-b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and run:
-
-```
-    $ pdftk document.pdf output document_converted.pdf
-
-```
 
 
 ### Installation
@@ -82,6 +58,31 @@ Repeat this for any other PDF file.
 **Preview Injection**
 
 **Download Injection**
+
+### Limitations
+Please notice that the current module version has several limitations. Ensure to test your setup before use in production.
+
+**Fillable PDFs**
+
+This module requires <u>fillable PDF files</u> which means that your file has to satisfy the following requirements so that the module can be of actual use:
+
+1. Requirement: form fields
+The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as "Adobe Acrobat Pro" to create PDFs with form fields. [Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
+
+2. Requirement: readable and fillable
+To make the PDF and its fields readable & fillable through PDF Injector we have to process the pdf with an open source tool called `pdftk`.
+<u>If you do not do this step, PDF Injector will not be able to scan your document and read the fields or fill them!</u>
+
+*There are two ways of processing your PDFs with pdftk:*
+
+a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF. Alternatively, you can setup the pdftk web service on your own server/localhost. [Get repo to setup pdftk web service](https://github.com/tertek/pdftk-web-service)
+
+b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and run:
+
+```
+    $ pdftk document.pdf output document_converted.pdf
+```
+
 
 ### Known Issues
 
