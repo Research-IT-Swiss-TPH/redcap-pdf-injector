@@ -74,6 +74,7 @@ You can preview your Injection to check if the variable that you have binded to 
 
 **Edit or Delete Injection**<br>
 To edit an Injection click on "Edit" on the Injections overview page. A modal will open up where you can edit all data for that Injection. To delete click on "Delete" and Confirm your decision. This action cannot be undone.
+
 ![alt text](img/screens/pdfi_screen_edit_or_delete.png "How 2")
 
 **Inject Record Data**<br>
