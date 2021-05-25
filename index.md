@@ -1,7 +1,7 @@
 ## Documentation
 PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables. 
 
-![alt text](/img/logo_pdfi.png "Logo")
+![alt text](img/logo_pdfi.png "Logo")
 
 
 Documentation Overview:
@@ -29,13 +29,12 @@ After successfully installing the module you should be able to enable the module
 
 
 **Enable Debugging**<br>If you have problems with the module you can output javascript console logs.
-![alt text](../img/screens/pdfi_screen_config_1.png "Config 1")
 
-
+![alt text](img/screens/pdfi_screen_config_1.png "Config 1")
 
 **Set UI Mode**<br>To define how your Injections should be displayed on the Record Home Page, choose the option in module configuration that suits you best.
 
-![alt text](./img/screens/pdfi_screen_config_2.png "Config 2")
+![alt text](img/screens/pdfi_screen_config_2.png "Config 2")
 
 **Set Preview Mode**<br>
 You can choose in module configuration settings how the filled PDF should be previewed on the record page: either within a modal or in a new tab. Previewing in a new tab has the advantage that you can configure your browser to directly open the PDF in Adobe Reader, that enhances given browsers issues as described below. <br>[Learn here how to configure Firefox to chose another viewer for PDFs](https://support.mozilla.org/en-US/kb/view-pdf-files-firefox-or-choose-another-viewer).
@@ -50,11 +49,11 @@ You can add a new PDF Injection as follows:
 
 1. Click on "Add new Injection"
 
-![alt text](/img/screens/pdfi_screen_how_0.png "How 1")
+![alt text](img/screens/pdfi_screen_how_0.png "How 1")
 
 2. A modal opens up where you can add your new Injection
 
-![alt text](/img/screens/pdfi_screen_how_1.png "How 2")
+![alt text](img/screens/pdfi_screen_how_1.png "How 2")
 
 2.1 Upload your PDF that [satisfies given limitations](#requirements-and-limitations)
 2.2 Add your title and description.
