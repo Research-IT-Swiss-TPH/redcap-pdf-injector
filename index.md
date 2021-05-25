@@ -65,7 +65,9 @@ A modal opens up where you can add your new Injection
 ![alt text](img/screens/pdfi_screen_how_4.png "How 5")
 
 ***
+
 <ul>Advanced use:</ul><br>If you would like to fill multiple variables into a form field, you can use @CALCTEXT inside the field annotation of that field. PDF Injector can handle fields with CALCTEXT and also in combination with Smart Variables and Action Tags (please check Supported Action Tags section).
+
 ***
 
 **Preview Injection**<br>
@@ -93,7 +95,9 @@ To Inject Data for a Record and retrieve the PDF proceed as follows:
 ![alt text](img/screens/pdfi_screen_inject_2.png "Inject 2")
 
 ***
+
 <ul>Advanced use:</ul><br>To populate checkbox fields you need to return either a 'true' or 'false' value to that variable. The easiest way to achieve this is with REDCap field type "True/False", but can also be done by returning true of false within @CALCTEXT.
+
 ***
 
 
