@@ -13,7 +13,7 @@ Documentation Overview:
 
 ### Installation
 
-*Important:* Please read [Requirements and Limitations](#requirements) before your proceed to setup and use the module!
+*Important:* Please read [Requirements and Limitations](#requirements-and-limitations) before your proceed to setup and use the module!
 
 **Install automatically from REDCap Repo**<br>
 You can download and install the latest version of PDF Injector from [REDCap Repository of External Modules](https://redcap.vanderbilt.edu/consortium/modules/). If you open the Repo link from your REDCap instance, than automatic install will be triggered.
@@ -43,17 +43,17 @@ Repeat this for any other PDF file.
 
 *Hint* If you would like to fill multiple variables into a form field, you can use CALCTEXT inside the field annotation of that field. PDF Injector can handle fields with CALCTEXT and also in combination with Smart Variables and Action Tags*.
 
-**Preview Injection**
+**Preview Injection**<br>
 
-**Download Injection**
+**Download Injection**<br>
 
 ### Requirements and Limitations
 Please notice that the current module version has several requirements. Ensure to test your setup before use in production.
 
-#### Requirement: form fields
+**Requirement 1: form fields**<br>
 The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as "Adobe Acrobat Pro" to create PDFs with form fields. <br>[Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
 
-2. Requirement: readable and fillable
+**Requirement 2: readable and fillable**<br>
 To make the PDF and its fields readable & fillable through PDF Injector we have to process the pdf with an open source tool called `pdftk`.
 <u>If you do not do this step, PDF Injector will not be able to scan your document and read the fields or fill them!</u>
 
@@ -65,14 +65,15 @@ b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and 
 
 ```
     $ pdftk document.pdf output document_converted.pdf
+    //  Check pdftk docs for further help
 ```
 
-#### Limitation: PDF field types
+**Limitation 1: PDF field types**<br>
 Currently the following PDF field types are supported:
 - Textfield: Insert text as one line or also as multiline (option multline for textfield has to be active)
 - Checkbox: Insert a value that is true or false to tick or untick the checkbox.
 
-#### Limitation: REDCap Action Tags
+**Limitation 2: REDCap Action Tags**<br>
 Currently the following Action Tags are supported during an injection:
 - @TODAY: returns date in format "d.m.Y"
 
