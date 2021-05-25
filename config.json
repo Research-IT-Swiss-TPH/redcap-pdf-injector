@@ -5,7 +5,7 @@
 
     "description": "PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables.",
 
-    "documentation": "README.md",
+    "documentation": "https://tertek.github.io/redcap-pdf-injector/",
 
     "authors": [
         {
@@ -92,7 +92,7 @@
     "crons": [],
 
     "compatibility": {
-        "php-version-min": "5.4.0",
-        "redcap-version-min": "8.0.0"
+        "php-version-min": "7.0.0",
+        "redcap-version-min": "10.0.0"
     }
  }
