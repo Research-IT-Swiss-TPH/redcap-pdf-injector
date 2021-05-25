@@ -44,28 +44,32 @@ You can choose in module configuration settings how the filled PDF should be pre
 
 ### How to use
 
-**Add a new Injection**<br>
+**Create Injection**<br>
 You can add a new PDF Injection as follows:
 
-1. Click on "Add new Injection"
+0. Click on "Add new Injection"
 
 ![alt text](img/screens/pdfi_screen_how_0.png "How 1")
 
-2. A modal opens up where you can add your new Injection
-
+A modal opens up where you can add your new Injection
 ![alt text](img/screens/pdfi_screen_how_1.png "How 2")
 
-2.1 Upload your PDF that [satisfies given limitations](#requirements-and-limitations)
-2.2 Add your title and description.
-2.3 Bind variables to given form fields.
 
-Repeat this for any other PDF file.
+1. Upload your PDF that [satisfies given requirements and limitations](#requirements-and-limitations). If the file is valid and has readable fields,  than an automatic thumbnail of the PDF will be inserted and available fields will be listed under Step 2.
+2. Add your title and description. This is important for organizing your documents.
+3. Bind variables to given form fields.
+4. Save (only valid "field - to - variable - bindings" are going to be saved). Anything invalid is going to be ignored.
 
-*Hint* If you would like to fill multiple variables into a form field, you can use CALCTEXT inside the field annotation of that field. PDF Injector can handle fields with CALCTEXT and also in combination with Smart Variables and Action Tags*.
+*Repeat this for any other PDF file.*
 
-**Preview Injection**<br>
+***
+*Hint* If you would like to fill multiple variables into a form field, you can use @CALCTEXT inside the field annotation of that field. PDF Injector can handle fields with CALCTEXT and also in combination with Smart Variables and Action Tags (please check Supported Action Tags section).
 
-**Download Injection**<br>
+**Edit Injection**<br>
+To edit an Injection click on "Edit" on the Injections overview page. A modal will open up where you can edit all data for that Injection.
+
+**Delete Injection**<br>
+
 
 ### Requirements and Limitations
 Please notice that the current module version has several requirements. Ensure to test your setup before use in production.
@@ -100,5 +104,8 @@ Currently the following Action Tags are supported during an injection:
 
 ### Known Issues
 
-**Firefox**<br>
+**Firefox Browser**<br>
 "This PDF document might not be displayed correctly.":  Direct printing within Mozilla Firefox PDF Preview is currently not possible. To ensure proper displaying &  printing please download the file and open in Adobe Acrobat or use Chrome Browser.
+
+**REDCap calculated fields**<br>
+In some cases it might be that an injection has not updated the values for its variables that correspond to @CALCTEXT. This is related to how REDCap handles calculated fields. To fix this please use the REDCap Data Quality application and execute *Data Quality Rule #H:* "Incorrect values for calculated fields". 
