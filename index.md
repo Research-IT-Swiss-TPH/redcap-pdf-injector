@@ -27,7 +27,6 @@ After successfully installing the module you should be able to enable the module
 
 ### Configuration
 
-
 **Enable Debugging**<br>If you have problems with the module you can output javascript console logs.
 
 ![alt text](img/screens/pdfi_screen_config_1.png "Config 1")
@@ -47,28 +46,31 @@ You can choose in module configuration settings how the filled PDF should be pre
 **Create Injection**<br>
 You can add a new PDF Injection as follows:
 
-0. Click on "Add new Injection"
-
+0.Click on "Add new Injection"
 ![alt text](img/screens/pdfi_screen_how_0.png "How 1")
 
 A modal opens up where you can add your new Injection
 ![alt text](img/screens/pdfi_screen_how_1.png "How 2")
 
+1.Upload your PDF that [satisfies given requirements and limitations](#requirements-and-limitations). If the file is valid and has readable fields,  than an automatic thumbnail of the PDF will be inserted and available fields will be listed under Step 2.
 
-1. Upload your PDF that [satisfies given requirements and limitations](#requirements-and-limitations). If the file is valid and has readable fields,  than an automatic thumbnail of the PDF will be inserted and available fields will be listed under Step 2.
-2. Add your title and description. This is important for organizing your documents.
-3. Bind variables to given form fields.
-4. Save (only valid "field - to - variable - bindings" are going to be saved). Anything invalid is going to be ignored.
+2.Add your title and description. This is important for organizing your documents.
+![alt text](img/screens/pdfi_screen_how_2.png "How 3")
 
-*Repeat this for any other PDF file.*
+3.Bind variables to given form fields.
+![alt text](img/screens/pdfi_screen_how_3.png "How 4")
+
+4.Save (only valid "field - to - variable - bindings" are going to be saved). Anything invalid is going to be ignored. If everything goes fine you should see your new Injection in the overview.
+
+![alt text](img/screens/pdfi_screen_how_4.png "How 5")
 
 ***
-*Hint* If you would like to fill multiple variables into a form field, you can use @CALCTEXT inside the field annotation of that field. PDF Injector can handle fields with CALCTEXT and also in combination with Smart Variables and Action Tags (please check Supported Action Tags section).
+<ul>Advanced use:</ul><br>If you would like to fill multiple variables into a form field, you can use @CALCTEXT inside the field annotation of that field. PDF Injector can handle fields with CALCTEXT and also in combination with Smart Variables and Action Tags (please check Supported Action Tags section).
+***
 
-**Edit Injection**<br>
-To edit an Injection click on "Edit" on the Injections overview page. A modal will open up where you can edit all data for that Injection.
-
-**Delete Injection**<br>
+**Edit or Delete Injection**<br>
+To edit an Injection click on "Edit" on the Injections overview page. A modal will open up where you can edit all data for that Injection. To delete click on "Delete" and Confirm your decision. This action cannot be undone.
+![alt text](img/screens/pdfi_screen_edit_or_delete.png "How 2")
 
 
 ### Requirements and Limitations
