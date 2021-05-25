@@ -43,7 +43,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         try {
             //  Check if user is logged in
-            if($this->getUser()->username) {
+            if($this->getUser()) {
 
                 //  Include Javascript and Styles on module page
                 if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
