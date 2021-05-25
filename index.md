@@ -2,40 +2,28 @@
 
 PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables.
 
-1. [Features](#features)
-2. [Installation](#installation)
-3. [Configuration](#configuration)
-4. [Usage](#usage)
-5. [Requirements](#requirements)
-6. [Known Issues](#known-issues)
-
-### Features
-#### supported PDF fields
-Currently the following PDF field types are supported:
-- Textfield: Insert text as one line or also as multiline (option multline for textfield has to be active)
-- Checkbox: Insert a value that is true or false to tick or untick the checkbox.
-
-#### supported Action Tags
-Currently the following Action Tags are supported:
-- @TODAY: returns date in format "d.m.Y"
+1. [Installation](#installation)
+2. [Configuration](#configuration)
+3. [Usage](#usage)
+4. [Requirements and Limitations](#requirements)
+5. [Known Issues](#known-issues)
 
 
 ### Installation
 
-**Important:** Please read [Requirements](#requirements) before your proceed to setup and use the module!
+**Important:** Please read [Requirements and Limitations](#requirements) before your proceed to setup and use the module!
 
 #### Install automatically from REDCap Repo
 You can download and install the latest version of PDF Injector from [REDCap Repository of External Modules](https://redcap.vanderbilt.edu/consortium/modules/). If you open the Repo link from your REDCap instance, than automatic install will be triggered.
 
-**Install manually from Github Repository:**
+#### Install manually from Github Repository
 You can download the latest release of the module from its [releases page](https://github.com/tertek/redcap-pdf-injector/releases). Pleas ensure to download the pre-composed .zip file (*redcap-pdf-injector-vX.X.X.zip*), otherwise you have to run `composer install --no-dev` before installing on your server. To install the module on your server upload the unzipped module folder to /modules/ within your redcap instance.
 
 After successfully installing the module you should be able to enable the module through Control Center on system level.
 
 ### Configuration
 
-**Set UI Mode**
-To define how your Injections should be displayed on the Record Home Page, choose the option in module configuration that suits you best.
+**Set UI Mode**<br>To define how your Injections should be displayed on the Record Home Page, choose the option in module configuration that suits you best.
 
 **Set Preview Mode**
 You can choose in module configuration settings how the filled PDF should be previewed on the record page: either within a modal or in a new tab. Previewing in a new tab has the advantage that you can configure your browser to directly open the PDF in Adobe Reader, that enhances given browsers issues as described below. [Learn here how to configure Firefox to chose another viewer for PDFs](https://support.mozilla.org/en-US/kb/view-pdf-files-firefox-or-choose-another-viewer).
@@ -57,7 +45,7 @@ Repeat this for any other PDF file.
 
 **Download Injection**
 
-### Requirements
+### Requirements and Limitations
 Please notice that the current module version has several requirements. Ensure to test your setup before use in production.
 
 This module requires <u>fillable PDF files</u> which means that your file has to satisfy the following requirements so that the module can be of actual use:
@@ -79,7 +67,17 @@ b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and 
     $ pdftk document.pdf output document_converted.pdf
 ```
 
+#### Limitation: PDF field types
+Currently the following PDF field types are supported:
+- Textfield: Insert text as one line or also as multiline (option multline for textfield has to be active)
+- Checkbox: Insert a value that is true or false to tick or untick the checkbox.
+
+#### Limitation: REDCap Action Tags
+Currently the following Action Tags are supported during an injection:
+- @TODAY: returns date in format "d.m.Y"
+
+
 ### Known Issues
 
-**Firefox:** 
+#### Firefox
 - "This PDF document might not be displayed correctly.":  Direct printing within Mozilla Firefox PDF Preview is currently not possible. To ensure proper displaying &  printing please download the file and open in Adobe Acrobat or use Chrome Browser.
