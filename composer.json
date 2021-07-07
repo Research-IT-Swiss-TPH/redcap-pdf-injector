@@ -3,6 +3,7 @@
         "tmw/fpdm": "^2.9"
     },
     "require-dev": {
-        "vimeo/psalm": "^4.7"
+        "vimeo/psalm": "^4.7",
+        "symfony/var-dumper": "^5.3"
     }
 }
