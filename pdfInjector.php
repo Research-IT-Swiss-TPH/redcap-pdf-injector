@@ -57,7 +57,10 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
                 //  Include Button on Data Export (Reports) page
                 if (PAGE === "DataExport/index.php" && isset($_GET["report_id"]) && isset($_GET["pid"])) {
-                    echo "Hello World";
+                    
+                    $document_id = 1;
+                    $report_id = htmlspecialchars($_GET["report_id"]);
+                    
                     ?>
                     <script>
                         $(function() {
@@ -86,7 +89,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                                             i = i+1;
                                             if(i== 2) {
                                                 //$(".report_btn").hide();
-                                                let button = '<button class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</button>';
+                                                let url = '<?= $this->getUrl("batch.php") ?>' + '&did='+ '<?= $document_id ?>' + '&rid=' + '<?= $report_id ?>';
+                                                let button = '<a target="_blank" href="'+url+'" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
                                                 $(".report_btn").first().parent().prepend(button);
                                                 observer.disconnect();                                
                                             }
@@ -178,6 +182,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         } else  $this->errorResponse("Field is invalid");
     
     }
+    
 
    /**    
     *   -> Called via RequestHandler.php over AJAX
