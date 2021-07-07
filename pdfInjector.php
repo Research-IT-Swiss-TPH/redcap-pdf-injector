@@ -53,7 +53,61 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 //  Include Button
                 if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
                     $this->initModuleUI();
+                }
+
+                //  Include Button on Data Export (Reports) page
+                if (PAGE === "DataExport/index.php" && isset($_GET["report_id"]) && isset($_GET["pid"])) {
+                    echo "Hello World";
+                    ?>
+                    <script>
+                        $(function() {
+                            $(document).ready(function(){
+
+                                //  Hacky Approach since there is no other way to detect end of ajax request
+                                //  Use Mutation Observer to include Button into Ajax loaded area
+                                //  Source: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
+
+                                // Select the node that will be observed for mutations
+                                const targetNode = document.getElementById('report_load_progress2');
+
+                                //  Set counter variable to count style mutations
+                                //  In this case we know that i == 2 marks the end of the ajax request
+                                let i = 0;
+
+                                // Options for the observer (which mutations to observe)
+                                const config = { attributes: true, childList: true, subtree: true };
+
+                                // Callback function to execute when mutations are observed
+                                const callback = function(mutationsList, observer) {
+                                    // Use traditional 'for loops' for IE 11
+                                    for(const mutation of mutationsList) {
+                                        //  detect only style mutations
+                                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                                            i = i+1;
+                                            if(i== 2) {
+                                                //$(".report_btn").hide();
+                                                let button = '<button class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</button>';
+                                                $(".report_btn").first().parent().prepend(button);
+                                                observer.disconnect();                                
+                                            }
+                                        }
+                                    }
+                                };
+                                
+                                // Create an observer instance linked to the callback function
+                                const observer = new MutationObserver(callback);
+
+                                // Start observing the target node for configured mutations
+                                observer.observe(targetNode, config);
+
+                                // Later, you can stop observing
+                                //observer.disconnect();                                
+                            })
+                        });                    
+                    </script>
+                    <?php
                 } 
+
             }
         } catch(Exception $e) {
             //  Do nothing...
