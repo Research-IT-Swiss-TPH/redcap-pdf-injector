@@ -13,7 +13,8 @@ else if($_REQUEST['action'] == 'previewInjection') {
     $module->renderInjection(
         $_POST["document_id"],
         $_POST["record_id"],
-        $_POST["project_id"]
+        $_POST["project_id"],
+        "json"
     );
 }
 
