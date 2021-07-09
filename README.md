@@ -19,6 +19,7 @@ v1.0.1  | Minor Security Fix.
 v1.0.2  | Cleanup & added preview mode 'new tab'.
 v1.1.0  | Add form field type checkbox support.
 v1.1.1  | Minor Fix.
+v1.2.0  | New Feature: Reports Injection
 
 ## Author
 Ekin Tertemiz
