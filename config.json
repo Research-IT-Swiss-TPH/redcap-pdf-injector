@@ -41,6 +41,11 @@
 
     "project-settings": [
         {
+            "key": "reports-enabled",
+            "name": "<b>Enabled Reports</b><br>Comma Separated List of reports that are enabled for Injetions",
+            "type": "text"
+        },
+        {
             "key": "javascript-debug",
             "name": "<b>Debug</b><br>Output debug information to the browser console",
             "type": "checkbox"

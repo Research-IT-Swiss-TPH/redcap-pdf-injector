@@ -19,6 +19,8 @@ use \Piping;
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     private $injections;
+    private $report_id;
+    private $ui;
 
     //  Supported Action Tags
     const SUPPORTED_ACTIONTAGS = ['@TODAY'];
@@ -45,6 +47,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             //  Check if user is logged in
             if($this->getUser()) {
 
+                $this->initBase();
+
                 //  Include Javascript and Styles on module page
                 if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
                     $this->initModule();            
@@ -52,64 +56,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
                 //  Include Button
                 if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
-                    $this->initModuleUI();
+                    $this->initPageRecord();
                 }
 
                 //  Include Button on Data Export (Reports) page
-                if (PAGE === "DataExport/index.php" && isset($_GET["report_id"]) && isset($_GET["pid"])) {
-                    
-                    $document_id = 1;
-                    $report_id = htmlspecialchars($_GET["report_id"]);
-                    
-                    ?>
-                    <script>
-                        $(function() {
-                            $(document).ready(function(){
-
-                                //  Hacky Approach since there is no other way to detect end of ajax request
-                                //  Use Mutation Observer to include Button into Ajax loaded area
-                                //  Source: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
-
-                                // Select the node that will be observed for mutations
-                                const targetNode = document.getElementById('report_load_progress2');
-
-                                //  Set counter variable to count style mutations
-                                //  In this case we know that i == 2 marks the end of the ajax request
-                                let i = 0;
-
-                                // Options for the observer (which mutations to observe)
-                                const config = { attributes: true, childList: true, subtree: true };
-
-                                // Callback function to execute when mutations are observed
-                                const callback = function(mutationsList, observer) {
-                                    // Use traditional 'for loops' for IE 11
-                                    for(const mutation of mutationsList) {
-                                        //  detect only style mutations
-                                        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                                            i = i+1;
-                                            if(i== 2) {
-                                                //$(".report_btn").hide();
-                                                let url = '<?= $this->getUrl("batch.php") ?>' + '&did='+ '<?= $document_id ?>' + '&rid=' + '<?= $report_id ?>';
-                                                let button = '<a target="_blank" href="'+url+'" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
-                                                $(".report_btn").first().parent().prepend(button);
-                                                observer.disconnect();                                
-                                            }
-                                        }
-                                    }
-                                };
-                                
-                                // Create an observer instance linked to the callback function
-                                const observer = new MutationObserver(callback);
-
-                                // Start observing the target node for configured mutations
-                                observer.observe(targetNode, config);
-
-                                // Later, you can stop observing
-                                //observer.disconnect();                                
-                            })
-                        });                    
-                    </script>
-                    <?php
+                if (PAGE === "DataExport/index.php" && isset($_GET["report_id"]) && isset($_GET["pid"]))  {                                        
+                    $this->initPageDataExport();                    
                 } 
 
             }
@@ -188,7 +140,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   -> Called via RequestHandler.php over AJAX
     *   Renders preview for a given Injection and optionally record
     */
-    public function renderInjection($document_id, $record_id = null, $project_id = null, $as_b64 = true) {
+    public function renderInjection($document_id, $record_id = null, $project_id = null, $outputFormat = null) {
 
         $injections = self::getProjectSetting("pdf-injections");
         $injection = $injections[$document_id];
@@ -265,20 +217,25 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         $string = $pdf->Output( "S" );
 
-
-        if( $as_b64 ) {
-            $base64_string = base64_encode($string);
-            $data =  'data:application/' . $type . ';base64,' . base64_encode($string);    
+        if( $outputFormat == "json" ) {
             header('Content-Type: application/json; charset=UTF-8');
             header("HTTP/1.1 200 ");
+            $base64_string = base64_encode($string);
+            $data =  'data:application/' . $type . ';base64,' . base64_encode($string);
+
             echo json_encode(array("data" => $data));
-        } else {
-            $filename = uniqid($record_id) . "_" . $injection["fileName"];
+        }         
+        if ($outputFormat == "pdf") {
             header('Content-type: application/pdf');
-            header('Content-Disposition: inline; filename="' . $filename . '"');
             header('Content-Transfer-Encoding: binary');
             header('Accept-Ranges: bytes');
+
+            $filename = uniqid($record_id) . "_" . $injection["fileName"];
+            header('Content-Disposition: inline; filename="' . $filename . '"');
+
             echo $string;
+        } else {
+            return $string;
         }
     }
 
@@ -314,27 +271,34 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     * Initializes the module
     *
     */
-    private function initModule() {
+    private function initBase() {
         $this->injections = self::getProjectSetting("pdf-injections");
+        $this->report_id = htmlspecialchars($_GET["report_id"]);
+        $this->ui = self::getProjectSetting("ui-mode");
+
         $this->includePageJavascript();
-        $this->includePageCSS();
+        $this->includePageCSS();    
+    }
+
+    private function initModule() {
         $this->handlePost();
     }
 
-    private function initModuleUI(){
-        $this->injections = self::getProjectSetting("pdf-injections");
-        $ui = self::getProjectSetting("ui-mode");
+    private function initPageRecord(){
         if(count($this->injections) > 0) {
-            $this->includePageJavascript();
-            $this->includePageCSS();
             $this->includePreviewModal();
-            if($ui == 1 || $ui == 3) {
+            if($this->ui == 1 || $this->ui == 3) {
                 $this->includeModuleTip();
             }
-            if($ui == 2 || $ui == 3) {
+            if($this->ui == 2 || $this->ui == 3) {
                 $this->includeModuleContainer();
             }
         }
+    }
+
+    public function initPageDataExport() {
+        $this->includeModalDataExport();
+        $this->includePageJavascriptDataExport();
     }
 
     //  Post Handler
@@ -712,6 +676,65 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             </div>
         </div>        
         <?php
+    }
+
+    private function includeModalDataExport() {
+        ?>
+        <!-- Data Export Modal -->
+        <div class="modal fade" id="external-modules-configure-modal-data-export" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
+            <div class="modal-dialog" role="document" style="width: 800px">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close closeCustomModal" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">
+                            <span id="">PDF Injector - </span>
+                            <span id="">Report <?= $this->report_id ?></span>                            
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modal_message_preview" style="margin:0;width:100%;">
+                        
+                        <select onChange="STPH_pdfInjector.setDownload(this.value)" class="custom-select">
+                        <option hidden>Choose an Injection</option>
+                        <?php
+                            //  To Do: Clean this up...
+                            foreach ($this->injections as $key => $injection) {
+                                $url = $this->getUrl("batch.php") . '&did=' . $injection["document_id"] . '&rid='. $this->report_id;
+                                $button = '<a target="_blank" href="'.$url.'" class="jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i>'.$injection["title"].'</a>';
+                                $option = '<option value="'.$injection["document_id"].'">'.$injection["title"].'</option>';
+                                echo $option;
+                            }
+                        ?>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <?php
+                        //  To Do: Clean this up...
+                        foreach ($this->injections as $key => $injection) {
+                            $url = $this->getUrl("batch.php") . '&did=' . $injection["document_id"] . '&rid='. $this->report_id;
+                            $button = '<a onClick="document.getElementById(\'external-modules-configure-modal-data-export\').classList.remove(\'show\')" style="color:white;" id="report-injection-download-'.$injection["document_id"].'" href="'.$url.'" type="button" class="btn btn-rcgreen injection-report-download-button d-none">Download</a>';
+                            echo $button;
+                        }
+                    ?>                                            
+                        <button type="button" class="btn btn-defaultrc" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>        
+        <?php
+    }
+
+    private function includePageJavascriptDataExport() {
+        ?>
+        <script>
+        $(function() {
+            $(document).ready(function(){
+                STPH_pdfInjector.observeReportLoad();                                                
+            })
+        });                    
+        </script>
+        <?php        
     }
 
 }
