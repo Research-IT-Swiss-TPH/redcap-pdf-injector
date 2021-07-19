@@ -95,7 +95,8 @@
         //  Create directory if not exists
         mkdir(__DIR__ . "/tmp");
         //  Write pdf content into temporary file that is going to be deleted after the ZIP has been created
-        $filename = __DIR__ . "/tmp". "/" . $lbl_ids . "-" . $lbl_names . "_" . $record . ".pdf";
+        $path = __DIR__ . "/tmp". "/" . $lbl_ids . "-" . $lbl_names . "_" . $record . ".pdf";
+        $filename = $module->getSafePath($path);
         $fp = fopen($filename, 'x');
 
         //  Write to temp file
@@ -115,7 +116,8 @@
     //$merge->output();
 
     //  Put all files into a zip archive and stream download
-    $zipname = $lbl_ids . "_" . $lbl_names .".zip";
+    $path = $lbl_ids . "_" . $lbl_names .".zip";
+    $zipname = $module->getSafePath($path);
     $zip = new ZipArchive;
     $zip->open($zipname, ZipArchive::CREATE);
     foreach ($files as $file) {
@@ -142,12 +144,15 @@
     );
     $zip->close();
 
-    if(true) {
+    if(true) {                
         header('Content-Type: application/zip');
-        header('Content-disposition: attachment; filename='.$zipname);
+        header('Content-disposition: attachment; filename='.basename($zipname));
         header('Content-Length: ' . filesize($zipname));
         readfile($zipname);
     }
+
+    //  Cleanup (since using basename() caused the .zip to be saved in the module folder)
+    unlink($zipname);
 
 
     # To Do: Serve PDF File as Download
@@ -155,6 +160,7 @@
 
     //  Cleanup
     foreach ($records as $key => $record) {
-        $filename = __DIR__ . "/tmp". "/".$lbl_ids."-".$lbl_names."_".$record.".pdf";
+        $path = __DIR__ . "/tmp". "/".$lbl_ids."-".$lbl_names."_".$record.".pdf";
+        $filename = $module->getSafePath($path);
         unlink($filename);
     }
