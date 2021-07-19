@@ -130,7 +130,7 @@
         "===================================================" . "\n" .
         "\n" .
         "Project:\t\t\t" . $Proj->project["app_title"] . "\n" .
-        "Report:\t\t\t" . $report["title"] . "\n" .
+        "Report:\t\t\t\t" . $report["title"] . "\n" .
         "Injection:\t\t\t" . $injection["title"]  . "\n" .
         "Records Total:\t\t\t" . count($records) . "\n" .
         "Date Created:\t\t\t" . date("Y-m-d H:i:s") . "\n" .

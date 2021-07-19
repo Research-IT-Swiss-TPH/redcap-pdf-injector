@@ -713,7 +713,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         //  To Do: Clean this up...
                         foreach ($this->injections as $key => $injection) {
                             $url = $this->getUrl("batch.php") . '&did=' . $injection["document_id"] . '&rid='. $this->report_id;
-                            $button = '<a onClick="document.getElementById(\'external-modules-configure-modal-data-export\').classList.remove(\'show\')" style="color:white;" id="report-injection-download-'.$injection["document_id"].'" href="'.$url.'" type="button" class="btn btn-rcgreen injection-report-download-button d-none">Download</a>';
+                            $button = '<a onClick="STPH_pdfInjector.closeModalExportData()" style="color:white;" id="report-injection-download-'.$injection["document_id"].'" href="'.$url.'" type="button" class="btn btn-rcgreen injection-report-download-button d-none">Download</a>';
                             echo $button;
                         }
                     ?>                                            

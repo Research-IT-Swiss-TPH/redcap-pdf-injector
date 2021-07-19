@@ -454,6 +454,10 @@ STPH_pdfInjector.openModalExportData = function() {
     $('#external-modules-configure-modal-data-export').modal('show'); 
 }
 
+STPH_pdfInjector.closeModalExportData = function() {
+    $('#external-modules-configure-modal-data-export').modal('hide');
+}
+
 STPH_pdfInjector.setDownload = function (value) {
     $(".injection-report-download-button").addClass("d-none");
     $("#report-injection-download-"+value).removeClass("d-none");
