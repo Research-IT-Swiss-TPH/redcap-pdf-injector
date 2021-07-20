@@ -5,7 +5,7 @@
  */
 
 $response = "";
-$fields = $_POST["fields"];
+$fields = htmlentities()($_POST["fields"]);
 
 foreach ($fields as $key => $field) {
 
