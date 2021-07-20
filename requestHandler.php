@@ -6,14 +6,14 @@ if ($_REQUEST['action'] == 'fileScan') {
 }
 
 else if($_REQUEST['action'] == 'fieldScan') {
-    $module->scanField($_POST["fieldName"]);
+    $module->scanField(htmlentities($_POST["fieldName"]));
 }
 
 else if($_REQUEST['action'] == 'previewInjection') {
     $module->renderInjection(
-        $_POST["document_id"],
-        $_POST["record_id"],
-        $_POST["project_id"],
+        htmlentities($_POST["document_id"]),
+        htmlentities($_POST["record_id"]),
+        htmlentities($_POST["project_id"]),
         "json"
     );
 }
