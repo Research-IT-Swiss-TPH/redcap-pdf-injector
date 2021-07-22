@@ -6,16 +6,21 @@ if ($_REQUEST['action'] == 'fileScan') {
 }
 
 else if($_REQUEST['action'] == 'fieldScan') {
-    $module->scanField(htmlentities($_POST["fieldName"]));
+
+    //  Sanitize
+    $fieldName = $module->sanitize($_POST["fieldName"]);
+
+    $module->scanField(htmlentities($fieldName));
 }
 
 else if($_REQUEST['action'] == 'previewInjection') {
-    $module->renderInjection(
-        htmlentities($_POST["document_id"]),
-        htmlentities($_POST["record_id"]),
-        htmlentities($_POST["project_id"]),
-        "json"
-    );
+
+    //  Sanitize
+    $document_id = $module->sanitize($_POST["document_id"]);
+    $record_id = $module->sanitize($_POST["record_id"]);
+    $project_id = $module->sanitize($_POST["project_id"]);
+
+    $module->renderInjection( $document_id, $record_id, $project_id, "json" );
 }
 
 else {

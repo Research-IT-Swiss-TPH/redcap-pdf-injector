@@ -15,7 +15,7 @@ use \Exception;
 use \Files;
 use \Piping;
 
-// Declare your module class, which must extend AbstractExternalModule 
+// Declare your module class, which must extend AbstractExternalModule  
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     private $injections;
@@ -230,8 +230,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             header('Content-Transfer-Encoding: binary');
             header('Accept-Ranges: bytes');
 
-            $filename = uniqid($record_id) . "_" . $injection["fileName"];
-            header('Content-Disposition: inline; filename="' . $filename . '"');
+            $filename = uniqid($record_id) . "_" . $injection["fileName"];            
+            header('Content-Disposition: inline; filename="' . basename($filename) . '"');
 
             echo $string;
         } else {
@@ -273,7 +273,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */
     private function initBase() {
         $this->injections = self::getProjectSetting("pdf-injections");
-        $this->report_id = htmlspecialchars($_GET["report_id"]);
+        $this->report_id = $this->sanitize($_GET["report_id"]);
         $this->ui = self::getProjectSetting("ui-mode");
 
         $this->includePageJavascript();
@@ -530,6 +530,15 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         die($msg);
     }
 
+    //  Helper function to sanitize array or variable
+    public function sanitize($arg) {
+        if (is_array($arg)) {
+            return array_map('sanitize', $arg);
+        }
+    
+        return htmlentities($arg, ENT_QUOTES, 'UTF-8');
+    }
+
 
    /**
     * Include Page JavaScript files
@@ -577,8 +586,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $previewMode = $this->getProjectSetting("preview-mode");
 
         $injections = $this->injections;
-        $pid = $_GET["pid"];
-        $record_id = $_GET["id"];
+        $pid = $this->sanitize($_GET["pid"]);
+        $record_id = $this->sanitize($_GET["id"]);
         $header = '<div style=\"margin:20px 0px 10px;font-size:15px;border-bottom:1px dashed #ccc;padding-bottom:5px !important;\">PDF Injector</div>';
 
         $row = '<div class=\"row\">';
@@ -626,8 +635,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $previewMode = $this->getProjectSetting("preview-mode");
 
         $injections = $this->injections;
-        $pid = $_GET["pid"];
-        $record_id = $_GET["id"];
+        $pid = $this->sanitize($_GET["pid"]);
+        $record_id = $this->sanitize($_GET["id"]);
         ?>
 
         <div id="formSaveTip" style="position: fixed; left: 923px; display: block;">
