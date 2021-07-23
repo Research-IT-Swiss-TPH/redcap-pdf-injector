@@ -42,7 +42,7 @@
     "project-settings": [
         {
             "key": "reports-enabled",
-            "name": "<b>Enabled Reports</b><br>Comma Separated List of reports that are enabled for Injetions",
+            "name": "<b>Enabled Reports</b><br>Comma Separated List of reports that are enabled for Injections",
             "type": "text"
         },
         {
