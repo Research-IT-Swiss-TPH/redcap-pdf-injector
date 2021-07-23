@@ -60,8 +60,15 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 }
 
                 //  Include Button on Data Export (Reports) page
-                if (PAGE === "DataExport/index.php" && isset($_GET["report_id"]) && isset($_GET["pid"]))  {                                        
-                    $this->initPageDataExport();                    
+                if (PAGE === "DataExport/index.php" && isset($_GET["report_id"]) && isset($_GET["pid"]))  {
+                    
+                    $str = $this->getProjectSetting("reports-enabled");                    
+                    $reportsEnabled = array_map('trim', explode(',', $str));
+                    $isReportEnabled = in_array($_GET["report_id"], $reportsEnabled);
+                    if($isReportEnabled) {
+                        $this->initPageDataExport();
+                    }
+                    
                 } 
 
             }
@@ -296,7 +303,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         }
     }
 
-    public function initPageDataExport() {
+    public function initPageDataExport() {                
         $this->includeModalDataExport();
         $this->includePageJavascriptDataExport();
     }
