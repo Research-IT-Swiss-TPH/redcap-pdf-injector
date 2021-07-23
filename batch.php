@@ -62,13 +62,14 @@
     $filterLogic = $report['limiter_logic'];
 
     $data = Records::getdata(
-        $pid, $returnFormat, null, $fields, null, null, null, null, null, $filterLogic, null, null, null, null, null, $sortArray,false, false, false, true, false, false, $report['filter_type'], false, false, false, false, false, null, 0, false, null, null, false, 0, array(), false, array("record_id")
+        $pid, $returnFormat, null, $fields, null, null, null, null, null, $filterLogic, null, null, null, null, null, $sortArray,false, false, false, true, false, false, $report['filter_type'], false, false, false, false, false, null, 0, false, null, null, false, 0, array(), false, false
     );
 
     //  Flatten $data array into $records
     $records = [];
     foreach ($data as $key => $record) {
-        $records[] = $record["record_id"];
+        //  Ignore event id since it is irrelevant through report generation
+        $records[] = reset($record)["record_id"];
     }
     
     #   To Do: Create a new instance from PDF Merger class
@@ -91,6 +92,11 @@
     //  Create temporary files by looping through records
     $files = [];
     foreach ($records as $key => $record) {
+
+        //  Throw exception if records could not be retrieved with Records::getdata
+        if(empty($record)) {
+            throw new Exception("Record data empty. There seems to be an incompatiblity with your REDCap version.", 1);            
+        }        
         
         //  Create directory if not exists
         mkdir(__DIR__ . "/tmp");
