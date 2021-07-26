@@ -24,6 +24,6 @@ v1.2.1  | Security Fix & UI Improvements
 v1.2.2  | Security Fix (Psalm errors)
 v1.2.3  | Security Fix (Psalm errors)
 v1.2.4  | Compatibility fix for older REDCap versions
-
+v1.2.5  | Support variable primary keys.
 ## Author
 Ekin Tertemiz
