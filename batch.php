@@ -58,7 +58,7 @@
 
     $pid = $params["project_id"];
     $returnFormat = 'array';
-    $fields = array("record_id");
+    $fields = array($Proj->table_pk);
     $filterLogic = $report['limiter_logic'];
 
     $data = Records::getdata(
@@ -69,7 +69,7 @@
     $records = [];
     foreach ($data as $key => $record) {
         //  Ignore event id since it is irrelevant through report generation
-        $records[] = reset($record)["record_id"];
+        $records[] = reset($record)[$Proj->table_pk];
     }
     
     #   To Do: Create a new instance from PDF Merger class
