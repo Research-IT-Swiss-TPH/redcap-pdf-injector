@@ -20,6 +20,7 @@
 
     //  Retrieve reports and check if report exists
     $report = \DataExport::getReports($params["report_id"]);
+
     $reportExists = isset($report) && !empty($report);
 
     //  Retrieve List of reports that are enabled and check if retrieved report is enabled
@@ -47,10 +48,22 @@
     if (count($sortArray) == 1 && isset($sortArray[$Proj->table_pk]) && $sortArray[$Proj->table_pk] == 'ASC') {
         unset($sortArray[$Proj->table_pk]);
     }
+    
 
     //  Check syntax of logic string: If there is an issue in the logic, then return false and stop processing
     if ($report['limiter_logic'] != '' && !LogicTester::isValid($report['limiter_logic'])) {
         throw new Exception('Invalid Report Logic.');
+    }
+
+    //  Build Live Filters
+    list ($liveFilterLogic, $liveFilterGroupId, $liveFilterEventId) = \DataExport::buildReportDynamicFilterLogic($params['report_id']);    
+
+    // If a live filter is being used, then append it to our existing limiter logic from the report's attributes
+    if ($liveFilterLogic != "") {
+        if ($report['limiter_logic'] != '') {
+            $report['limiter_logic'] = "({$report['limiter_logic']}) and ";
+        }
+        $report['limiter_logic'] .= $liveFilterLogic;
     }
 
     //  Retrieve data with filter logic and sorting
