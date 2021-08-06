@@ -91,6 +91,11 @@
                 }
             ],
             "default": "new-tab"
+        },
+        {
+            "key": "disable-readme",
+            "name": "<b>Disable Readme</b><br>Use this setting to not include a readme.txt into .zip file during Report Injection.",
+            "type": "checkbox"
         }
     ],
 

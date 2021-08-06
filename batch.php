@@ -143,24 +143,27 @@
         $zip->addFile($file, basename($file));
     }
 
-    //  Add information file
-    $zip->addFromString(
-        "README.txt", 
-        "===================================================" . "\n" .
-        "\n" .
-        "Project:\t\t\t" . $Proj->project["app_title"] . "\n" .
-        "Report:\t\t\t\t" . $report["title"] . "\n" .
-        "Injection:\t\t\t" . $injection["title"]  . "\n" .
-        "Records Total:\t\t\t" . count($records) . "\n" .
-        "Date Created:\t\t\t" . date("Y-m-d H:i:s") . "\n" .
-        "\n" .
-        "===================================================" . "\n" .
-        "\n" .
-        "PDF Batch Export created with PDF Injector" . "\n" . 
-        "Documentation: https://tertek.github.io/redcap-pdf-injector/" . "\n" . 
-        "\n" .
-        "===================================================" . "\n"
-    );
+    if( !$module->getProjectSetting("disable-readme")) {
+        //  Add information file
+        $zip->addFromString(
+            "README.txt", 
+            "===================================================" . "\n" .
+            "\n" .
+            "Project:\t\t\t" . $Proj->project["app_title"] . "\n" .
+            "Report:\t\t\t\t" . $report["title"] . "\n" .
+            "Injection:\t\t\t" . $injection["title"]  . "\n" .
+            "Records Total:\t\t\t" . count($records) . "\n" .
+            "Date Created:\t\t\t" . date("Y-m-d H:i:s") . "\n" .
+            "\n" .
+            "===================================================" . "\n" .
+            "\n" .
+            "PDF Batch Export created with PDF Injector" . "\n" . 
+            "Documentation: https://tertek.github.io/redcap-pdf-injector/" . "\n" . 
+            "\n" .
+            "===================================================" . "\n"
+        );
+    }
+
     $zip->close();
 
     if(true) {                
