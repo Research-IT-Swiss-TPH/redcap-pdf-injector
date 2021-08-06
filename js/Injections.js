@@ -151,8 +151,7 @@ STPH_pdfInjector.editInjection = function(index=null, InjecNum=null){
 *   index: document_id and primary key of injection
 *   InjecNum: chronological numbering  
 */
-STPH_pdfInjector.deleteInjection = function(index=null, thumbnail_id, InjecNum=null){
-    console.log("ok");
+STPH_pdfInjector.deleteInjection = function(index=null, thumbnail_id, InjecNum=null){    
     $('[name="mode"]').val("DELETE");
     $('#injection-number').text(InjecNum);
     $('[name=document_id]').val(index);
@@ -432,8 +431,8 @@ STPH_pdfInjector.observeReportLoad = function() {
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 i = i+1;
                 if(i== 2) {                                    
-                    let button = '<a onclick="STPH_pdfInjector.openModalExportData();" href="javascript:;" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
-                    $(".report_btn").first().parent().prepend(button);
+                    STPH_pdfInjector.insertReportBtn();
+                    STPH_pdfInjector.updateLiveFilters();
                     observer.disconnect();                                
                 }
             }
@@ -447,7 +446,57 @@ STPH_pdfInjector.observeReportLoad = function() {
     observer.observe(targetNode, config);
 
     // Later, you can stop observing
-    //observer.disconnect();    
+    //observer.disconnect();
+}
+
+STPH_pdfInjector.insertReportBtn = function() {
+    //  Remove button first, otherwise we will have too many :-S
+    $("#pdfi-report-btn").remove();
+    let button = '<a id="pdfi-report-btn" onclick="STPH_pdfInjector.openModalExportData();" href="javascript:;" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
+    $(".report_btn").first().parent().prepend(button);
+}
+
+STPH_pdfInjector.updateLiveFilters = function() {
+
+    //  Re-Observe Report Load, otherwise Button will be removed forever :'[
+    $(document).on('change','select[id^="lf"]',function(){
+        STPH_pdfInjector.observeReportLoad();
+    });    
+
+    //  Only update Live Filters if there is any set
+    if($('select[id^="lf"]').val()) {
+
+        let qs_all_lf=[];
+
+        //  Loop over all Live Filter selections and add them too query strings array
+        $('select[id^="lf"]').each(function(index, element) {
+            if($(element).val()) {
+                let id=index+1;
+                let value = $(element).val();
+
+                let qs_single_lf= "lf"+id+"="+value;            
+                qs_all_lf.push(qs_single_lf);
+            }
+        })
+        
+        //  Loop over all Download Buttons and update url query parameters
+        $('.injection-report-download-button').each(function () {
+            let btn = $(this);
+            let url = new URL(btn.attr("href"));
+            let search_params = url.searchParams;
+            let url_with_all_lf = "";
+            $(qs_all_lf).each(function(index, element){
+                let param = element.split('=')[0];
+                let paramVal = element.split('=')[1];
+
+                search_params.set(param, paramVal);
+                url.search = search_params.toString();
+                url_with_all_lf = url.toString();            
+            });
+            btn.attr("href", url_with_all_lf);
+        });
+    }
+
 }
 
 STPH_pdfInjector.openModalExportData = function() {
@@ -460,6 +509,5 @@ STPH_pdfInjector.closeModalExportData = function() {
 
 STPH_pdfInjector.setDownload = function (value) {
     $(".injection-report-download-button").addClass("d-none");
-    $("#report-injection-download-"+value).removeClass("d-none");
-    console.log(value);
+    $("#report-injection-download-"+value).removeClass("d-none");    
   }
