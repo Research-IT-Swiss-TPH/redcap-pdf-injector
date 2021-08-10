@@ -407,6 +407,17 @@ STPH_pdfInjector.previewInjectionRecord = function(index, injectionnumber) {
 
 }
 
+STPH_pdfInjector.initPageDataExport = function() {
+
+    //  Observe report_load_progress2 and insert markup when ready
+    STPH_pdfInjector.observeReportLoad();
+
+    //  Re-Observe if live-filters change
+    $(document).on('change','select[id^="lf"]',function(){
+        STPH_pdfInjector.observeReportLoad();
+    });
+}
+
 STPH_pdfInjector.observeReportLoad = function() {
 
     //  Hacky Approach since there is no other way to detect end of ajax request
@@ -430,10 +441,10 @@ STPH_pdfInjector.observeReportLoad = function() {
             //  detect only style mutations
             if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
                 i = i+1;
-                if(i== 2) {                                    
+                if(i== 2) {
+                    observer.disconnect();
                     STPH_pdfInjector.insertReportBtn();
-                    STPH_pdfInjector.updateLiveFilters();
-                    observer.disconnect();                                
+                    STPH_pdfInjector.updateLiveFilters();                    
                 }
             }
         }
@@ -454,35 +465,32 @@ STPH_pdfInjector.insertReportBtn = function() {
     $("#pdfi-report-btn").remove();
     let button = '<a id="pdfi-report-btn" onclick="STPH_pdfInjector.openModalExportData();" href="javascript:;" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
     $(".report_btn").first().parent().prepend(button);
+    console.log("Button inserted");
 }
 
 STPH_pdfInjector.updateLiveFilters = function() {
 
-    //  Re-Observe Report Load, otherwise Button will be removed forever :'[
-    $(document).on('change','select[id^="lf"]',function(){
-        STPH_pdfInjector.observeReportLoad();
-    });    
+    //  Array that stores all live filter querystrings
+    let qs_all_lf=[];
 
-    //  Only update Live Filters if there is any set
-    if($('select[id^="lf"]').val()) {
-
-        let qs_all_lf=[];
-
-        //  Loop over all Live Filter selections and add them too query strings array
-        $('select[id^="lf"]').each(function(index, element) {
-            if($(element).val()) {
-                let id=index+1;
-                let value = $(element).val();
-
-                let qs_single_lf= "lf"+id+"="+value;            
-                qs_all_lf.push(qs_single_lf);
-            }
-        })
+    //  Loop over all Live Filter selections and add them too query strings array
+    $('select[id^="lf"]').each(function(index, element) {
+        if($(element).val()) {                
+            let id=index+1;
+            let value = $(element).val();
+            let qs_single_lf= "lf"+id+"="+value;
+            qs_all_lf.push(qs_single_lf);
+        } 
+    })
+    
+    //  Loop over all Download Buttons and update url query parameters
+    $('.injection-report-download-button').each(function () {
         
-        //  Loop over all Download Buttons and update url query parameters
-        $('.injection-report-download-button').each(function () {
-            let btn = $(this);
-            let url = new URL(btn.attr("href"));
+        let btn = $(this);
+        let href = btn.attr("href");
+
+        if(href) {
+            let url = new URL(href);
             let search_params = url.searchParams;
             let url_with_all_lf = "";
             $(qs_all_lf).each(function(index, element){
@@ -494,9 +502,9 @@ STPH_pdfInjector.updateLiveFilters = function() {
                 url_with_all_lf = url.toString();            
             });
             btn.attr("href", url_with_all_lf);
-        });
-    }
-
+        }
+    });
+    console.log(qs_all_lf);
 }
 
 STPH_pdfInjector.openModalExportData = function() {

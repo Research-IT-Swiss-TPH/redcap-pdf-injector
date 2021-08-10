@@ -746,7 +746,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <script>
         $(function() {
             $(document).ready(function(){
-                STPH_pdfInjector.observeReportLoad();                                                
+                STPH_pdfInjector.initPageDataExport();
             })
         });                    
         </script>
