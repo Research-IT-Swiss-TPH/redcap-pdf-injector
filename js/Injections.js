@@ -503,8 +503,7 @@ STPH_pdfInjector.updateLiveFilters = function() {
             });
             btn.attr("href", url_with_all_lf);
         }
-    });
-    console.log(qs_all_lf);
+    });    
 }
 
 STPH_pdfInjector.openModalExportData = function() {
