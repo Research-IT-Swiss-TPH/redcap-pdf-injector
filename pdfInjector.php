@@ -203,6 +203,10 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         if(\Form::hasActionTag($actiontag, $fieldValue)) {
                             $value = $this->replaceActionTagsInLabel($fieldValue, $actiontag);                            
                         }
+                        else {
+                            //  Fix rendering of '@' without action tags!
+                            $value = $fieldValue;
+                        }
                     }
                 }                               
                 else {
