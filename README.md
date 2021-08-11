@@ -27,6 +27,7 @@ v1.2.4  | Compatibility fix for older REDCap versions
 v1.2.5  | Support variable primary keys.
 v1.2.6  | Support live filters for Reports Injection. Add setting to disable Readme Generation.
 v1.2.7  | Minor fix for live filters. Improve Mutation Observer script.
+v1.2.8  | Fix rendering of '@' without action tags.
 
 ## Author
 Ekin Tertemiz
