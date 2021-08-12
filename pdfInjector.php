@@ -5,6 +5,7 @@ namespace STPH\pdfInjector;
 /**
  * REDCap External Module: PDF Injector
  * PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables.
+ * 
  * @author Ekin Tertemiz, Swiss Tropical and Public Health Institute
  * 
  */
@@ -18,31 +19,40 @@ use \Piping;
 // Declare your module class, which must extend AbstractExternalModule  
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
+    /** @var array */    
     private $injections;
+
+    /** @var string */    
     private $report_id;
+
+    /** @var string */
     private $ui;
 
     //  Supported Action Tags
     const SUPPORTED_ACTIONTAGS = ['@TODAY'];
 
    /**
-    * Constructs the class
+    *   Constructs the class
+    *   @return void
+    *   @since 1.0.0
     *
     */
     public function __construct()
     {        
         parent::__construct();
-        // Other code to run when object is instantiated
 
     }
 
-    
+   
    /**
-    *   -> Hooked to redcap_every_page_top
+    *   Allows custom actions to be performed at the top of every page in REDCap 
+    *   (including plugins that render the REDCap page header)
+    *
+    *   @return void
+    *   @since 1.0.0
     *
     */
     function redcap_every_page_top($project_id = null) {
-
         try {
             //  Check if user is logged in
             if($this->getUser()) {
@@ -78,9 +88,13 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     }
 
-   /**    
-    *   -> Called via RequestHandler.php over AJAX
-    *   Scans submitted file and returns field names
+   /**  
+    * 
+    *   Scan an uploaded PDF file and return field data
+    *   -> Called via RequestHandler.php over AJAX   
+    *
+    *   @return string
+    *   @since 1.0.0
     */
     public function scanFile(){        
         if(isset($_FILES['file']['name'])){
@@ -509,7 +523,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         } else throw new Exception($this->tt("injector_15"));
     }
 
-    //  Checks if update is given by comparing array on every level
+    //  Checks if update is given by comparing array on every level (total 3 levels)
     private function hasUpdate(Injection $oldInjection, Injection $newInjection ) {
 
         $o_arr = $oldInjection->getValuesAsArray();
@@ -522,12 +536,33 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         $diff_level_1 = !empty(array_diff_assoc($o_arr, $n_arr));
 
+        if($diff_level_1) {
+            return true;
+        }
+
         $o_arr_f = $o_arr["fields"];
         $n_arr_f = $n_arr["fields"];
 
         $diff_level_2 = !empty(array_diff_assoc($o_arr_f, $n_arr_f));
 
-        return ( $diff_level_1 || $diff_level_2 );
+        if($diff_level_2) {
+            return true;
+        }
+
+        foreach ($o_arr_f as $field => $meta) {
+
+            $o_arr_f_n = $meta;
+            $n_arr_f_n = $n_arr_f[$field];
+
+            $diff_level_3 = !empty(array_diff_assoc($o_arr_f_n, $n_arr_f_n));
+
+            if( $diff_level_3 ){
+                break;
+                //  exit loop if difference found
+            }
+        }
+
+        return ( $diff_level_1 || $diff_level_2 || $diff_level_3);
     }
 
     //  Helper function to render action tags    
@@ -773,5 +808,38 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         </script>
         <?php        
     }
+
+
+
+   /**
+    *   Triggered when a module version is changed.    
+    *   @since 1.3.0
+    *
+    */
+    function redcap_module_system_change_version($version, $old_version) {
+
+        $this->updateTo_v1_3_x($version, $old_version);
+        
+    }
+
+   /**
+    *   Run database update when $old_version < 1.2.9 and $version >= 1.3.0
+    *   @since 1.3.0
+    *
+    */
+    private function updateTo_v1_3_x($version, $old_version){
+
+        $from_1_2_x = version_compare('1.2.9', $old_version) == 1;
+        $to_1_3_x = version_compare('1.2.9', $version) == -1;
+        
+        if( $from_1_2_x && $to_1_3_x ) {
+
+            //  Get Innjections
+            //  Loop over fields and fetch metadata
+            //  Update Injections in database
+
+        }
+
+    }    
 
 }
