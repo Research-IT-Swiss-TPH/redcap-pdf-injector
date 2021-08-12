@@ -43,11 +43,11 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						$fieldInfo = "<b class=\"fs14\"><i class=\"fa fa-th-list\"></i></b> <span class=\"boldish\">Number of fields: ".count($fields)."</span>";
 						$fieldList= "";
 
-						foreach ($fields as $fieldKey => $value) {
-							if($value == "") {
+						foreach ($fields as $fieldKey => $field) {
+							if($field == "") {
 								$fieldList .= "<li>{$fieldKey}: <span style=\"color:red;\"><b>undefined</b></span></li>";
 							} else {
-								$fieldList .= "<li>{$fieldKey}: <span class=\"code\" style=\"font-size:85%;\">[{$value}]</span></li>";
+								$fieldList .= "<li>{$fieldKey}: <span class=\"code\" style=\"font-size:85%;\">[{$field['field_name']}:{$field['element_type']}]</span></li>";
 							}
 						}					
 

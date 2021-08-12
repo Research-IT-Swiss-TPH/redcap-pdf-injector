@@ -133,11 +133,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */
     public function scanField($fieldName) {
 
-        $valid = $this->checkSingleField($fieldName);
-
-        if($valid) {
+        //$valid = $this->checkSingleField($fieldName);
+        $fieldMetaData = $this->getFieldMetaData($fieldName);
+    
+        if($fieldMetaData != "") {
             header('Content-Type: application/json; charset=UTF-8');                
-            echo json_encode(array("fieldName" => $fieldName));
+            echo json_encode(array($fieldMetaData));
         } else  $this->errorResponse("Field is invalid");
     
     }
@@ -417,6 +418,25 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     }
 
+    private function getFieldMetaData($fieldName) {
+        $pid = PROJECT_ID;
+        $sql = 'SELECT * FROM redcap_metadata WHERE project_id = ? AND field_name = ?';
+        $result =  $this->query($sql, [$pid, $fieldName]);
+
+        if($result->num_rows == 1) {
+
+            $fieldMetaData = $result->fetch_object();
+            $result->close();
+
+            return array(
+                "field_name" => $fieldMetaData->field_name,
+                "element_type" => $fieldMetaData->element_type
+            );                
+        }
+
+        else return "";
+    }
+
 
     private function checkSingleField($fieldName) {
         $pid = PROJECT_ID;
@@ -434,10 +454,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         if($fields != null) {
             foreach ($fields as $fieldName => &$fieldValue) {
-                $valid = $this->checkSingleField($fieldValue);
-                if(!$valid) {
-                    $fieldValue = "";
-                }
+                $fieldValue = $this->getFieldMetaData($fieldValue);
             }
         }
         return $fields;
