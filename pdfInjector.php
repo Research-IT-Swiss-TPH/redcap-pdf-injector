@@ -27,6 +27,15 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     /** @var string */
     private $ui;
 
+    /** @var string */
+    private $version;
+
+    /** @var string */
+    private $old_version;
+
+    /** @var array */
+    private $enum;
+
     const SUPPORTED_ACTIONTAGS = ['@TODAY'];
 
    /**
@@ -37,6 +46,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */
     public function __construct() {        
         parent::__construct();
+
+        $this->enum = [];
     }
    
    /**
@@ -48,6 +59,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     function redcap_every_page_top($project_id = null) {
+        
         try {
             //  Check if user is logged in
             if($this->getUser()) {
@@ -85,7 +97,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
 
     //  ====    H A N D L E R S     ====
-    
+
    /**  
     * 
     *   Scans an uploaded PDF file and returns field data
@@ -156,7 +168,30 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             echo json_encode(array($fieldMetaData));
         } else  $this->errorResponse("Field is invalid");
     
-    }    
+    }
+
+    private function getEnumData($project_id, $fields){
+
+        $field_names_array = [];
+        foreach ($fields as $key => $field) {
+           if( !empty($field["field_name"])){
+            $field_names_array[] = '"'.$field["field_name"] . '"';
+           }
+        }
+        $field_names = implode(",", $field_names_array);
+        
+        //  Get all enums (affects types radio, checkbox and select)
+        $sql = 'SELECT element_enum,field_name FROM redcap_metadata WHERE project_id = ? AND field_name IN('.$field_names.') AND element_enum IS NOT NULL';
+        $result = $this->query($sql, [ $project_id]);
+
+        $enum_data = [];
+        while($row = $result->fetch_object()) {
+            //  use parseEnum 
+            $enum_data[$row->field_name] = parseEnum($row->element_enum);
+        }
+
+        return $enum_data;
+    }
 
    /**    
     *   Renders Injection by filling field data into file
@@ -170,7 +205,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   
     */
     public function renderInjection($document_id, $record_id = null, $project_id = null, $outputFormat = null) {
-
+           
         $injections = self::getProjectSetting("pdf-injections");
         $injection = $injections[$document_id];
         //  Check if doc_id exists
@@ -187,6 +222,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Get Fields
         $fields = $injection["fields"];
 
+        //  Get Enum Data if not already set during batch processing
+        if( $this->enum[$project_id] != null ) {
+        }
+        $this->enum[$project_id] = $this->getEnumData($project_id, $fields);             
+
+
         if($record_id != null){
             //  check if rec_id exists
 
@@ -197,44 +238,59 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             foreach ($fields as $key => &$value) {
                 
                 //  fetch variable value for each variable inside field
-                $fieldname = $value;
+                $field_name = $value["field_name"];
+                $element_type = $value["element_type"];
                 $sql = "SELECT value FROM redcap_data WHERE record = ? AND project_id = ? AND field_name = ? LIMIT 0, 1";
                 $result = $this->query($sql, 
                     [
                         $record_id,
                         $project_id,
-                        $fieldname,
+                        $field_name,
                     ]
                 );
-                $fieldValue = $result->fetch_object()->value;
 
-                //  Check if field value has variables or action tags
-                $hasVariables = preg_match('/([\[\]])\w+/', $fieldValue);
-                $hasActiontags = preg_match('/([\@])\w+/', $fieldValue);
+                $field_value = $result->fetch_object()->value;
 
-                if($hasVariables) {
+                //  Check if element type has enum
+                if( !empty($this->enum[$project_id][$field_name]) ) {
 
-                    $data = \REDCap::getData($project_id, 'array', $record_id);
-                    $value = Piping::replaceVariablesInLabel($fieldValue, $record_id, null, 1, $data, false, $project_id, false,
-                    "", 1, false, false, "", null, true, false, false);
+                    $value = $this->enum[$project_id][$field_name][$field_value];
 
-                } 
-                else if($hasActiontags){
+                } else {
 
-                    foreach (self::SUPPORTED_ACTIONTAGS as $key => $actiontag) {
-                        if(\Form::hasActionTag($actiontag, $fieldValue)) {
-                            $value = $this->replaceActionTag($fieldValue, $actiontag);                            
+
+                    //  Check if field value has variables or action tags
+                    $hasVariables = preg_match('/([\[\]])\w+/', $field_value);
+                    $hasActiontags = preg_match('/([\@])\w+/', $field_value);
+
+                    if($hasVariables) {
+
+                        $data = \REDCap::getData($project_id, 'array', $record_id);
+                        $value = Piping::replaceVariablesInLabel($field_value, $record_id, null, 1, $data, false, $project_id, false,
+                        "", 1, false, false, "", null, true, false, false);
+
+                    } 
+                    else if($hasActiontags){
+
+                        foreach (self::SUPPORTED_ACTIONTAGS as $key => $actiontag) {
+                            if(\Form::hasActionTag($actiontag, $field_value)) {
+                                $value = $this->replaceActionTag($field_value, $actiontag);                            
+                            }
+                            else {
+                                //  Fix rendering of '@' without action tags!
+                                $value = $field_value;
+                            }
                         }
-                        else {
-                            //  Fix rendering of '@' without action tags!
-                            $value = $fieldValue;
-                        }
+                    }                               
+                    else {
+                        $value = $field_value;
                     }
-                }                               
-                else {
-                    $value = $fieldValue;
                 }
-
+            }
+        } else {
+            //  For Preview
+            foreach ($fields as $key => &$value) {
+                $value = "[" . $value["field_name"] . "]";
             }
         }
 
@@ -243,7 +299,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $pdf = new FPDMH($path);
         //  Add checkbox support
         $pdf->useCheckboxParser = true;
-
+        //  Fill fields into PDF
         $pdf->Load($fields,true);
         $pdf->Merge();  // Does not support $pdf->Merge(true) yet (which would trigger PDF Flatten to "close" form fields via pdftk)        
         # Future support of PDF flattening would be implemented as optional module setting ensuring pdftk is installed on server
@@ -550,8 +606,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
      *  @since 1.3.0
      * 
      */    
-    private function getFieldMetaData($fieldName) {
-        $pid = PROJECT_ID;
+    private function getFieldMetaData($fieldName, $pid=null) {
+        if($pid == null) {
+            $pid = PROJECT_ID;
+        }
+        
         $sql = 'SELECT * FROM redcap_metadata WHERE project_id = ? AND field_name = ?';
         $result =  $this->query($sql, [$pid, $fieldName]);
 
@@ -946,33 +1005,80 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     function redcap_module_system_change_version($version, $old_version) {
-        $this->version = $version;
-        $this->old_version = $old_version;
+        $this->version = substr($version, 1);
+        $this->old_version = substr($old_version, 1);
         //  since Update to Version 1.3
+
         $this->updateTo_v1_3_x();
     }
 
    /**
     *   Runs database update when $old_version < 1.2.9 and $version >= 1.3.0
     *   
-    *   @param
     *   @return void        
     *   @since 1.3.0
     *
     */
     private function updateTo_v1_3_x(){
 
-        $from_1_2_x = version_compare('1.2.9', $old_version) == 1;
-        $to_1_3_x = version_compare('1.2.9', $version) == -1;
+        $from_1_2_x = version_compare('1.2.9', $this->old_version) == 1;
+        $to_1_3_x = version_compare('1.2.9', $this->version) == -1;
         
         if( $from_1_2_x && $to_1_3_x ) {
 
-            //  Get Innjections
-            //  Loop over fields and fetch metadata
-            //  Update Injections in database
+            //  First get all project id's for external module setting where key==pdf-injections
+            $sql = "SELECT project_id FROM redcap_external_module_settings WHERE `key` = 'pdf-injections'";
+            $result = $this->query($sql, []);
 
+            $pids = [];
+            while($row = $result->fetch_assoc()){
+                $pids[]=$row["project_id"];
+            }
+
+            //  Loop over projects
+            foreach ($pids as $key => $pid) {
+                
+                \REDCap::logEvent(
+                    'PDFI Module Update from version '.$this->old_version.' to version '.$this->version.'.', 
+                    'Upgrade PDF Injections in database to store element types for fields.',
+                    'SELECT project_id FROM redcap_external_module_settings WHERE `key` = "pdf-injections"',
+                    null,null, $pid
+                );
+            
+                $injections = $this->getProjectSetting("pdf-injections", $pid);
+                $new_injections = [];
+    
+                foreach ($injections as $key => $injection) {
+                    $new_injection = [];
+                    foreach ($injection as $element => $data) {
+                        $new_data;
+                        if($element == 'fields') {
+                            $new_fields = [];
+                            foreach ( $data as $field => $value) {
+                                if(is_string($value)){
+                                    $new_value = $this->getFieldMetaData($value, $pid);
+                                } else {
+                                    $new_value = $value;
+                                }
+                                $new_fields[$field] = $new_value;
+                            }
+                            $new_data = $new_fields;
+                        } else {
+                            $new_data = $data;
+                        }
+                        $new_injection[$element] = $new_data;
+                    }
+                    $new_injections[$key] = $new_injection;
+                }
+    
+                try {
+                    $this->setProjectSetting("pdf-injections", $new_injections, $pid);
+                    \REDCap::logEvent("PDF Injector Database update was successfull!");
+                } catch(\Exception $e) {
+                    \REDCap::logEvent("PDF Injector Database update failed!");
+                    throw new Exception($e);                
+                }
+            }
         }
-
     }    
-
 }

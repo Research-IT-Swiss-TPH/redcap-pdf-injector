@@ -18,7 +18,8 @@
     "framework-version": 6,
 
     "permissions": [
-        "redcap_every_page_top"
+        "redcap_every_page_top",
+        "redcap_module_system_change_version"
     ],
 
     "enable-every-page-hooks-on-system-pages": false,
