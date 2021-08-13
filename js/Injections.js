@@ -491,27 +491,30 @@ STPH_pdfInjector.updateLiveFilters = function() {
         } 
     })
     
-    //  Loop over all Download Buttons and update url query parameters
-    $('.injection-report-download-button').each(function () {
-        
-        let btn = $(this);
-        let href = btn.attr("href");
+    if( qs_all_lf.length > 0) {
+        //  Loop over all Download Buttons and update url query parameters
+        $('.injection-report-download-button').each(function () {
+            
+            let btn = $(this);
+            let href = btn.attr("href");
 
-        if(href) {
-            let url = new URL(href);
-            let search_params = url.searchParams;
-            let url_with_all_lf = "";
-            $(qs_all_lf).each(function(index, element){
-                let param = element.split('=')[0];
-                let paramVal = element.split('=')[1];
+            if(href) {
+                let url = new URL(href);
+                let search_params = url.searchParams;
+                let url_with_all_lf = "";
+                $(qs_all_lf).each(function(index, element){
+                    let param = element.split('=')[0];
+                    let paramVal = element.split('=')[1];
 
-                search_params.set(param, paramVal);
-                url.search = search_params.toString();
-                url_with_all_lf = url.toString();            
-            });
-            btn.attr("href", url_with_all_lf);
-        }
-    });    
+                    search_params.set(param, paramVal);
+                    url.search = search_params.toString();
+                    url_with_all_lf = url.toString();            
+                });
+                btn.attr("href", url_with_all_lf);
+            }
+        });
+    }
+  
 }
 
 STPH_pdfInjector.openModalExportData = function() {

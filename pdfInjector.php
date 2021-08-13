@@ -59,7 +59,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     function redcap_every_page_top($project_id = null) {
-        
+
         try {
             //  Check if user is logged in
             if($this->getUser()) {
@@ -223,9 +223,9 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $fields = $injection["fields"];
 
         //  Get Enum Data if not already set during batch processing
-        if( $this->enum[$project_id] != null ) {
+        if( empty($this->enum[$project_id]) ) {
+            $this->enum[$project_id] = $this->getEnumData($project_id, $fields);
         }
-        $this->enum[$project_id] = $this->getEnumData($project_id, $fields);             
 
 
         if($record_id != null){

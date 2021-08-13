@@ -186,3 +186,6 @@
         $filename = $module->getSafePath($path);
         unlink($filename);
     }
+    
+    //  Reset enum data
+    $module->enum[$pid] = [];
