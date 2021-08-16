@@ -170,6 +170,14 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     
     }
 
+    /**
+     *  Gets all enum data
+     *  @param string $project_id
+     *  @param array $fields
+     *  @return array 
+     *  @since 1.3.0
+     * 
+     */
     private function getEnumData($project_id, $fields){
 
         $field_names_array = [];
@@ -180,7 +188,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         }
         $field_names = implode(",", $field_names_array);
         
-        //  Get all enums (affects types radio, checkbox and select)
+        //  Get all enums (affects types: radio, checkbox and select)
         $sql = 'SELECT element_enum,field_name FROM redcap_metadata WHERE project_id = ? AND field_name IN('.$field_names.') AND element_enum IS NOT NULL';
         $result = $this->query($sql, [ $project_id]);
 
