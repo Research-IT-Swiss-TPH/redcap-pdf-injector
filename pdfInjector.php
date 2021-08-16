@@ -3,9 +3,10 @@
 namespace STPH\pdfInjector;
 
 /**
- * REDCap External Module: PDF Injector
- * PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables.
- * @author Ekin Tertemiz, Swiss Tropical and Public Health Institute
+ *  REDCap External Module: PDF Injector
+ *  PDF Injector is a REDCap module that enables you to populate fillable PDFs with record data from variables.
+ * 
+ *  @author Ekin Tertemiz, Swiss Tropical and Public Health Institute
  * 
  */
 
@@ -15,30 +16,46 @@ use \Exception;
 use \Files;
 use \Piping;
 
-// Declare your module class, which must extend AbstractExternalModule  
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
+    /** @var array */    
     private $injections;
+
+    /** @var string */    
     private $report_id;
+
+    /** @var string */
     private $ui;
 
-    //  Supported Action Tags
+    /** @var string */
+    private $version;
+
+    /** @var string */
+    private $old_version;
+
+    /** @var array */
+    private $enum;
+
     const SUPPORTED_ACTIONTAGS = ['@TODAY'];
 
    /**
-    * Constructs the class
+    *   Constructs the class
+    *   @return void
+    *   @since 1.0.0
     *
     */
-    public function __construct()
-    {        
+    public function __construct() {        
         parent::__construct();
-        // Other code to run when object is instantiated
 
+        $this->enum = [];
     }
-
-    
+   
    /**
-    *   -> Hooked to redcap_every_page_top
+    *   Allows custom actions to be performed at the top of every page in REDCap 
+    *   (including plugins that render the REDCap page header)
+    *
+    *   @return void
+    *   @since 1.0.0
     *
     */
     function redcap_every_page_top($project_id = null) {
@@ -78,9 +95,16 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     }
 
-   /**    
-    *   -> Called via RequestHandler.php over AJAX
-    *   Scans submitted file and returns field names
+
+    //  ====    H A N D L E R S     ====
+
+   /**  
+    * 
+    *   Scans an uploaded PDF file and returns field data
+    *   -> Called via RequestHandler.php over AJAX   
+    *
+    *   @return string
+    *   @since 1.0.0
     */
     public function scanFile(){        
         if(isset($_FILES['file']['name'])){
@@ -128,27 +152,68 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     }
     
    /**    
+    *   Scans field entered to modal to check if it is valid and returns meta data. 
     *   -> Called via RequestHandler.php over AJAX
-    *   Checks a given field value if is a variable
+    *      
+    *   @return array
+    *   @since 1.0.0
+    *
     */
     public function scanField($fieldName) {
 
-        $valid = $this->checkSingleField($fieldName);
-
-        if($valid) {
+        $fieldMetaData = $this->getFieldMetaData($fieldName);
+    
+        if($fieldMetaData != "") {
             header('Content-Type: application/json; charset=UTF-8');                
-            echo json_encode(array("fieldName" => $fieldName));
+            echo json_encode(array($fieldMetaData));
         } else  $this->errorResponse("Field is invalid");
     
     }
-    
+
+    /**
+     *  Gets all enum data
+     *  @param string $project_id
+     *  @param array $fields
+     *  @return array 
+     *  @since 1.3.0
+     * 
+     */
+    private function getEnumData($project_id, $fields){
+
+        $field_names_array = [];
+        foreach ($fields as $key => $field) {
+           if( !empty($field["field_name"])){
+            $field_names_array[] = '"'.$field["field_name"] . '"';
+           }
+        }
+        $field_names = implode(",", $field_names_array);
+        
+        //  Get all enums (affects types: radio, checkbox and select)
+        $sql = 'SELECT element_enum,field_name FROM redcap_metadata WHERE project_id = ? AND field_name IN('.$field_names.') AND element_enum IS NOT NULL';
+        $result = $this->query($sql, [ $project_id]);
+
+        $enum_data = [];
+        while($row = $result->fetch_object()) {
+            //  use parseEnum 
+            $enum_data[$row->field_name] = parseEnum($row->element_enum);
+        }
+
+        return $enum_data;
+    }
 
    /**    
+    *   Renders Injection by filling field data into file
     *   -> Called via RequestHandler.php over AJAX
-    *   Renders preview for a given Injection and optionally record
+    *   @param string $document_id
+    *   @param string $record_id 
+    *   @param string $project_id
+    *   @param string $outputFormat
+    *   @return string
+    *   @since 1.0.0
+    *   
     */
     public function renderInjection($document_id, $record_id = null, $project_id = null, $outputFormat = null) {
-
+           
         $injections = self::getProjectSetting("pdf-injections");
         $injection = $injections[$document_id];
         //  Check if doc_id exists
@@ -165,6 +230,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Get Fields
         $fields = $injection["fields"];
 
+        //  Get Enum Data if not already set during batch processing
+        if( empty($this->enum[$project_id]) ) {
+            $this->enum[$project_id] = $this->getEnumData($project_id, $fields);
+        }
+
+
         if($record_id != null){
             //  check if rec_id exists
 
@@ -175,44 +246,59 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             foreach ($fields as $key => &$value) {
                 
                 //  fetch variable value for each variable inside field
-                $fieldname = $value;
+                $field_name = $value["field_name"];
+                $element_type = $value["element_type"];
                 $sql = "SELECT value FROM redcap_data WHERE record = ? AND project_id = ? AND field_name = ? LIMIT 0, 1";
                 $result = $this->query($sql, 
                     [
                         $record_id,
                         $project_id,
-                        $fieldname,
+                        $field_name,
                     ]
                 );
-                $fieldValue = $result->fetch_object()->value;
 
-                //  Check if field value has variables or action tags
-                $hasVariables = preg_match('/([\[\]])\w+/', $fieldValue);
-                $hasActiontags = preg_match('/([\@])\w+/', $fieldValue);
+                $field_value = $result->fetch_object()->value;
 
-                if($hasVariables) {
+                //  Check if element type has enum
+                if( !empty($this->enum[$project_id][$field_name]) ) {
 
-                    $data = \REDCap::getData($project_id, 'array', $record_id);
-                    $value = Piping::replaceVariablesInLabel($fieldValue, $record_id, null, 1, $data, false, $project_id, false,
-                    "", 1, false, false, "", null, true, false, false);
+                    $value = $this->enum[$project_id][$field_name][$field_value];
 
-                } 
-                else if($hasActiontags){
+                } else {
 
-                    foreach (self::SUPPORTED_ACTIONTAGS as $key => $actiontag) {
-                        if(\Form::hasActionTag($actiontag, $fieldValue)) {
-                            $value = $this->replaceActionTagsInLabel($fieldValue, $actiontag);                            
+
+                    //  Check if field value has variables or action tags
+                    $hasVariables = preg_match('/([\[\]])\w+/', $field_value);
+                    $hasActiontags = preg_match('/([\@])\w+/', $field_value);
+
+                    if($hasVariables) {
+
+                        $data = \REDCap::getData($project_id, 'array', $record_id);
+                        $value = Piping::replaceVariablesInLabel($field_value, $record_id, null, 1, $data, false, $project_id, false,
+                        "", 1, false, false, "", null, true, false, false);
+
+                    } 
+                    else if($hasActiontags){
+
+                        foreach (self::SUPPORTED_ACTIONTAGS as $key => $actiontag) {
+                            if(\Form::hasActionTag($actiontag, $field_value)) {
+                                $value = $this->replaceActionTag($field_value, $actiontag);                            
+                            }
+                            else {
+                                //  Fix rendering of '@' without action tags!
+                                $value = $field_value;
+                            }
                         }
-                        else {
-                            //  Fix rendering of '@' without action tags!
-                            $value = $fieldValue;
-                        }
+                    }                               
+                    else {
+                        $value = $field_value;
                     }
-                }                               
-                else {
-                    $value = $fieldValue;
                 }
-
+            }
+        } else {
+            //  For Preview
+            foreach ($fields as $key => &$value) {
+                $value = "[" . $value["field_name"] . "]";
             }
         }
 
@@ -221,7 +307,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $pdf = new FPDMH($path);
         //  Add checkbox support
         $pdf->useCheckboxParser = true;
-
+        //  Fill fields into PDF
         $pdf->Load($fields,true);
         $pdf->Merge();  // Does not support $pdf->Merge(true) yet (which would trigger PDF Flatten to "close" form fields via pdftk)        
         # Future support of PDF flattening would be implemented as optional module setting ensuring pdftk is installed on server
@@ -251,69 +337,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     }
 
    /**
-    * Gets injections
+    *   Handles $_POST for modes Create, Update, Delete 
+    *   @return mixed
+    *   @since 1.0.0
     *
-    */ 
-    public function getInjections() {
-        return $this->injections;
-    }
-
-    /**
-    * Converts png-file from edoc storage to base64 string
-    *
-    */ 
-    public function base64FromId($doc_id) {
-
-        $path = EDOC_PATH . Files::getEdocName( $doc_id, true );
-        $type = pathinfo($path, PATHINFO_EXTENSION);
-        $data = file_get_contents($path);
-
-        return 'data:image/' . $type . ';base64,' . base64_encode($data);    
-    }
-
-    public function generateTitle($fileName) {
-        $s = substr($fileName, 0, -4);
-        $s = str_replace("_", " ", $s);
-        $s = str_replace("-", " ", $s);
-        return $s;
-    }
-   
-   /**
-    * Initializes the module
-    *
-    */
-    private function initBase() {
-        $this->injections = self::getProjectSetting("pdf-injections");
-        $this->report_id = $this->sanitize($_GET["report_id"]);
-        $this->ui = self::getProjectSetting("ui-mode");
-
-        $this->includePageJavascript();
-        $this->includePageCSS();    
-    }
-
-    private function initModule() {
-        $this->handlePost();
-    }
-
-    private function initPageRecord(){
-        if(count($this->injections) > 0) {
-            $this->includePreviewModal();
-            if($this->ui == 1 || $this->ui == 3) {
-                $this->includeModuleTip();
-            }
-            if($this->ui == 2 || $this->ui == 3) {
-                $this->includeModuleContainer();
-            }
-        }
-    }
-
-    public function initPageDataExport() {                
-        $this->includeModalDataExport();
-        $this->includePageJavascriptDataExport();
-    }
-
-    //  Post Handler
-    //  Create, Update, Delete
+    */     
     private function handlePost() {
 
         if($_POST) {           
@@ -416,53 +444,84 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         }
 
     }
+    
 
+    //  ====    I N I T I A L I Z E R S    ====
+   
+   /**
+    *   Initializes module base
+    *   @return void
+    *   @since 1.0.0
+    *
+    */
+    private function initBase() {
+        $this->injections = self::getProjectSetting("pdf-injections");
+        $this->report_id = $this->sanitize($_GET["report_id"]);
+        $this->ui = self::getProjectSetting("ui-mode");
 
-    private function checkSingleField($fieldName) {
-        $pid = PROJECT_ID;
-        $sql = 'SELECT * FROM redcap_metadata WHERE project_id = ? AND field_name = ?';
-        $result =  $this->query($sql, [$pid, $fieldName]);
-
-        if($result->num_rows == 1) {
-            return true;
-        }
-
-        return false;
+        $this->includePageJavascript();
+        $this->includePageCSS();    
     }
 
-    private function filterForValidVariables($fields = null) {
+   /**
+    *   Initializes module handler
+    *   @return void
+    *   @since 1.0.0
+    *
+    */    
+    private function initModule() {
+        $this->handlePost();
+    }
 
-        if($fields != null) {
-            foreach ($fields as $fieldName => &$fieldValue) {
-                $valid = $this->checkSingleField($fieldValue);
-                if(!$valid) {
-                    $fieldValue = "";
-                }
+   /**
+    *   Initializes module on record page
+    *   @return void
+    *   @since 1.0.0
+    *
+    */        
+    private function initPageRecord(){
+        if(count($this->injections) > 0) {
+            $this->includePreviewModal();
+            if($this->ui == 1 || $this->ui == 3) {
+                $this->includeModuleTip();
+            }
+            if($this->ui == 2 || $this->ui == 3) {
+                $this->includeModuleContainer();
             }
         }
-        return $fields;
-
     }
 
-    //  Saves thumbnail from base64 string source as png into edoc storage
-    private function saveThumbnail($d_id, $b64) {
-
-        if ( isset( $b64 ) &&  $b64 != '' ) {        
-            //  Retrieve Thumbnail as Base64 String and save to docs
-            $_FILES['thumbnailFile']['type'] = "image/png";
-            $_FILES['thumbnailFile']['name'] = "thumbnail_injection_" . $d_id . ".png";
-            $_FILES['thumbnailFile']['tmp_name'] = APP_PATH_TEMP . "thumbnail_injection_" . $d_id . "_" . substr(sha1(mt_rand()), 0, 12) . ".png";
-            file_put_contents($_FILES['thumbnailFile']['tmp_name'], base64_decode(str_replace(' ', '+', $b64)));
-            $_FILES['thumbnailFile']['size'] = filesize($_FILES['thumbnailFile']['tmp_name']);
-
-            //  Upload File to REDCap, returns edoc id
-            return Files::uploadFile($_FILES['thumbnailFile']);
-
-        } else return 0;
-
+   /**
+    *   Initializes module on Data Export page
+    *   @return void
+    *   @since 1.0.0
+    *
+    */     
+    public function initPageDataExport() {                
+        $this->includeModalDataExport();
+        $this->includePageJavascriptDataExport();
     }
 
-    private function saveInjection( Injection $injection ) {
+
+    //  ====    I N J E C T I O N S   ====
+
+   /**
+    *   Gets injections
+    *   @return array
+    *   @since 1.0.0
+    *
+    */ 
+    public function getInjections() {
+        return $this->injections;
+    }    
+
+    /**
+     * Saves Injection to database
+     * @param Injection $injection
+     * @return void
+     * @since 1.0.0
+     */
+    private function saveInjection( $injection ) {
         $injections = $this->injections;
 
         //  Insert new injection to injections array
@@ -473,7 +532,13 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $this->injections = self::getProjectSetting("pdf-injections");
     }
   
-    private function deleteInjection( Injection $injection ) {
+    /**
+     * Deletes Injection from database
+     * @param Injection $injection
+     * @return boolean
+     * @since 1.0.0
+     */
+    private function deleteInjection( $injection ) {
         $injections = $this->injections;
         
         //  Remove injection from Injections Array
@@ -492,7 +557,13 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         } else throw new Exception($this->tt("injector_15"));
     }
 
-    //  Checks if update is given by comparing array on every level
+    /**
+     *  Checks if Injection has update by comparing old and new Injections
+     *  @param Injection $oldInjection
+     *  @param Injection $newInjection
+     *  @return boolean
+     *  @since 1.0.0
+     */
     private function hasUpdate(Injection $oldInjection, Injection $newInjection ) {
 
         $o_arr = $oldInjection->getValuesAsArray();
@@ -505,16 +576,146 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         $diff_level_1 = !empty(array_diff_assoc($o_arr, $n_arr));
 
+        if($diff_level_1) {
+            return true;
+        }
+
         $o_arr_f = $o_arr["fields"];
         $n_arr_f = $n_arr["fields"];
 
         $diff_level_2 = !empty(array_diff_assoc($o_arr_f, $n_arr_f));
 
-        return ( $diff_level_1 || $diff_level_2 );
+        if($diff_level_2) {
+            return true;
+        }
+
+        foreach ($o_arr_f as $field => $meta) {
+
+            $o_arr_f_n = $meta;
+            $n_arr_f_n = $n_arr_f[$field];
+
+            $diff_level_3 = !empty(array_diff_assoc($o_arr_f_n, $n_arr_f_n));
+
+            if( $diff_level_3 ){
+                break;
+                //  exit loop if difference found
+            }
+        }
+
+        return ( $diff_level_1 || $diff_level_2 || $diff_level_3);
     }
 
-    //  Helper function to render action tags    
-    private function replaceActionTagsInLabel($label, $actiontag) {
+    //  ====    H E L P E R S      ====
+
+    /**
+     *  Gets Field Meta Data 
+     *  @param string $fieldName
+     *  @return array|string
+     *  @since 1.3.0
+     * 
+     */    
+    private function getFieldMetaData($fieldName, $pid=null) {
+        if($pid == null) {
+            $pid = PROJECT_ID;
+        }
+        
+        $sql = 'SELECT * FROM redcap_metadata WHERE project_id = ? AND field_name = ?';
+        $result =  $this->query($sql, [$pid, $fieldName]);
+
+        if($result->num_rows == 1) {
+
+            $fieldMetaData = $result->fetch_object();
+            $result->close();
+
+            return array(
+                "field_name" => $fieldMetaData->field_name,
+                "element_type" => $fieldMetaData->element_type
+            );                
+        }
+
+        else return "";
+    }
+
+    /**
+     *  Filters fields, checks if valid and returns their meta data
+     *  @param array $fields
+     *  @return array
+     *  @since 1.0.0
+     * 
+     */
+    private function filterForValidVariables($fields = null) {
+
+        if($fields != null) {
+            foreach ($fields as $fieldName => &$fieldValue) {
+                $fieldValue = $this->getFieldMetaData($fieldValue);
+            }
+        }
+        return $fields;
+    }
+
+    /**
+     *  Saves thumbnail from BASE64 string source as PNG into edoc storage
+     *  @param string $d_id
+     *  @param string $b64
+     *  @return string
+     *  @since 1.0.0
+     * 
+     */
+    private function saveThumbnail($d_id, $b64) {
+
+        if ( isset( $b64 ) &&  $b64 != '' ) {        
+            //  Retrieve Thumbnail as Base64 String and save to docs
+            $_FILES['thumbnailFile']['type'] = "image/png";
+            $_FILES['thumbnailFile']['name'] = "thumbnail_injection_" . $d_id . ".png";
+            $_FILES['thumbnailFile']['tmp_name'] = APP_PATH_TEMP . "thumbnail_injection_" . $d_id . "_" . substr(sha1(mt_rand()), 0, 12) . ".png";
+            file_put_contents($_FILES['thumbnailFile']['tmp_name'], base64_decode(str_replace(' ', '+', $b64)));
+            $_FILES['thumbnailFile']['size'] = filesize($_FILES['thumbnailFile']['tmp_name']);
+
+            //  Upload File to REDCap, returns edoc id
+            return Files::uploadFile($_FILES['thumbnailFile']);
+
+        } else return 0;
+
+    }    
+
+    /**
+    *   Converts PNG from edoc storage to BASE64
+    *   @param string $doc_id
+    *   @return string
+    *   @since 1.0.0
+    *
+    */ 
+    public function base64FromId($doc_id) {
+
+        $path = EDOC_PATH . Files::getEdocName( $doc_id, true );
+        $type = pathinfo($path, PATHINFO_EXTENSION);
+        $data = file_get_contents($path);
+
+        return 'data:image/' . $type . ';base64,' . base64_encode($data);    
+    }
+
+   /**
+    *   Generates injection default title from file name
+    *   @param string $fileName
+    *   @return string
+    *   @since 1.0.0    
+    *
+    */
+    public function generateTitle($fileName) {
+        $s = substr($fileName, 0, -4);
+        $s = str_replace("_", " ", $s);
+        $s = str_replace("-", " ", $s);
+        return $s;
+    }
+
+    /**
+     *  Replaces Action Tag within Injection
+     *  @param string $label
+     *  @param string $actiontag
+     *  @return string
+     *  @since 1.0.0
+     */
+    private function replaceActionTag($label, $actiontag) {
         switch ($actiontag) {
             case '@TODAY':
                 $str =  date("d.m.Y");
@@ -528,20 +729,34 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         return str_replace($actiontag, $str, $label);
     }    
 
-    //  Force redirect to same page to clear $_POST data
+    /**
+     *  Forces redirect to same page to clear $_POST data
+     *  @return void
+     *  @since 1.0.0
+     */
     private function forceRedirect() {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' 
         || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://';
         header('Location: '.$protocol.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
     }
 
+    /**
+     *  Returns error and exit with message
+     *  @return void
+     *  @since 1.0.0
+     */
     private function errorResponse($msg) {
         header("HTTP/1.1 400 Bad Request");
         header('Content-Type: application/json; charset=UTF-8');
         die($msg);
     }
 
-    //  Helper function to sanitize array or variable
+    /**
+     *  Sanitizes array or variable
+     *  @param string|array $arg
+     *  @return string|array
+     *  @since 1.2.0
+     */
     public function sanitize($arg) {
         if (is_array($arg)) {
             return array_map('sanitize', $arg);
@@ -550,9 +765,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         return htmlentities($arg, ENT_QUOTES, 'UTF-8');
     }
 
+    //  ====    I N C L U D E S     ====
 
    /**
-    * Include Page JavaScript files
+    *   Includes Page JavaScript files
+    *   @return void
+    *   @since 1.0.0
     *
     */    
     public function includePageJavascript() {
@@ -582,7 +800,9 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     }
 
    /**
-    * Include Page Style files
+    *   Includes Page Style files
+    *   @return void
+    *   @since 1.0.0
     *
     */
     private function includePageCSS() {
@@ -591,6 +811,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <?php
     }
 
+    /**
+     *  Includes module container 
+     *  @return void
+     *  @since 1.0.0
+     */
     private function includeModuleContainer(){
 
         //  Get Output mode from module settings
@@ -640,6 +865,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     }
 
+    /**
+     *  Includes module tip
+     *  @return void
+     *  @since 1.0.0
+     * 
+     */
     private function includeModuleTip() {
 
         //  Get Output mode from module settings
@@ -671,6 +902,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <?php
     }
 
+    /**
+     *  Includes Modal for Preview
+     *  @return void
+     *  @since 1.0.0
+     */
     private function includePreviewModal() {
         ?>
         <!-- Preview Modal -->
@@ -698,6 +934,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <?php
     }
 
+    /**
+     *  Includes Modal for Data Export
+     *  @return void
+     *  @since 1.0.0
+     */
     private function includeModalDataExport() {
         ?>
         <!-- Data Export Modal -->
@@ -745,6 +986,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <?php
     }
 
+    /**
+     *  Includes Page Javavscript for Data Export
+     *  @return void
+     *  @since 1.0.0
+     * 
+     */
     private function includePageJavascriptDataExport() {
         ?>
         <script>
@@ -757,4 +1004,89 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <?php        
     }
 
+    //  ====    H O U S E K E E P I N G     ====
+
+   /**
+    *   Triggered when a module version is changed.
+    *   @return void
+    *   @since 1.3.0
+    *
+    */
+    function redcap_module_system_change_version($version, $old_version) {
+        $this->version = substr($version, 1);
+        $this->old_version = substr($old_version, 1);
+        //  since Update to Version 1.3
+
+        $this->updateTo_v1_3_x();
+    }
+
+   /**
+    *   Runs database update when $old_version < 1.2.9 and $version >= 1.3.0
+    *   
+    *   @return void        
+    *   @since 1.3.0
+    *
+    */
+    private function updateTo_v1_3_x(){
+
+        $from_1_2_x = version_compare('1.2.9', $this->old_version) == 1;
+        $to_1_3_x = version_compare('1.2.9', $this->version) == -1;
+        
+        if( $from_1_2_x && $to_1_3_x ) {
+
+            //  First get all project id's for external module setting where key==pdf-injections
+            $sql = "SELECT project_id FROM redcap_external_module_settings WHERE `key` = 'pdf-injections'";
+            $result = $this->query($sql, []);
+
+            $pids = [];
+            while($row = $result->fetch_assoc()){
+                $pids[]=$row["project_id"];
+            }
+
+            //  Loop over projects
+            foreach ($pids as $key => $pid) {
+                
+                \REDCap::logEvent(
+                    'PDFI Module Update from version '.$this->old_version.' to version '.$this->version.'.', 
+                    'Upgrade PDF Injections in database to store element types for fields.',
+                    'SELECT project_id FROM redcap_external_module_settings WHERE `key` = "pdf-injections"',
+                    null,null, $pid
+                );
+            
+                $injections = $this->getProjectSetting("pdf-injections", $pid);
+                $new_injections = [];
+    
+                foreach ($injections as $key => $injection) {
+                    $new_injection = [];
+                    foreach ($injection as $element => $data) {
+                        $new_data;
+                        if($element == 'fields') {
+                            $new_fields = [];
+                            foreach ( $data as $field => $value) {
+                                if(is_string($value)){
+                                    $new_value = $this->getFieldMetaData($value, $pid);
+                                } else {
+                                    $new_value = $value;
+                                }
+                                $new_fields[$field] = $new_value;
+                            }
+                            $new_data = $new_fields;
+                        } else {
+                            $new_data = $data;
+                        }
+                        $new_injection[$element] = $new_data;
+                    }
+                    $new_injections[$key] = $new_injection;
+                }
+    
+                try {
+                    $this->setProjectSetting("pdf-injections", $new_injections, $pid);
+                    \REDCap::logEvent("PDF Injector Database update was successfull!");
+                } catch(\Exception $e) {
+                    \REDCap::logEvent("PDF Injector Database update failed!");
+                    throw new Exception($e);                
+                }
+            }
+        }
+    }    
 }
