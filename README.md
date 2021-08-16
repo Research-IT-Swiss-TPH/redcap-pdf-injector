@@ -6,9 +6,7 @@ PDF Injector is a REDCap module that enables you to populate fillable PDFs with 
 [Read Documentation](https://tertek.github.io/redcap-pdf-injector/)
 
 ##  Roadmap
-- support PDF flattening (currently bugged within FPDM, exec pdftk directly or use of alternative libraries such as pdfcairo, external web service)
-- support additional (simple) Action Tags (@NOW, etc.), improve Action tag support (e.g. formating for dates)
-- support additional PDF form field types (barcodes, ~~checkboxes~~, etc.)
+- add support for Field Validations, e.g. date formats
 
 ## Changelog
 
@@ -28,6 +26,7 @@ v1.2.5  | Support variable primary keys.
 v1.2.6  | Support live filters for Reports Injection. Add setting to disable Readme Generation.
 v1.2.7  | Minor fix for live filters. Improve Mutation Observer script.
 v1.2.8  | Fix rendering of '@' without action tags.
+v1.3.0  | New Feature: Render Injections automatically by field type. Enumerations are now supported and do not need to be retrieved manually through @CALCTEXT anymore.
 
 ## Author
 Ekin Tertemiz
