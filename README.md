@@ -27,6 +27,7 @@ v1.2.6  | Support live filters for Reports Injection. Add setting to disable Rea
 v1.2.7  | Minor fix for live filters. Improve Mutation Observer script.
 v1.2.8  | Fix rendering of '@' without action tags.
 v1.3.0  | New Feature: Render Injections automatically by field type. Enumerations are now supported and do not need to be retrieved manually through @CALCTEXT anymore.
+v1.3.1  | Minor fix for live filters. Reset filters correctly when multiple where selected.
 
 ## Author
 Ekin Tertemiz
