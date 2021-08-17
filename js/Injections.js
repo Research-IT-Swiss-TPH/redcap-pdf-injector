@@ -473,7 +473,6 @@ STPH_pdfInjector.insertReportBtn = function() {
     $("#pdfi-report-btn").remove();
     let button = '<a id="pdfi-report-btn" onclick="STPH_pdfInjector.openModalExportData();" href="javascript:;" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
     $(".report_btn").first().parent().prepend(button);
-    console.log("Button inserted");
 }
 
 STPH_pdfInjector.updateLiveFilters = function() {
@@ -490,31 +489,38 @@ STPH_pdfInjector.updateLiveFilters = function() {
             qs_all_lf.push(qs_single_lf);
         } 
     })
-    
-    if( qs_all_lf.length > 0) {
-        //  Loop over all Download Buttons and update url query parameters
+
+    //  Loop over all Download Buttons and update url query parameters
         $('.injection-report-download-button').each(function () {
-            
             let btn = $(this);
             let href = btn.attr("href");
 
             if(href) {
-                let url = new URL(href);
-                let search_params = url.searchParams;
-                let url_with_all_lf = "";
-                $(qs_all_lf).each(function(index, element){
-                    let param = element.split('=')[0];
-                    let paramVal = element.split('=')[1];
+                if( qs_all_lf.length > 0) {
 
-                    search_params.set(param, paramVal);
-                    url.search = search_params.toString();
-                    url_with_all_lf = url.toString();            
-                });
-                btn.attr("href", url_with_all_lf);
+                    let url = new URL(href);
+                    let search_params = url.searchParams;
+                    search_params.delete('lf1');
+                    search_params.delete('lf2');
+                    search_params.delete('lf3');
+                    let url_with_all_lf = "";                   
+
+                    $(qs_all_lf).each(function(index, element){
+                        let param = element.split('=')[0];
+                        let paramVal = element.split('=')[1];
+    
+                        search_params.set(param, paramVal);
+                        url.search = search_params.toString();
+                        url_with_all_lf = url.toString();            
+                    });
+                    btn.attr("href", url_with_all_lf);
+                } else {
+                    //  Set url to default if there are no Live Filters
+                    let url_default = btn.data("default-url");
+                    btn.attr("href", url_default);
+                }
             }
-        });
-    }
-  
+        });  
 }
 
 STPH_pdfInjector.openModalExportData = function() {
@@ -523,9 +529,14 @@ STPH_pdfInjector.openModalExportData = function() {
 
 STPH_pdfInjector.closeModalExportData = function() {
     $('#external-modules-configure-modal-data-export').modal('hide');
+    //  Show some progress so that user knows download has started...
+    showProgress(true);
+    setTimeout(()=>{
+        showProgress(false);
+    }, 500);
 }
 
 STPH_pdfInjector.setDownload = function (value) {
     $(".injection-report-download-button").addClass("d-none");
     $("#report-injection-download-"+value).removeClass("d-none");    
-  }
+}
