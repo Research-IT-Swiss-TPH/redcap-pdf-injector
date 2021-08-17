@@ -85,7 +85,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     if($isReportEnabled) {
                         $this->initPageDataExport();
                     }
-                    
                 } 
 
             }
