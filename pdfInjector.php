@@ -49,6 +49,14 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         $this->enum = [];
     }
+
+    public function runTest() {
+        return $this->getUser();
+    }
+
+    private function helloPrivate(){
+        return "foo";
+    }
    
    /**
     *   Allows custom actions to be performed at the top of every page in REDCap 
@@ -65,7 +73,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             if($this->getUser()) {
 
                 $this->initBase();
-
+               
                 //  Include Javascript and Styles on module page
                 if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
                     $this->initModule();            
@@ -85,7 +93,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     if($isReportEnabled) {
                         $this->initPageDataExport();
                     }
-                } 
+                }
 
             }
         } catch(Exception $e) {
@@ -348,34 +356,53 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             //  New Injection
             if($_POST["mode"] == "CREATE") {
 
-                if($_FILES)  {
+                    if(!$_FILES) {
+                        //  Throw exception if no file has been set.
+                        throw new Exception("The file upload is not set.");
+                    }
 
-                    //  Upload PDF and Thumbnail to REDCap edoc storage
-                    $document_id = Files::uploadFile($_FILES['file']);
-                    $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']);
+                    if( pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION) != "pdf") {
+                        //  Throw exception if file extension is not PDF
+                        throw new Exception("The file is invalid.");
+                    }              
+
+                    if( $this->PDFhasError($_FILES['file']['tmp_name']) ) {
+                        //  Throw exception if PDF is not valid.
+                        throw new Exception("The PDF is invalid.");
+                    }
                     
+                    //  Upload PDF to REDCap edoc storage
+                    $document_id = Files::uploadFile($_FILES['file']);
+
+                    if($document_id == 0 ) {
+                        throw new Exception("The PDF upload to REDCap storage failed.");
+                    }                    
+
+                    //  Upload Thumbnail to REDCap edoc storage
+                    $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']); 
+
+                    if($thumbnail_id == 0) {
+                        throw new Exception("The Thumbnail upload to REDCap storage failed.");
+                    }
+
+                  
                     //  Create new Injection entry in database if upload successful
-                    if($document_id != 0 && $thumbnail_id != 0) {
+                    //  Validate fields before save
+                    $validFields = $this->filterForValidVariables($_POST["fields"]);
 
-                        //  Validate fields before save
-                        $validFields = $this->filterForValidVariables($_POST["fields"]);
+                    if (!class_exists("Injection")) include_once("classes/Injection.php");
+                    $injection = new Injection;
+                    $injection->setValues(
+                        $_POST["title"],
+                        $_POST["description"],
+                        $validFields,
+                        $_FILES['file']['name'],
+                        $document_id,                            
+                        $thumbnail_id
+                        );
 
-                        if (!class_exists("Injection")) include_once("classes/Injection.php");
-                        $injection = new Injection;
-                        $injection->setValues(
-                            $_POST["title"],
-                            $_POST["description"],
-                            $validFields,
-                            $_FILES['file']['name'],
-                            $document_id,                            
-                            $thumbnail_id
-                         );
-
-                        //  Save Injection to Storage
-                        $this->saveInjection( $injection );
-    
-                    } else throw new Exception($this->tt("injector_15"));
-                }
+                    //  Save Injection to Storage
+                    $this->saveInjection( $injection );
 
             } if($_POST["mode"] == "UPDATE") {
 
@@ -439,6 +466,10 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
             }
 
+            if( $_POST["mode"] == "TEST") {
+                return "foo";
+            }
+
             $this->forceRedirect();
         }
 
@@ -459,7 +490,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $this->ui = self::getProjectSetting("ui-mode");
 
         $this->includePageJavascript();
-        $this->includePageCSS();    
+        $this->includePageCSS();
     }
 
    /**
@@ -648,6 +679,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             foreach ($fields as $fieldName => &$fieldValue) {
                 $fieldValue = $this->getFieldMetaData($fieldValue);
             }
+        } else {
+            $fields = [];
         }
         return $fields;
     }
@@ -675,7 +708,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         } else return 0;
 
-    }    
+    }
 
     /**
     *   Converts PNG from edoc storage to BASE64
@@ -763,6 +796,17 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     
         return htmlentities($arg, ENT_QUOTES, 'UTF-8');
     }
+
+
+    public function PDFhasError($file) {
+
+        if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
+
+        $pdf = new FPDMH($file);
+        return $pdf->hasError;
+
+    }
+
 
     //  ====    I N C L U D E S     ====
 
