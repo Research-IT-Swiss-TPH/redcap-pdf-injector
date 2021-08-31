@@ -108,7 +108,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
    /**  
     * 
     *   Scans an uploaded PDF file and returns field data
-    *   -> Called via RequestHandler.php over AJAX   
+    *   -> Called via RequestHandler.php over AJAX
     *
     *   @return string
     *   @since 1.0.0
@@ -117,7 +117,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         if(isset($_FILES['file']['name'])){
 
             $filename = $_FILES['file']['name'];
-            $ext =  strtolower(pathinfo($filename,PATHINFO_EXTENSION));
+            $ext =  strtolower( pathinfo( $filename, PATHINFO_EXTENSION ) );
             $tmp_file = $_FILES['file']['tmp_name'];
 
             //  Process PDF with FPDM - Helper Class (FPDMH)
@@ -135,9 +135,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             }
 
             if($pdf->hasError) {
-            //  Check for errors
+            //  Check for errors                
                 $this->errorResponse($pdf->errorMessage);
-                
             } else {
             //  Return as json response
                 $data = file_get_contents( $tmp_file );
@@ -147,7 +146,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     'fieldData' => $fieldData,
                     'pdf64' => base64_encode($data)
                 );
-                header('Content-Type: application/json; charset=UTF-8');                
+                header('Content-Type: application/json; charset=UTF-8');
                 echo json_encode($response);
                 exit();
             }
@@ -406,56 +405,72 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
             } if($_POST["mode"] == "UPDATE") {
 
-                if($_FILES)  {
-
-                    if (!class_exists("Injection")) include_once("classes/Injection.php");
-
-                    //  Create old injection instance by id
-                    $oldInjection = new Injection;
-                    $oldInjection->setInjectionById($this->injections, $_POST["document_id"] );
-
-                    $document_id = $_POST["document_id"];
-                    $thumbnail_id = $_POST["thumbnail_id"];
-                    $filename = $oldInjection->get("fileName");
-                    
-                    //  If file has changed overwrite document and thumbnail ids
-                    if( $_POST["hasFileChanged"] ) {
-
-                        //  Upload PDF and Thumbnail to REDCap edoc storage
-                        $document_id = Files::uploadFile($_FILES['file']);
-                        $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']);
-                        $filename = $_FILES['file']['name'];
-                        if( $document_id != 0 && $thumbnail_id != 0 ) {
-                            //  Remove old injection with old id
-                            $this->deleteInjection( $oldInjection );
-
-                        } else throw new Exception($this->tt("injector_15")); 
-
-                    }
-
-                    $validFields = $this->filterForValidVariables($_POST["fields"]);
-
-                    //  Create new injection instance
-                    $newInjection = new Injection;
-                    $newInjection->setValues(
-                        $_POST["title"],
-                        $_POST["description"],
-                        $validFields,
-                        $filename,
-                        intval($document_id),                            
-                        intval($thumbnail_id),
-                        $oldInjection->get("created")
-                    );
-
-                    $hasUpdate  = $this->hasUpdate( $oldInjection, $newInjection );
-                    if( $hasUpdate ) {
-                        //  Save Injection to Storage
-                        $this->saveInjection( $newInjection );
-                    } 
-
+                if(!$_FILES) {
+                    //  Throw exception if no file has been set.
+                    throw new Exception("The file upload is not set.");
                 }
 
+                if( pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION) != "pdf") {
+                    //  Throw exception if file extension is not PDF
+                    throw new Exception("The file is invalid.");
+                }              
+
+                if( $this->PDFhasError($_FILES['file']['tmp_name']) ) {
+                    //  Throw exception if PDF is not valid.
+                    throw new Exception("The PDF is invalid.");
+                }
+
+
+                if (!class_exists("Injection")) include_once("classes/Injection.php");
+
+                //  Create old injection instance by id
+                $oldInjection = new Injection;
+                $oldInjection->setInjectionById($this->injections, $_POST["document_id"] );
+
+                $document_id = $_POST["document_id"];
+                $thumbnail_id = $_POST["thumbnail_id"];
+                $filename = $oldInjection->get("fileName");
+                
+                //  If file has changed overwrite document and thumbnail ids
+                if( $_POST["hasFileChanged"] ) {
+
+                    //  Upload PDF and Thumbnail to REDCap edoc storage
+                    $document_id = Files::uploadFile($_FILES['file']);
+                    $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']);
+                    $filename = $_FILES['file']['name'];
+                    if( $document_id != 0 && $thumbnail_id != 0 ) {
+                        //  Remove old injection with old id
+                        $this->deleteInjection( $oldInjection );
+
+                    } else throw new Exception($this->tt("injector_15")); 
+
+                } 
+
+                $validFields = $this->filterForValidVariables($_POST["fields"]);
+
+                //  Create new injection instance
+                $newInjection = new Injection;
+                $newInjection->setValues(
+                    $_POST["title"],
+                    $_POST["description"],
+                    $validFields,
+                    $filename,
+                    intval($document_id),                            
+                    intval($thumbnail_id),
+                    $oldInjection->get("created")
+                );
+
+                $hasUpdate  = $this->hasUpdate( $oldInjection, $newInjection );
+                if( $hasUpdate ) {
+                    //  Save Injection to Storage
+                    $this->saveInjection( $newInjection );
+                } 
+
             } if($_POST["mode"] == "DELETE") {
+
+                if(!$_POST["document_id"]) {
+                    throw new Exception("The document id not set.");
+                }
                 
                 if (!class_exists("Injection")) include_once("classes/Injection.php");
                 $injection = new Injection;
