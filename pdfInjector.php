@@ -36,6 +36,9 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     /** @var array */
     private $enum;
 
+    /** @var array */
+    private $validation_type;
+
     const SUPPORTED_ACTIONTAGS = ['@TODAY'];
 
    /**
@@ -58,7 +61,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   @since 1.0.0
     *
     */
-    function redcap_every_page_top($project_id = null) {
+    function redcap_every_page_top($project_id = null) {      
 
         try {
             //  Check if user is logged in
@@ -201,6 +204,41 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         return $enum_data;
     }
 
+    /**
+     *  Gets all validation type data
+     *  @param string $project_id
+     *  @param array $fields
+     *  @return array 
+     *  @since 1.3.1
+     * 
+     */    
+    private function getValidationTypeData($project_id, $fields) {
+        
+        $field_names_array = [];
+        foreach ($fields as $key => $field) {
+           if( !empty($field["field_name"])){
+            $field_names_array[] = '"'.$field["field_name"] . '"';
+           }
+        }
+        $field_names = implode(",", $field_names_array);
+
+        //  Gets all element validation types (Mainly to support date formats)
+        $sql = 'SELECT element_validation_type, field_name FROM redcap_metadata WHERE project_id = ? AND field_name IN('.$field_names.') AND element_validation_type IS NOT NULL';
+        $result = $this->query($sql, [ $project_id]);
+
+        $validation_type_data = [];
+        while($row = $result->fetch_object()) {
+            $vDFormat = $this->getDateFormatDisplay($row->element_validation_type);
+            if($vDFormat) {
+                $validation_type_data[$row->field_name] = $vDFormat;
+            }
+
+        }
+
+        return $validation_type_data;
+
+    }  
+
    /**    
     *   Renders Injection by filling field data into file
     *   -> Called via RequestHandler.php over AJAX
@@ -233,6 +271,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Get Enum Data if not already set during batch processing
         if( empty($this->enum[$project_id]) ) {
             $this->enum[$project_id] = $this->getEnumData($project_id, $fields);
+        }
+
+        //  Get Validation Type Data if not already set during batch processing
+        if( empty($this->validation_type[$project_id]) ) {
+            $this->validation_type[$project_id] = $this->getValidationTypeData($project_id, $fields);
         }
 
 
@@ -293,7 +336,14 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     else {
                         $value = $field_value;
                     }
+
                 }
+
+                //  Check if element has validation type (support date formats)            
+                if( !empty($this->validation_type[$project_id][$field_name]) ) {
+                    $value = $this->renderDateFormat($value, $this->validation_type[$project_id][$field_name]);
+                }
+
             }
         } else {
             //  For Preview
@@ -764,6 +814,72 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     
         return htmlentities($arg, ENT_QUOTES, 'UTF-8');
     }
+
+
+    /**
+     *  Formats date input to given format string
+     *  @param string $value
+     *  @param array $format
+     *  @return string 
+     *  @since 1.3.1
+     * 
+     */      
+    private function renderDateFormat($value, $format) {
+        $date = date_create($value);
+        return date_format($date,$format);
+    }
+
+    /**
+     *  Gets Date Format String from validation type
+     *  Taken from MetaData::getDateFormatDisplay and adjusted to apply with PHP date_format()
+     *  https://www.php.net/manual/en/datetime.format.php
+     *  @param string $valtype
+     *  @return string 
+     *  @since 1.3.1
+     * 
+     */     
+	public static function getDateFormatDisplay($valtype)
+	{
+		switch ($valtype)
+		{
+			case 'time':
+				$dformat = "H:M";
+				break;
+			case 'date':
+			case 'date_ymd':
+				$dformat = "y-m-d";
+				break;
+			case 'date_mdy':
+				$dformat = "m-d-y";
+				break;
+			case 'date_dmy':
+				$dformat = "d-m-y";
+				break;
+			case 'datetime':
+			case 'datetime_ymd':
+				$dformat = "y-m-d H:i";
+				break;
+			case 'datetime_mdy':
+				$dformat = "m-d-y H:i";
+				break;
+			case 'datetime_dmy':
+				$dformat = "d-m-y H:i";
+				break;
+			case 'datetime_seconds':
+			case 'datetime_seconds_ymd':
+				$dformat = "y-m-d H:i:s";
+				break;
+			case 'datetime_seconds_mdy':
+				$dformat = "m-d-y H:i:s";
+				break;
+			case 'datetime_seconds_dmy':
+				$dformat = "d-m-y H:i:s";
+				break;
+			default:
+				$dformat = '';
+		}
+		return $dformat;
+	}      
 
     //  ====    I N C L U D E S     ====
 
