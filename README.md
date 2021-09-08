@@ -30,6 +30,7 @@ v1.3.0  | New Feature: Render Injections automatically by field type. Enumeratio
 v1.3.1  | Minor fix for live filters. Reset filters correctly when multiple where selected.
 v1.3.2  | Fix module page checks, so that Javascript is loaded correctly. 
 v1.3.3  | Support Render of field validation formats (dates).
+v1.3.4  | Add quick tools to Step 2 edit modal.
 
 ## Author
 Ekin Tertemiz
