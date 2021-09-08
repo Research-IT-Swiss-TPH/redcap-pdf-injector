@@ -194,6 +194,13 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 
 								<div id="field-to-variable-map" class="form-group">
 
+									<div class="float-right">										
+										<div id="quick-filler" onclick="STPH_pdfInjector.quickfill()">
+										<i style="font-size:10px;" class="fas fa-bolt"></i> Quick Fill</div>
+										<div id="quick-clear" onclick="STPH_pdfInjector.clear()">
+										<i style="font-size:10px;" class="fas fa-eraser"></i> Clear</div>										
+									</div><br>
+
 									<label class="fs14 boldish"><?=$module->tt("injector_14")?></label>
 
 									<div id="load-output"></div>

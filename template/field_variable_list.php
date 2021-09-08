@@ -34,8 +34,8 @@ foreach ($fields as $key => $field ) {
     $response .= '<div class="col-auto">';
     $response .= '<label class="sr-only" for="inlineFormInputGroup"></label>';
     $response .= '<div class="input-group mb-2">';
-    $response .= '<div class="input-group-prepend"><div class="input-group-text">'.$field["fieldName"].'</div></div>';
-    $response .= '<input type="text" class="form-control '.$state.' variable-input" name="fields['.$field["fieldName"].']" id="fieldVariableMatch-'.htmlspecialchars($key).'" value="'.htmlspecialchars($fieldValue["field_name"]).'" placeholder="" onfocusout="STPH_pdfInjector.validateField('.htmlspecialchars($key).');">';
+    $response .= '<div id="field-'.htmlspecialchars($key).'" class="input-group-prepend"><div class="input-group-text">'.$field["fieldName"].'</div></div>';
+    $response .= '<input data-quick-fill-key="'.$key.'" data-quick-fill-value="'.$field["fieldName"].'" type="text" class="form-control '.$state.' variable-input" name="fields['.$field["fieldName"].']" id="fieldVariableMatch-'.htmlspecialchars($key).'" value="'.htmlspecialchars($fieldValue["field_name"]).'" placeholder="" onfocusout="STPH_pdfInjector.validateField('.htmlspecialchars($key).');">';
     $response .= '</div></div><div class="col-auto"><div class="form-check mb-2"> <label class="form-check-label" for="autoSizingCheck">';
     $response .= '<small id="variableHelpLine-'.$key.'" class="text-'.$class.'">'.$text.' '.$type.'</small>';
     $response .= '</label></div></div></div>';

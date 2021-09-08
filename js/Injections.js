@@ -540,3 +540,23 @@ STPH_pdfInjector.setDownload = function (value) {
     $(".injection-report-download-button").addClass("d-none");
     $("#report-injection-download-"+value).removeClass("d-none");    
 }
+
+STPH_pdfInjector.quickfill = function () {
+    var variableInputs = $(".variable-input");
+
+    $.each(variableInputs, function( index, element ) {
+        if(!element.value) {
+            element.value = element.dataset.quickFillValue;
+            setTimeout(STPH_pdfInjector.validateField(element.dataset.quickFillKey), 2000 );
+        }      
+    })
+}
+
+STPH_pdfInjector.clear = function() {
+    var variableInputs = $(".variable-input");
+    $.each(variableInputs, function( index, element ) {
+        element.focus();
+        element.value = "";
+        element.blur();
+    });
+}

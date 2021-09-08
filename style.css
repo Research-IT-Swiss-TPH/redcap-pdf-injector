@@ -156,3 +156,15 @@ input.btn.btn-danger:hover {
     border-color: #bd2130;
     cursor: pointer;
 }
+
+#quick-filler, #quick-clear {
+    margin-right:5px;
+    color: #bdc3c7;
+    display: inline-block;
+    position: relative;
+}
+
+#quick-filler:hover, #quick-clear:hover {
+    color:#8e44ad;
+    cursor: pointer;
+}
