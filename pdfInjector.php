@@ -302,6 +302,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
                 $field_value = $result->fetch_object()->value;
 
+                //  Skip Injection if value is empty
+                if (empty($field_value)) {
+                    continue;
+                }
+
                 //  Check if element type has enum
                 if( !empty($this->enum[$project_id][$field_name]) ) {
 
