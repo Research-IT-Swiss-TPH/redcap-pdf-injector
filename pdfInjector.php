@@ -843,7 +843,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 		switch ($valtype)
 		{
 			case 'time':
-				$dformat = "H:M";
+				$dformat = "H:i";
 				break;
 			case 'date':
 			case 'date_ymd':
