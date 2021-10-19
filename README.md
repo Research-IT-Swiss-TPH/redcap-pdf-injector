@@ -5,8 +5,15 @@ PDF Injector is a REDCap module that enables you to populate fillable PDFs with 
 
 [Read Documentation](https://tertek.github.io/redcap-pdf-injector/)
 
+## Minimum Requirements
+This module uses REDCap External Module Framework Version 6. Please ensure that your REDCap Version fulfills this requirement.
+
 ##  Roadmap
-- add support for Field Validations, e.g. date formats
+- Improve custom field handling (Multi Checkbox)
+- Imrove Report Injection UI (Reset Live Filter)
+- Imporve Injection Overview (Organizing Order, Categories)
+- Add Access Rights and Levels
+- Add Unit Testing
 
 ## Changelog
 
@@ -31,6 +38,7 @@ v1.3.1  | Minor fix for live filters. Reset filters correctly when multiple wher
 v1.3.2  | Fix module page checks, so that Javascript is loaded correctly. 
 v1.3.3  | Support Render of field validation formats (dates).
 v1.3.4  | Add quick tools to Step 2 edit modal.
+v1.3.5  | Minor fixes.
 
 ## Author
 Ekin Tertemiz
