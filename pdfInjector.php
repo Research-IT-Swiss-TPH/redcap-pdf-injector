@@ -260,7 +260,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         }
 
         //  get Edoc 
-        $path = EDOC_PATH . Files::getEdocName( $document_id, true );
+        //$path = EDOC_PATH . Files::getEdocName( $document_id, true );
+	$path = \Files::copyEdocToTemp( $document_id );
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $file = file_get_contents($path);
 
@@ -742,7 +743,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */ 
     public function base64FromId($doc_id) {
 
-        $path = EDOC_PATH . Files::getEdocName( $doc_id, true );
+        //$path = EDOC_PATH . Files::getEdocName( $doc_id, true );
+	$path = \Files::copyEdocToTemp( $doc_id );
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $data = file_get_contents($path);
 
