@@ -15,6 +15,9 @@ This module uses REDCap External Module Framework Version 6. Please ensure that 
 - Add Access Rights and Levels
 - Add Unit Testing
 
+## Developer Notice
+Pull Requests are welcome. When opening a Pull Request please add a new Branch.
+
 ## Changelog
 
 Version | Description
@@ -39,6 +42,7 @@ v1.3.2  | Fix module page checks, so that Javascript is loaded correctly.
 v1.3.3  | Support Render of field validation formats (dates).
 v1.3.4  | Add quick tools to Step 2 edit modal.
 v1.3.5  | Minor fixes.
+v1.3.6  | Fix edoc storage options. Thx @jgardner-qha!
 
 ## Author
 Ekin Tertemiz

@@ -600,7 +600,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Remove injection from Injections Array
         unset( $injections [$injection->get("document_id") ] );
 
-        //  Remove documents from storage
+        //  Flag files for deletion
+        //  Actual deletion through (Cron) Jobs::RemoveTempAndDeletedFiles()
         $deletedPDF = Files::deleteFileByDocId( $injection->get("document_id") );
         $deletedThumbnail = Files::deleteFileByDocId( $injection->get("thumbnail_id") );
 
