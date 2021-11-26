@@ -101,7 +101,9 @@ To Inject Data for a Record and retrieve the PDF proceed as follows:
 Please notice that the current module version has several requirements. Ensure to test your setup before use in production.
 
 **Requirement 1: form fields**<br>
-The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommened to use Software such as "Adobe Acrobat Pro" to create PDFs with form fields. <br>[Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html).
+The PDF has to have form fields that can be filled (otherwise you will only output an unfilled PDF). It is recommended to use solid PDF Editors to create PDFs with form fields such as:
+- Adobe Acrobat Pro (Commercial) [Learn here how to create fillable pdf forms](https://acrobat.adobe.com/us/en/acrobat/how-to/create-fillable-pdf-forms-creator.html)
+- LibreOffice Writer (Free) [Fillable PDF Forms With LibreOffice Writer](https://www.linuxuprising.com/2019/02/how-to-create-fillable-pdf-forms-with.html)
 
 **Requirement 2: readable and fillable**<br>
 To make the PDF and its fields readable & fillable through PDF Injector we have to process the pdf with an open source tool called `pdftk`.
