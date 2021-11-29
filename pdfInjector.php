@@ -261,7 +261,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         //  get Edoc 
         //$path = EDOC_PATH . Files::getEdocName( $document_id, true );
-	$path = \Files::copyEdocToTemp( $document_id );
+	    $path = \Files::copyEdocToTemp( $document_id );
         $type = pathinfo($path, PATHINFO_EXTENSION);
         $file = file_get_contents($path);
 
@@ -827,7 +827,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     /**
      *  Formats date input to given format string
      *  @param string $value
-     *  @param array $format
+     *  @param string $format
      *  @return string 
      *  @since 1.3.1
      * 
@@ -1183,7 +1183,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 foreach ($injections as $key => $injection) {
                     $new_injection = [];
                     foreach ($injection as $element => $data) {
-                        $new_data;
+                        $new_data = [];
                         if($element == 'fields') {
                             $new_fields = [];
                             foreach ( $data as $field => $value) {
