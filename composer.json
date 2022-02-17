@@ -4,6 +4,7 @@
     },
     "require-dev": {
         "symfony/var-dumper": "^5.3",
-        "vimeo/psalm": "^4.8"
+        "vimeo/psalm": "^4.8",
+        "phpunit/phpunit": "9.5"
     }
 }
