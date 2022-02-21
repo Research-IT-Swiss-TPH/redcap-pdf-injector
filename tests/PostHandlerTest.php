@@ -8,10 +8,6 @@ use \Exception;
 
 final class PostHandlerTest extends BaseTest {
 
-    public function __construct() {        
-        parent::__construct();        
-    }
-
     //  Delete all temporary files after each tests
     public function tearDown():void{
         $dirname = __DIR__ . "/tmp";
