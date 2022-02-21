@@ -392,6 +392,23 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         }
     }
 
+    private function validateFileUpload() {
+        if(!$_FILES) {
+            //  Throw exception if no file has been set.
+            throw new Exception("The file upload is not set.");
+        }
+
+        if( pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION) != "pdf") {
+            //  Throw exception if file extension is not PDF
+            throw new Exception("The file type is invalid.");
+        }    
+
+        if( $this->PDFhasError($_FILES['file']['tmp_name']) ) {
+            //  Throw exception if PDF is not valid.
+            throw new Exception("The PDF file is invalid.");
+        }
+    }
+
    /**
     *   Handles $_POST for modes Create, Update, Delete 
     *   @return mixed
@@ -405,38 +422,43 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             //  New Injection
             if($_POST["mode"] == "CREATE") {
 
-                if($_FILES)  {
+                $this->validateFileUpload();
 
-                    //  Upload PDF and Thumbnail to REDCap edoc storage
-                    $document_id = Files::uploadFile($_FILES['file']);
-                    $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']);
-                    
-                    //  Create new Injection entry in database if upload successful
-                    if($document_id != 0 && $thumbnail_id != 0) {
+                //  Upload PDF to REDCap edoc storage
+                $document_id = Files::uploadFile($_FILES['file']);
 
-                        //  Validate fields before save
-                        $validFields = $this->filterForValidVariables($_POST["fields"]);
-
-                        if (!class_exists("Injection")) include_once("classes/Injection.php");
-                        $injection = new Injection;
-                        $injection->setValues(
-                            $_POST["title"],
-                            $_POST["description"],
-                            $validFields,
-                            $_FILES['file']['name'],
-                            $document_id,                            
-                            $thumbnail_id
-                         );
-
-                        //  Save Injection to Storage
-                        $this->saveInjection( $injection );
-    
-                    } else throw new Exception($this->tt("injector_15"));
+                if($document_id == 0 ) {
+                    throw new Exception("The PDF upload to REDCap storage failed.");
                 }
+
+                //  Upload Thumbnail to REDCap edoc storage
+                $thumbnail_id = $this->saveThumbnail($document_id, $_POST['thumbnail_base64']);
+
+                if($thumbnail_id == 0) {
+                    throw new Exception("The Thumbnail upload to REDCap storage failed.");
+                }
+                
+                //  Create new Injection entry in database if upload successful  
+                //  Validate fields before save
+                $validFields = $this->filterForValidVariables($_POST["fields"]);
+
+                if (!class_exists("Injection")) include_once("classes/Injection.php");
+                $injection = new Injection;
+                $injection->setValues(
+                    $_POST["title"],
+                    $_POST["description"],
+                    $validFields,
+                    $_FILES['file']['name'],
+                    $document_id,                            
+                    $thumbnail_id
+                    );
+
+                //  Save Injection to Storage
+                $this->saveInjection( $injection );
 
             } if($_POST["mode"] == "UPDATE") {
 
-                if($_FILES)  {
+                    $this->validateFileUpload();
 
                     if (!class_exists("Injection")) include_once("classes/Injection.php");
 
@@ -483,10 +505,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         $this->saveInjection( $newInjection );
                     } 
 
-                }
-
             } if($_POST["mode"] == "DELETE") {
                 
+                if(!$_POST["document_id"]) {
+                    throw new Exception("The document id not set.");
+                }
+
                 if (!class_exists("Injection")) include_once("classes/Injection.php");
                 $injection = new Injection;
                 $injection->setInjectionById( $this->injections, $_POST["document_id"]);
@@ -702,12 +726,14 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
      */
     private function filterForValidVariables($fields = null) {
 
-        if($fields != null) {
-            foreach ($fields as $fieldName => &$fieldValue) {
-                $fieldValue = $this->getFieldMetaData($fieldValue);
+            if($fields != null) {
+                foreach ($fields as $fieldName => &$fieldValue) {
+                    $fieldValue = $this->getFieldMetaData($fieldValue);
+                }
+            } else {
+                $fields = [];
             }
-        }
-        return $fields;
+            return $fields;
     }
 
     /**
@@ -887,7 +913,16 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 				$dformat = '';
 		}
 		return $dformat;
-	}      
+	}
+    
+    public function PDFhasError($file) {
+
+        if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
+
+        $pdf = new FPDMH($file);
+        return $pdf->hasError;
+
+    }
 
     //  ====    I N C L U D E S     ====
 
