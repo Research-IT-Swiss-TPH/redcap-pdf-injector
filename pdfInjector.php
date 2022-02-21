@@ -112,6 +112,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     public function scanFile(){        
         if(isset($_FILES['file']['name'])){
 
+            if(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION) != "pdf") {
+                $this->errorResponse("Invalid file type.");
+            }
+
+
             $filename = $_FILES['file']['name'];
             $ext =  strtolower(pathinfo($filename,PATHINFO_EXTENSION));
             $tmp_file = $_FILES['file']['tmp_name'];
@@ -132,7 +137,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
             if($pdf->hasError) {
             //  Check for errors
-                $this->errorResponse($pdf->errorMessage);
+                $this->errorResponse("Invalid PDF.");
                 
             } else {
             //  Return as json response
