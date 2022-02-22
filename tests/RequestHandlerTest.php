@@ -76,14 +76,47 @@ final class RequestHandlerTest extends BaseTest {
         ]);
 
         $responseData = json_decode($response->getBody()->getContents())->fieldData;
-        //fwrite(STDERR, print_r($responseData, TRUE));$
+        //fwrite(STDERR, print_r($responseData, TRUE));
 
         $this->assertEquals(count($responseData), 8);
     }
 
     /**
-     * API Testing
      * scanField()
+     * 
+     * @since 1.4.0
      */
+    function testScanField_fails_for_no_fieldName_set() {
+        $client = new HttpClient;
+        $requestURL = $this->getUrl("requestHandler.php") . "&action=fieldScan";
+        
+        $this->expectExceptionMessage("Field is invalid");
+        $client::request('post', $requestURL, []);
+
+    }
+
+    function testScanField_fails_for_invalid_fieldName_set() {
+        $client = new HttpClient;
+        $requestURL = $this->getUrl("requestHandler.php") . "&action=fieldScan";
+        
+        $this->expectExceptionMessage("Field is invalid");
+        $client::request('post', $requestURL, [
+            "fieldName" => "non-existing-field"
+        ]);
+
+    }
+
+    function testScanField_succeeds() {
+        $client = new HttpClient;
+
+        //  We have to send pid
+        $requestURL = $this->getUrl("requestHandler.php") . "&action=fieldScan&pid=" . PROJECT_ID;
+        
+        $response = $client::request('post', $requestURL, [
+            "fieldName" => "'record_id'"
+        ]);
+
+        $this->assertSame(200, $response->getStatusCode());
+    }   
 
 }
