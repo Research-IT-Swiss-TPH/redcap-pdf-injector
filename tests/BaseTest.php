@@ -76,10 +76,10 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
         $purpose = 0;
         $project_note = 'Unit Testing';
 
-        //$ui_id = NULL;
-        $ui_id = 1;
+        $ui_id = NULL;
+        //$ui_id = 1;
         $ui_name = NULL;
-        $ui_name = 'site_admin';
+        //$ui_name = 'site_admin';
         $auto_inc_set = 1;
         $GLOBALS['__SALT__'] = substr(sha1(rand()), 0, 10);
 
@@ -98,14 +98,21 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 		$form_names = createMetadata($new_project_id);
 
         // Insert user rights for this new project for user with user id = 1
-        Project::insertUserRightsProjectCreator($new_project_id, $ui_name, 0, 0, $form_names);
+        //Project::insertUserRightsProjectCreator($new_project_id, $ui_name, 0, 0, $form_names);
 
         return $new_project_id;
 
     }
-        
+    
+    //  Cleanup after last test
     static function tearDownAfterClass():void{
-        //self::cleanupTestProjects();    
+        
+        self::cleanupTestProjects();
+
+        //  Delete temporary data
+        $dirname = __DIR__ . "/tmp";
+        array_map('unlink', glob("$dirname/*.*"));
+        rmdir($dirname);
     }
 
 

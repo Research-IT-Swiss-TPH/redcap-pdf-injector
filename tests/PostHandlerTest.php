@@ -8,11 +8,9 @@ use \Exception;
 
 final class PostHandlerTest extends BaseTest {
 
-    //  Delete all temporary files after each tests
+    //  Action to perform after each test
     public function tearDown():void{
-        $dirname = __DIR__ . "/tmp";
-        array_map('unlink', glob("$dirname/*.*"));
-        rmdir($dirname);
+        //  nothing
     }
 
     /**
@@ -56,9 +54,8 @@ final class PostHandlerTest extends BaseTest {
             )
         );
 
-        //  Fake Post Variable
-        //  TODO: seems to be wrong
-        $_POST["thumbnail_base64"] = base64_encode(file_get_contents($tmp_path));
+        //To Do: Test Thumbnail Content Generation in separate test. Set it to string for so long.
+        $_POST["thumbnail_base64"] = "Foo";
     }
 
     /**
