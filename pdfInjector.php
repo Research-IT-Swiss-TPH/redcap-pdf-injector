@@ -61,7 +61,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   @since 1.0.0
     *
     */
-    function redcap_every_page_top($project_id = null) {      
+    function redcap_every_page_top($project_id = null) {
 
         try {
             //  Check if user is logged in
@@ -110,6 +110,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   @since 1.0.0
     */
     public function scanFile(){        
+
         if(isset($_FILES['file']['name'])){
 
             if(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION) != "pdf") {
@@ -172,7 +173,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $fieldMetaData = $this->getFieldMetaData($fieldName);
     
         if($fieldMetaData != "") {
-            header('Content-Type: application/json; charset=UTF-8');                
+            header('Content-Type: application/json; charset=UTF-8');
             echo json_encode(array($fieldMetaData));
         } else  $this->errorResponse("Field is invalid");
     
@@ -1167,6 +1168,57 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         </script>
         <?php        
     }
+
+    //  ====    S E C U R I T Y     ====
+
+    /**
+     *  Used for request handler authentication
+     * 
+     * @since 1.4.1
+     */
+    public function checkModuleCSRF() {
+
+        global $salt, $userid;
+
+        // Set token value (can come from $_REQUEST)
+        $redcap_csrf_token = null;
+        $redcap_csrf_token = htmlentities($_REQUEST['redcap_csrf_token'], ENT_QUOTES, 'UTF-8');
+        
+        if (!isset($_SESSION['redcap_csrf_token']) || $redcap_csrf_token == null || !in_array($redcap_csrf_token, $_SESSION['redcap_csrf_token']))
+		{
+            $displayError = true;
+            if ($redcap_csrf_token != null && $redcap_csrf_token != "")
+            {
+                // Determine number of seconds passed since last token was generated
+                $csrf_keys = array_keys(isset($_SESSION) && isset($_SESSION['redcap_csrf_token']) ? $_SESSION['redcap_csrf_token'] : array());
+                $lastTokenTime = end($csrf_keys);
+                if (empty($lastTokenTime) || $lastTokenTime == "") {
+                    $sec_ago = 21600; // 6 hours
+                } else {
+                    $sec_ago = strtotime(NOW) - strtotime($lastTokenTime);
+                }
+                // Find time when the posted token was generated, if can be found
+                for ($this_sec_ago = -10; $this_sec_ago <= $sec_ago; $this_sec_ago++)
+                {
+                    $this_ts = date("Y-m-d H:i:s", mktime(date("H"),date("i"),date("s")-$this_sec_ago,date("m"),date("d"),date("Y")));
+                    if ($redcap_csrf_token == md5($salt . $this_ts . $userid))
+                    {
+                        // Found the token's timestamp, so note it and set flag to not display the error message
+                        $displayError = false;
+                        break;
+                    }
+                }
+            }
+            if($displayError) {
+                header('Content-Type: application/json; charset=UTF-8');
+                header("HTTP/1.1 401 Unauthorized");
+                die("Invalid CSRF Token.");
+            }
+        }
+    }
+
+
+
 
     //  ====    H O U S E K E E P I N G     ====
 
