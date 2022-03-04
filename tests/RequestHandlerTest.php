@@ -14,7 +14,7 @@ final class RequestHandlerTest extends BaseTest {
     /**
      * scanFile()
      * 
-     * @since 1.4.0
+     * @since 1.3.7
      */
 
     function testScanFile_throws_for_no_file_set() {
@@ -84,7 +84,7 @@ final class RequestHandlerTest extends BaseTest {
     /**
      * scanField()
      * 
-     * @since 1.4.0
+     * @since 1.3.7
      */
     function testScanField_fails_for_no_fieldName_set() {
         $client = new HttpClient;

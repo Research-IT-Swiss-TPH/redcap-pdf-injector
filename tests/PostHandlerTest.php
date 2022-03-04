@@ -61,7 +61,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * Test: HandlePost_EMPTY_returns_null
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */
     function testUndefined_request_returns_null() {
         
@@ -73,7 +73,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * 
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */    
     function testCREATE_throws_for_no_file_set() {
         
@@ -94,7 +94,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * 
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */    
     function testCREATE_throws_for_invalid_type() {
 
@@ -114,7 +114,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * 
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */    
     function testCREATE_throws_for_invalid_pdf() {
 
@@ -134,7 +134,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * 
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */    
     function testCREATE_succeeds_for_valid_pdf() {
     
@@ -180,7 +180,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * 
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */    
     function testUPDATE_throws_for_invalid_file() {
 
@@ -200,7 +200,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * 
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */    
     function testUPDATE_throws_for_invalid_pdf() {
 
@@ -221,7 +221,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * 
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */    
     function testUPDATE_succeeds_without_file_change() {
 
@@ -259,7 +259,7 @@ final class PostHandlerTest extends BaseTest {
     /**
      * 
      * 
-     *  @since 1.4.0
+     *  @since 1.3.7
      */  
     function testUPDATE_succeeds_with_file_change() {
 

@@ -23,4 +23,4 @@ v1.3.3  | Support Render of field validation formats (dates).
 v1.3.4  | Add quick tools to Step 2 edit modal.
 v1.3.5  | Minor fixes.
 v1.3.6  | Fix edoc storage options. Thx @jgardner-qha!
-v1.4.0  | Unit Tests for RequestHandler and PostHandlers. Added Validation for several cases.
+v1.3.7  | Unit Tests for RequestHandler and PostHandlers. Added Validation for several cases.
