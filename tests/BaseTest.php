@@ -8,9 +8,6 @@ require_once __DIR__ . '/../../../redcap_connect.php';
 
 abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 
-    static string $pid1;
-    static string $pid2;
-
     protected function callPrivateMethod($name, array $args) {
         $obj =  $this->module;
         $class = new \ReflectionClass($obj);
@@ -25,17 +22,37 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 
             self::setupTestProjects();
 
-        } else {
-
-            $testPIDs = ExternalModules::getTestPIDs();
-            self::$pid1 = $testPIDs[0];
-            self::$pid2 = $testPIDs[1];    
         }
 
+    }
 
-        //  Fake Project ID (using first test project)
-        define(PROJECT_ID, ExternalModules::getTestPIDs()[0]);
+    protected static function echo($message)
+    {
+        // if output buffer has not started yet
+        if (ob_get_level() == 0) {
+            // current buffer existence
+            $hasBuffer = false;
+            // start the buffer
+            ob_start();
+        } else {
+            // current buffer existence
+            $hasBuffer = true;
+        }
 
+        // echo to output
+        echo $message;
+
+        // flush current buffer to output stream
+        ob_flush();
+        flush();
+        ob_end_flush();
+
+        // if there were a buffer before this method was called
+        //      in my version of PHPUNIT it has its own buffer running
+        if ($hasBuffer) {
+            // start the output buffer again
+            ob_start();
+        }
     }
 
     
@@ -53,13 +70,18 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 
     }
 
+    function getTestPID(){
+        return ExternalModules::getTestPIDs()[0];
+    }
+
+
     //  Setup test projects
     static function setupTestProjects() {
 
-        self::$pid1 = self::createTestProject('External Module Unit Test Project 1');
-        self::$pid2 = self::createTestProject('External Module Unit Test Project 2');
+        $pid1 = self::createTestProject('External Module Unit Test Project 1');
+        $pid2 = self::createTestProject('External Module Unit Test Project 2');
         
-        $value = self::$pid1.",".self::$pid2;
+        $value = $pid1.",".$pid2;
 
         $sql = "insert into redcap_config values ('external_modules_test_pids', ?)";
         
@@ -95,10 +117,7 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 		Project::insertDefaultArmAndEvent($new_project_id);
 
         // Now add the new project's metadata
-		$form_names = createMetadata($new_project_id);
-
-        // Insert user rights for this new project for user with user id = 1
-        //Project::insertUserRightsProjectCreator($new_project_id, $ui_name, 0, 0, $form_names);
+		createMetadata($new_project_id);
 
         return $new_project_id;
 
@@ -107,7 +126,7 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
     //  Cleanup after last test
     static function tearDownAfterClass():void{
         
-        self::cleanupTestProjects();
+        //self::cleanupTestProjects();
 
         //  Delete temporary data
         $dirname = __DIR__ . "/tmp";
@@ -121,8 +140,8 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
         ExternalModules::query(
             "DELETE FROM `redcap_projects` WHERE `project_id`= ? OR `project_id`=?", 
             [
-                self::$pid1,
-                self::$pid2
+                ExternalModules::getTestPIDs()[0],
+                ExternalModules::getTestPIDs()[1]
             ]
         );
 
@@ -131,8 +150,5 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
         );
     }    
 
-    function getFirstTestPID(){
-        return ExternalModules::getTestPIDs()[0];
-    }
 
 }
