@@ -3,13 +3,27 @@
 // For now, the path to "redcap_connect.php" on your system must be hard coded.
 require_once __DIR__ . '/../../../redcap_connect.php';
 
-use \HttpClient;
-use \Exception;
 use \GuzzleHttp\Psr7;
+use \HttpClient;
+use \GuzzleHttp\Exception\ClientException;
 
 
-final class RequestHandlerTest extends BaseTest {
+class RequestHandlerTest extends BaseTest {
 
+    private $http;
+    private $base_url;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->http = new HttpClient;
+        $this->base_url = $this->getUrl("requestHandler.php");
+    }
+
+    public function tearDown():void {
+        $this->http = null;
+     }
 
     /**
      * scanFile()
@@ -19,38 +33,41 @@ final class RequestHandlerTest extends BaseTest {
 
     function testScanFile_throws_for_no_file_set() {
 
-        $client = new HttpClient;
-        $requestURL = $this->getUrl("requestHandler.php") . "&action=fileScan";
-
+       
+        $this->expectException(ClientException::class);
         $this->expectExceptionMessage("Unknown Error");
-        $client::request('post', $requestURL);        
+
+        $this->http::request('post', $this->base_url, [
+            "form_params" => [
+                "action" => "fileScan"
+            ]
+        ]);
         
     }
 
     function testScanFile_throws_for_invalid_file() {
 
-        $client = new HttpClient;
-        $requestURL = $this->getUrl("requestHandler.php") . "&action=fileScan";
-
-        //$this->expectException(\GuzzleHttp\Exception\ClientException::class);
+        $requestURL = $this->base_url . "&action=fileScan";
+        
+        $this->expectException(ClientException::class);
         $this->expectExceptionMessage('Invalid file type.');
-        $client::request('post', $requestURL, [
+
+        $this->http::request('post', $requestURL, [
             'multipart' => [
                 [
                     'name' => 'file',
                     'contents' => Psr7\Utils::tryFopen( __DIR__ . '/files/invalid_file.txt', 'r')
                 ]
-               
             ]
         ]);
     }
 
     function testScanFile_throws_for_invalid_pdf(){
-        $client = new HttpClient;
-        $requestURL = $this->getUrl("requestHandler.php") . "&action=fileScan";
+
+        $requestURL = $this->base_url . "&action=fileScan";
 
         $this->expectExceptionMessage('Invalid PDF.');
-        $client::request('post', $requestURL, [
+        $this->http::request('post', $requestURL, [
             'multipart' => [
                 [
                     'name' => 'file',
@@ -62,10 +79,10 @@ final class RequestHandlerTest extends BaseTest {
     }
 
     function testScanFile_succeeds(){
-        $client = new HttpClient;
-        $requestURL = $this->getUrl("requestHandler.php") . "&action=fileScan";
 
-        $response = $client::request('post', $requestURL, [
+        $requestURL = $this->base_url . "&action=fileScan";
+
+        $response = $this->http::request('post', $requestURL, [
             'multipart' => [
                 [
                     'name' => 'file',
@@ -76,7 +93,6 @@ final class RequestHandlerTest extends BaseTest {
         ]);
 
         $responseData = json_decode($response->getBody()->getContents())->fieldData;
-        //fwrite(STDERR, print_r($responseData, TRUE));
 
         $this->assertEquals(count($responseData), 8);
     }
@@ -87,36 +103,80 @@ final class RequestHandlerTest extends BaseTest {
      * @since 1.3.7
      */
     function testScanField_fails_for_no_fieldName_set() {
-        $client = new HttpClient;
-        $requestURL = $this->getUrl("requestHandler.php") . "&action=fieldScan";
+
+        $requestURL = $this->base_url . "&action=fieldScan";
         
         $this->expectExceptionMessage("Field is invalid");
-        $client::request('post', $requestURL, []);
+        $this->http::request('post', $requestURL, []);
 
     }
 
     function testScanField_fails_for_invalid_fieldName_set() {
-        $client = new HttpClient;
-        $requestURL = $this->getUrl("requestHandler.php") . "&action=fieldScan";
+
+        $requestURL = $this->base_url . "&action=fieldScan";
         
         $this->expectExceptionMessage("Field is invalid");
-        $client::request('post', $requestURL, [
+        $this->http::request('post', $requestURL, [
             "fieldName" => "non-existing-field"
         ]);
 
     }
 
     function testScanField_succeeds() {
-        $client = new HttpClient;
 
         //  We have to send pid
-        $requestURL = $this->getUrl("requestHandler.php") . "&action=fieldScan&pid=" . PROJECT_ID;
-        
-        $response = $client::request('post', $requestURL, [
+        $requestURL = $this->base_url . "&action=fieldScann&pid=" . PROJECT_ID;
+
+        $response = $this->http::request('post', $requestURL, [
             "fieldName" => "'record_id'"
         ]);
 
         $this->assertSame(200, $response->getStatusCode());
-    }   
+    }
+
+    /**
+     * previewInjection()
+     * 
+     * @since 1.3.8
+     */
+    function testPreviewInjection_fails_without_document_id() {
+
+        $requestURL = $this->base_url . "&action=previewInjection";
+
+        $this->expectExceptionMessage("Document ID missing.");
+        $this->http::request('post', $requestURL, []);
+
+    }
+
+    function testPreviewInjection_fails_without_injection_data_set() {
+        $requestURL = $this->base_url . "&action=previewInjection";
+        $this->expectExceptionMessage("No injection data available.");
+        $this->http::request('post', $requestURL, [
+            "form_params" => [
+                "document_id" => 1
+            ]
+        ]);
+    }
+
+    function testPreviewInjection_fails_with_invalid_document_id() {
+        
+        $requestURL = $this->base_url . "&action=previewInjection";
+      
+        $testData = [
+            3 => [
+                "foo" => "bar"
+            ]
+        ];
+
+        $this->module->setProjectSetting('pdf-injections', $testData);
+
+        $response  = $this->http->request('post', $requestURL, [
+            "form_params" => [
+                "document_id" => 3
+            ]
+        ]);
+
+        dump($response->getBody()->getContents());
+    }
 
 }

@@ -16,12 +16,15 @@ final class pdfInjectorTest extends BaseTest {
     /**
      *  Test: No module output when no userid is set (logout)
      *  
-     *  @since 1.4.0
+     *  @since 1.3.7
      */
     function testNo_module_output_for_no_user_set(){
         
+        //fwrite(STDERR, print_r("PROJECT_ID: " . PROJECT_ID));
         //  Call redcap_every_page_top()
         $actual = $this->redcap_every_page_top();
         $this->assertSame($actual, null);
     }
+
+    
 }

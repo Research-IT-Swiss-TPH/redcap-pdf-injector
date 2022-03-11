@@ -62,7 +62,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     function redcap_every_page_top($project_id = null) {      
-
+       
         try {
             //  Check if user is logged in
             if($this->getUser()) {
@@ -256,11 +256,21 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *   
     */
     public function renderInjection($document_id, $record_id = null, $project_id = null, $outputFormat = null) {
-           
+        
+        //  Check if document id is given
+        if( empty($document_id) ){
+            $this->errorResponse("Document ID missing.");
+        }
+
+        //  Check if Injection data is available
         $injections = self::getProjectSetting("pdf-injections");
-        $injection = $injections[$document_id];
+        if( empty($injections)) {
+            $this->errorResponse("No injection data available.");
+        }
         //  Check if doc_id exists
-        if(!$injections[$document_id]) {
+        $injection = $injections[$document_id];
+
+        if(!$injection) {
             $this->errorResponse("Injection does not exist.");
         }
 
