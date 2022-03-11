@@ -8,10 +8,9 @@ use \Exception;
 
 final class PostHandlerTest extends BaseTest {
 
-    //  Action to perform after each test
-    public function tearDown():void{
-        //  nothing
-    }
+    static function setUpBeforeClass(): void {
+        $_GET['pid'] = self::getTestPID();    
+     }
 
     /**
      *  Fake upload for different files
