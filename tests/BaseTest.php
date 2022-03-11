@@ -126,9 +126,14 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
     //  Cleanup after last test
     static function tearDownAfterClass():void{
         
+        //  Cleanup Test Projects
         //self::cleanupTestProjects();
 
         //  Delete temporary data
+        self::removeTempFiles();
+    }
+
+    static function removeTempFiles() {
         $dirname = __DIR__ . "/tmp";
         array_map('unlink', glob("$dirname/*.*"));
         rmdir($dirname);

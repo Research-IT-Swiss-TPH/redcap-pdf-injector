@@ -274,15 +274,14 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             $this->errorResponse("Injection does not exist.");
         }
 
-        //  get Edoc 
-        //$path = EDOC_PATH . Files::getEdocName( $document_id, true );
+        //  Copy Edoc To Temp
 	    $path = \Files::copyEdocToTemp( $document_id );
-        $type = pathinfo($path, PATHINFO_EXTENSION);
-        $file = file_get_contents($path);
 
-
-        //  Get Fields
+        //  Get Fields and check if has more than 0
         $fields = $injection["fields"];
+        if(count($fields) == 0) {
+            $this->errorResponse("PDF has no fields.");
+        }
 
         //  Get Enum Data if not already set during batch processing
         if( empty($this->enum[$project_id]) ) {
@@ -293,7 +292,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         if( empty($this->validation_type[$project_id]) ) {
             $this->validation_type[$project_id] = $this->getValidationTypeData($project_id, $fields);
         }
-
 
         if($record_id != null){
             //  check if rec_id exists
@@ -373,7 +371,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             }
         }
 
-
         if (!class_exists("FPDMH")) include_once("classes/FPDMH.php");
         $pdf = new FPDMH($path);
         //  Add checkbox support
@@ -388,7 +385,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         if( $outputFormat == "json" ) {
             header('Content-Type: application/json; charset=UTF-8');
             header("HTTP/1.1 200 ");
-            $base64_string = base64_encode($string);
+            //$base64_string = base64_encode($string);
+            $type = pathinfo($path, PATHINFO_EXTENSION);
             $data =  'data:application/' . $type . ';base64,' . base64_encode($string);
 
             echo json_encode(array("data" => $data));

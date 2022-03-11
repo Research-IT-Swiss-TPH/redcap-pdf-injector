@@ -127,6 +127,7 @@ class RequestHandlerTest extends BaseTest {
         //  We have to send pid
         $requestURL = $this->base_url . "&action=fieldScann&pid=" . PROJECT_ID;
 
+        //  Test against fieldName that exists for sure: record_id
         $response = $this->http::request('post', $requestURL, [
             "fieldName" => "'record_id'"
         ]);
@@ -167,16 +168,63 @@ class RequestHandlerTest extends BaseTest {
                 "foo" => "bar"
             ]
         ];
-
         $this->module->setProjectSetting('pdf-injections', $testData);
 
+        $this->expectExceptionMessage("Injection does not exist.");
+        $this->http->request('post', $requestURL, [
+            "form_params" => [
+                "document_id" => 1
+            ]
+        ]);
+    }
+
+    function testPreviewInjection_fails_without_fields() {
+
+        $requestURL = $this->base_url . "&action=previewInjection";
+
+        $testData = [
+            3 => [
+                "foo" => "bar"
+            ]
+        ];
+        $this->module->setProjectSetting('pdf-injections', $testData);
+
+        $this->expectExceptionMessage("PDF has no fields.");
+        $this->http->request('post', $requestURL, [
+            "form_params" => [
+                "document_id" => 3
+            ]
+        ]);
+    }
+
+    function testPreviewInjection_succeeds() {
+
+        // Expected Hash of Document "pdfi_blank_readable.pdf" filled with one field "text1"
+        $expected = "ca6b892305a8c55eb62b86f1471a03177cdc3dd71c6715884518b511154bc60a";
+
+        $requestURL = $this->base_url . "&action=previewInjection";
+        $testData = [
+            3 => [
+                "foo" => "bar",
+                "fields" => [
+                    "text1" => [
+                        "field_name" => "field_1",
+                        "element_type" => "textarea"
+                    ]
+                ]
+            ]
+        ];
+        $this->module->setProjectSetting('pdf-injections', $testData);
         $response  = $this->http->request('post', $requestURL, [
             "form_params" => [
                 "document_id" => 3
             ]
         ]);
 
-        dump($response->getBody()->getContents());
+        $data = json_decode($response->getBody()->getContents());        
+        $actual = hash('SHA256', $data->data);
+
+        $this->assertEquals($expected, $actual);
     }
 
 }
