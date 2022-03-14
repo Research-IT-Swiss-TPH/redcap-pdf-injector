@@ -51,7 +51,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         
         parent::__construct();
 
-        $this->injections = self::getProjectSetting("pdf-injections");
+        //$this->injections = self::getProjectSetting("pdf-injections", PROJECT_ID);  
 
         $this->enum = [];
     }
@@ -551,7 +551,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     private function initBase() {
-        //$this->injections = self::getProjectSetting("pdf-injections");    //  moved to constructor
+        $this->setInjections();
         $this->report_id = $this->sanitize($_GET["report_id"]);
         $this->ui = self::getProjectSetting("ui-mode");
 
