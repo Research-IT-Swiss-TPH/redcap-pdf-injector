@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/../../../../redcap_connect.php';
 
+//  Clear
+system('clear');
+
 // Using terminal code: https://wiki.bash-hackers.org/scripting/terminalcodes
 //  \033 is escape string
 echo "\n\n\033[41m\033[37m Cleaning up.. \033[0m\n\n";
@@ -34,3 +37,5 @@ try {
 }
 
 //  Delete project data
+
+

@@ -8,6 +8,23 @@ require_once __DIR__ . '/../../../redcap_connect.php';
 
 abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 
+    public $rnd;
+
+    public function __construct() {        
+        
+        parent::__construct();
+
+        $this->rnd = (string) rand();
+    }
+
+    public function setUp():void {
+        parent::setUp();
+
+        //  Reset Injection Data for every Test
+        $this->setProjectSetting("pdf-injections", []);
+        $this->callPrivateMethod('setInjections', []);
+    }
+
     protected function callPrivateMethod($name, array $args) {
         $obj =  $this->module;
         $class = new \ReflectionClass($obj);
