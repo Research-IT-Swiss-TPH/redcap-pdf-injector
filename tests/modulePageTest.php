@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../../redcap_connect.php';
 use \ExternalModules\ExternalModules;
 use \Exception;
 
-final class pdfInjectorTest extends BaseTest {
+final class modulePageTest extends BaseTest {
 
     public function __construct() {        
         parent::__construct();        
