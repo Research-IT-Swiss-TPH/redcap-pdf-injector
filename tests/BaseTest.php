@@ -18,12 +18,11 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 
     static function setUpBeforeClass():void{
 
+        //  Create Test Projects if needed
         if(!self::hasTestProjects()) {
-
             self::setupTestProjects();
-
         }
-
+        
     }
 
     protected static function echo($message)
@@ -126,6 +125,9 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
     //  Cleanup after last test
     static function tearDownAfterClass():void{
         
+        # Cleanup Test Projects somehow breaks things, so that we get an MySQL FOREIGN KEY Constraints Error in Test 
+        # where we need to insert Project Settings
+
         //  Cleanup Test Projects
         //self::cleanupTestProjects();
 
@@ -142,18 +144,14 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 
     //  Cleanup test projects
     static function cleanupTestProjects() {
-        ExternalModules::query(
-            "DELETE FROM `redcap_projects` WHERE `project_id`= ? OR `project_id`=?", 
-            [
-                ExternalModules::getTestPIDs()[0],
-                ExternalModules::getTestPIDs()[1]
-            ]
-        );
+        
+        $sql = 'DELETE FROM redcap_projects WHERE `app_title` LIKE "External Module Unit Test Project%" ';
+        ExternalModules::query($sql, []);
+
 
         ExternalModules::query(
             "DELETE FROM `redcap_config` WHERE  `field_name`='external_modules_test_pids'", []
         );
     }    
-
 
 }

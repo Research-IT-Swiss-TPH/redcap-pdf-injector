@@ -3,6 +3,7 @@
 // For now, the path to "redcap_connect.php" on your system must be hard coded.
 require_once __DIR__ . '/../../../redcap_connect.php';
 
+use ExternalModules\ExternalModules;
 use \GuzzleHttp\Psr7;
 use \HttpClient;
 use \GuzzleHttp\Exception\ClientException;
@@ -13,12 +14,27 @@ class RequestHandlerTest extends BaseTest {
     private $http;
     private $base_url;
 
+    public static function setUpBeforeClass(): void
+    {
+
+        parent::setUpBeforeClass();
+
+        //  Enable Module for Test Project
+        $reflector = new \ReflectionClass(static::class);
+        $moduleDirName = basename(dirname(dirname($reflector->getFileName())));
+        list($prefix, $version) = ExternalModules::getParseModuleDirectoryPrefixAndVersion($moduleDirName);
+        $pid = self::getTestPID();
+        
+        ExternalModules::enableForProject($prefix, $version, $pid);
+    }
+
     public function setUp(): void
     {
         parent::setUp();
 
         $this->http = new HttpClient;
         $this->base_url = $this->getUrl("requestHandler.php");
+
     }
 
     public function tearDown():void {

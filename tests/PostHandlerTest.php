@@ -9,6 +9,7 @@ use \Exception;
 final class PostHandlerTest extends BaseTest {
 
     static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
         $_GET['pid'] = self::getTestPID();    
      }
 
