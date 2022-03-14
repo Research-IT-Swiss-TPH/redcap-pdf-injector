@@ -18,11 +18,16 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 
     static function setUpBeforeClass():void{
 
+        parent::setUpBeforeClass();
+        
         //  Create Test Projects if needed
         if(!self::hasTestProjects()) {
             self::setupTestProjects();
         }
         
+        $_GET['pid'] = self::getTestPID();    
+
+
     }
 
     protected static function echo($message)

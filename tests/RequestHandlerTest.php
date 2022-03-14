@@ -9,7 +9,7 @@ use \HttpClient;
 use \GuzzleHttp\Exception\ClientException;
 
 
-class RequestHandlerTest extends BaseTest {
+final class RequestHandlerTest extends BaseTest {
 
     private $http;
     private $base_url;
