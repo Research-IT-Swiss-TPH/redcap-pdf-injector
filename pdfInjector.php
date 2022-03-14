@@ -48,7 +48,10 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     public function __construct() {        
+        
         parent::__construct();
+
+        $this->injections = self::getProjectSetting("pdf-injections");
 
         $this->enum = [];
     }
@@ -548,7 +551,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */
     private function initBase() {
-        $this->injections = self::getProjectSetting("pdf-injections");
+        //$this->injections = self::getProjectSetting("pdf-injections");    //  moved to constructor
         $this->report_id = $this->sanitize($_GET["report_id"]);
         $this->ui = self::getProjectSetting("ui-mode");
 
@@ -606,7 +609,17 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     */ 
     public function getInjections() {
         return $this->injections;
-    }    
+    }
+
+    /**
+     * Sets Injections
+     * @return void
+     * @since 1.3.8
+     * 
+     */
+    private function setInjections() {
+        $this->injections = self::getProjectSetting("pdf-injections");
+    }
 
     /**
      * Saves Injection to database
@@ -622,7 +635,9 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         //  Save injections data into module data base
         $this->setProjectSetting("pdf-injections", $injections);
-        $this->injections = self::getProjectSetting("pdf-injections");
+
+        //  Set Injections variable to latest state
+        $this->setInjections();
     }
   
     /**
@@ -645,7 +660,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         //  Save updated injections data into module data base
         if($deletedPDF && $deletedThumbnail) {
             $this->setProjectSetting("pdf-injections", $injections);
-            $this->injections = self::getProjectSetting("pdf-injections");
+            //$this->injections = self::getProjectSetting("pdf-injections");    //replaced by setInjections()
+            $this->setInjections();
             return true;
 
         } else throw new Exception($this->tt("injector_15"));

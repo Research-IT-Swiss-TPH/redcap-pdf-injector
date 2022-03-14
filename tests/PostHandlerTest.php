@@ -9,6 +9,12 @@ use \Exception;
 final class PostHandlerTest extends BaseTest {
 
 
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->callPrivateMethod('setInjections', []);
+    }
+
     /**
      *  Fake upload for different files
      * 
@@ -142,11 +148,12 @@ final class PostHandlerTest extends BaseTest {
         $_POST["title"] = $random;
         $_POST["description"] = "Test Description";
 
+
         //  Fake File Upload        
         $this->fakeUpload("pdfi_blank_readable.pdf");
         
         //  Call handlePost()
-        $actual = $this->callPrivateMethod('handlePost', []);
+        $this->callPrivateMethod('handlePost', []);
 
         //  Check if Injection has been saved into database
         $injections = $this->getProjectSetting("pdf-injections");
