@@ -9,12 +9,6 @@ use \Exception;
 final class PostHandlerTest extends BaseTest {
 
 
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->callPrivateMethod('setInjections', []);
-    }
-
     /**
      *  Fake upload for different files
      * 
@@ -140,12 +134,11 @@ final class PostHandlerTest extends BaseTest {
      */    
     function testCREATE_succeeds_for_valid_pdf() {
     
-        //  Generate random string to fake change
-        $random = (string) rand();
+        $exptected = $this->rnd;
 
         //  Fake Post Variables
         $_POST["mode"] = "CREATE";
-        $_POST["title"] = $random;
+        $_POST["title"] = $this->rnd;
         $_POST["description"] = "Test Description";
 
 
@@ -157,10 +150,9 @@ final class PostHandlerTest extends BaseTest {
 
         //  Check if Injection has been saved into database
         $injections = $this->getProjectSetting("pdf-injections");
-        $firstInjection = reset($injections);
-        $actual = $firstInjection["title"];
+        $injection = reset($injections);
+        $actual = $injection["title"];
         
-        $exptected = $random;
         $this->assertSame($actual, $exptected);
         
     }
@@ -228,10 +220,14 @@ final class PostHandlerTest extends BaseTest {
      */    
     function testUPDATE_succeeds_without_file_change() {
 
-        //  Generate random string to fake change
-        $random = (string) rand();
+        //  First upload "old" injections
+        $_POST["mode"] = "CREATE";
+        $_POST["title"] = "Old Injection";
+        $_POST["description"] = "Test Description";
+        $this->fakeUpload("pdfi_blank_readable.pdf");
+        $this->callPrivateMethod('handlePost', []);
 
-        //  Get already saved Injection (from CREATE tests)
+        //  Define "old" Injection
         $oldInjection = reset($this->getProjectSetting("pdf-injections"));
 
         //  Fake Post Variables
@@ -242,7 +238,7 @@ final class PostHandlerTest extends BaseTest {
         $_POST["thumbnail_id"] = $oldInjection["thumbnail_id"];
         $_POST["description"] = $oldInjection["description"];
 
-        $_POST["title"] = $random;    //  this is the change
+        $_POST["title"] = $this->rnd;    //  this is the change
         
 
         //  Fake File Upload        
@@ -254,7 +250,7 @@ final class PostHandlerTest extends BaseTest {
         //  Get new Injection
         $newInjection = reset($this->getProjectSetting("pdf-injections"));
         $actual = $newInjection["title"];
-        $expected = $random;
+        $expected = $this->rnd;
 
         $this->assertSame($expected, $actual);
     }
@@ -266,11 +262,16 @@ final class PostHandlerTest extends BaseTest {
      */  
     function testUPDATE_succeeds_with_file_change() {
 
-        //  Generate random string to fake change
-        $random = (string) rand();
+        //  First upload "old" injections
+        $_POST["mode"] = "CREATE";
+        $_POST["title"] = "Old Injection";
+        $_POST["description"] = "Test Description";
+        $this->fakeUpload("pdfi_blank_readable.pdf");
+        $this->callPrivateMethod('handlePost', []);
 
-        //  Get already saved Injection (from CREATE tests)
+        //  Define "old" Injection
         $oldInjection = reset($this->getProjectSetting("pdf-injections"));
+
 
         //  Fake Post Variables
         $_POST["mode"] = "UPDATE";
@@ -280,7 +281,7 @@ final class PostHandlerTest extends BaseTest {
         $_POST["thumbnail_id"] = $oldInjection["thumbnail_id"];        
         $_POST["description"] = $oldInjection["description"];
 
-        $_POST["title"] = $random;  //  this is a change (but not relevant within this test)
+        $_POST["title"] = "foo";  //  this is a change (but not relevant within this test)
 
         //  Fake File Upload        
         $this->fakeUpload("pdfi_blank_readable.pdf");        
@@ -297,7 +298,15 @@ final class PostHandlerTest extends BaseTest {
     }
 
     function testUPDATE_returns_null_for_no_change() {
-        //  Get already saved Injection (from CREATE tests)
+
+        //  First upload "old" injections
+        $_POST["mode"] = "CREATE";
+        $_POST["title"] = "Old Injection";
+        $_POST["description"] = "Test Description";
+        $this->fakeUpload("pdfi_blank_readable.pdf");
+        $this->callPrivateMethod('handlePost', []);
+
+        //  Define "old" Injection
         $oldInjection = reset($this->getProjectSetting("pdf-injections"));
 
         //  Fake Post Variables
@@ -329,6 +338,14 @@ final class PostHandlerTest extends BaseTest {
 
     function testDELETE_succeeds() {
         
+        //  First upload "old" injections
+        $_POST["mode"] = "CREATE";
+        $_POST["title"] = "Old Injection";
+        $_POST["description"] = "Test Description";
+        $this->fakeUpload("pdfi_blank_readable.pdf");
+        $this->callPrivateMethod('handlePost', []);
+
+        //  Define "old" Injection
         $oldInjection = reset($this->getProjectSetting("pdf-injections"));
         
         $_POST["mode"] = "DELETE";
