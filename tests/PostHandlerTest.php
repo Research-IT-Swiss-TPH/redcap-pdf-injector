@@ -158,7 +158,7 @@ final class PostHandlerTest extends BaseTest {
     }
 
 
-    function testUPDATE_throws_for_no_file_set() {
+/*     function testUPDATE_throws_for_no_file_set() {
         //  Fake Post Variable
         $_POST["mode"] = "UPDATE";
 
@@ -170,14 +170,14 @@ final class PostHandlerTest extends BaseTest {
 
         //  Call handlePost()
         $this->callPrivateMethod('handlePost', []);        
-    }
+    } */
 
     /**
      * 
      * 
      *  @since 1.3.7
      */    
-    function testUPDATE_throws_for_invalid_file() {
+/*     function testUPDATE_throws_for_invalid_file() {
 
         //  Fake Post Variable
         $_POST["mode"] = "UPDATE";
@@ -191,13 +191,13 @@ final class PostHandlerTest extends BaseTest {
         //  Call handlePost()
         $this->callPrivateMethod('handlePost', []);
     }
-    
+     */
     /**
      * 
      * 
      *  @since 1.3.7
      */    
-    function testUPDATE_throws_for_invalid_pdf() {
+/*     function testUPDATE_throws_for_invalid_pdf() {
 
         //  Fake Post Variable
         $_POST["mode"] = "UPDATE";
@@ -210,7 +210,7 @@ final class PostHandlerTest extends BaseTest {
 
         //  Call handlePost()
         $this->callPrivateMethod('handlePost', []);
-    }
+    } */
 
   
     /**
