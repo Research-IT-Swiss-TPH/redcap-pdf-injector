@@ -474,7 +474,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
             } if($_POST["mode"] == "UPDATE") {
 
-                    $this->validateFileUpload();
+                    //$this->validateFileUpload();
 
                     if (!class_exists("Injection")) include_once("classes/Injection.php");
 
