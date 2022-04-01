@@ -111,7 +111,9 @@ To make the PDF and its fields readable & fillable through PDF Injector we have 
 
 *There are two ways of processing your PDFs with pdftk:*
 
-a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF. Alternatively, you can setup the pdftk web service on your own server/localhost. <br>[Get repo to setup pdftk web service](https://github.com/tertek/pdftk-web-service)
+a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF. **Please note: the service currently has some errors reported. In case you cannot convert your documents, it is recommended to use `pdftk` on your system (Option b).
+
+<br><br>Alternatively, you can setup the pdftk web service on your own server/localhost. Go to [pdftk-web-service-repository](https://github.com/tertek/pdftk-web-service) for setup instructions.
 
 b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and run:
 
@@ -123,7 +125,7 @@ b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and 
 **Limitation 1: PDF field types**<br>
 Currently the following PDF field types are supported:
 - Textfield: Insert text as one line or also as multiline (option multline for textfield has to be active)
-- Checkbox: Insert a value that is true or false to tick or untick the checkbox.
+- Checkbox: Insert a value that is true or false to tick or untick the checkbox. **Please note: There have been errors reported when using this field type. Please test your setup carefully, before using for production.**
 
 **Limitation 2: REDCap Action Tags**<br>
 Currently the following Action Tags are supported during an injection:
