@@ -111,9 +111,10 @@ To make the PDF and its fields readable & fillable through PDF Injector we have 
 
 *There are two ways of processing your PDFs with pdftk:*
 
-a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF. **Please note: the service currently has some errors reported. In case you cannot convert your documents, it is recommended to use `pdftk` on your system (Option b).
+a. Use the [pdfk web service](https://pdftk-web-service.herokuapp.com/) to upload, convert and download your PDF. 
+Alternatively, you can setup the pdftk web service on your own server/localhost. Go to [pdftk-web-service-repository](https://github.com/tertek/pdftk-web-service) for setup instructions.
 
-<br><br>Alternatively, you can setup the pdftk web service on your own server/localhost. Go to [pdftk-web-service-repository](https://github.com/tertek/pdftk-web-service) for setup instructions.
+**Please note:** pdftk-web-service currently has some errors reported. In case you cannot convert your documents, it is recommended to use `pdftk` on your system (Option b).
 
 b. Use [pdftk](https://www.pdflabs.com/tools/pdftk-server/) for your system and run:
 
