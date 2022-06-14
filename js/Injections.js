@@ -79,7 +79,6 @@ STPH_pdfInjector.init = function() {
     //  Trigger Scan File on file change
     $(':file').on('change', function () {
         var file = this.files[0];
-      
         if (file.size > 2.5e+7) {
           alert('max upload size is 25MB');
         }
@@ -89,7 +88,7 @@ STPH_pdfInjector.init = function() {
         else {
             //  Reset PDF Thumbnail
             $("#pdf-preview-img").remove();            
-            STPH_pdfInjector.scanFile(file);
+            STPH_pdfInjector.scanFile($('#saveInjection')[0]);
         }                
       });
 
@@ -280,9 +279,7 @@ STPH_pdfInjector.scanFile = function (file) {
     } 
 
     //  Send file via ajax post & formdata
-    var fd = new FormData();   
-    fd.append('file',file);
-
+    var fd = new FormData(file);
     $.ajax({
        url: STPH_pdfInjector.requestHandlerUrl + "&action=fileScan",
        type: 'post',
