@@ -15,7 +15,7 @@
          }
      ],
 
-    "framework-version": 6,
+    "framework-version": 9,
 
     "permissions": [
         "redcap_every_page_top",
@@ -103,6 +103,7 @@
     "crons": [],
 
     "compatibility": {
-        "php-version-min": "7.0.0"
+        "php-version-min": "7.2.5",
+        "redcap-version-min": "12.0.4"
     }
  }
