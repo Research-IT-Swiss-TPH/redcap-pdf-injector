@@ -302,11 +302,29 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             if( !\Records::recordExists($project_id, $record_id) ) {
                 $this->errorResponse("Record does not exist.");
             }
+
+            //  Prepare data access check arrays
+            $user_id = USERID;
+            $user_rights = \REDCap::getUserRights($user_id);
+            $no_access_forms = array_keys(array_filter($user_rights[$user_id]["forms"], function($value){
+                return $value == 0;
+            }));
+            $no_access_fields = [];
+            foreach ($no_access_forms as $key => $form) {
+                $no_access_fields =  array_merge($no_access_fields, $this->getFieldNames($form));
+            }            
            
             foreach ($fields as $key => &$value) {
-                
+               
                 //  fetch variable value for each variable inside field
                 $field_name = $value["field_name"];
+
+                //  If user has no data access rights return *NO ACCESS* as value and skip rest
+                if(in_array($field_name, $no_access_fields)) { 
+                    $value = "*NO ACCESS*"; 
+                    continue;
+                }
+
                 $element_type = $value["element_type"];
                 $sql = "SELECT value FROM redcap_data WHERE record = ? AND project_id = ? AND field_name = ? LIMIT 0, 1";
                 $result = $this->query($sql, 
