@@ -286,22 +286,22 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             $this->errorResponse("PDF has no fields.");
         }
 
-        //  Get Enum Data if not already set during batch processing
-        if( empty($this->enum[$project_id]) ) {
-            $this->enum[$project_id] = $this->getEnumData($project_id, $fields);
-        }
-
-        //  Get Validation Type Data if not already set during batch processing
-        if( empty($this->validation_type[$project_id]) ) {
-            $this->validation_type[$project_id] = $this->getValidationTypeData($project_id, $fields);
-        }
-
         if($record_id != null){
-            //  check if rec_id exists
+        # Do the actual render for a given record_id
 
             if( !\Records::recordExists($project_id, $record_id) ) {
                 $this->errorResponse("Record does not exist.");
             }
+
+            //  Get Enum Data if not already set during batch processing
+            if( empty($this->enum[$project_id]) ) {
+                $this->enum[$project_id] = $this->getEnumData($project_id, $fields);
+            }
+
+            //  Get Validation Type Data if not already set during batch processing
+            if( empty($this->validation_type[$project_id]) ) {
+                $this->validation_type[$project_id] = $this->getValidationTypeData($project_id, $fields);
+            }            
 
             //  Prepare data access check arrays
             $user_id = USERID;
@@ -388,7 +388,12 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         } else {
             //  For Preview
             foreach ($fields as $key => &$value) {
-                $value = "[" . $value["field_name"] . "]";
+                if(!empty($value)) {
+                    $value = "[" . $value["field_name"] . "]";
+                } else {
+                    $value = "(undefined)";
+                }
+                
             }
         }
 
