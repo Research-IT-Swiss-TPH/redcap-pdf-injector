@@ -91,7 +91,7 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest {
 
     }
 
-    function getTestPID(){
+    static function getTestPID(){
         return ExternalModules::getTestPIDs()[0];
     }
 
