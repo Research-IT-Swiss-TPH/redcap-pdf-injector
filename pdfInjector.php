@@ -282,7 +282,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         //  Get Fields and check if has more than 0
         $fields = $injection["fields"];
-        if(count($fields) == 0) {
+        if(count( (array) $fields) == 0) {
             $this->errorResponse("PDF has no fields.");
         }
 
@@ -599,7 +599,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     *
     */        
     private function initPageRecord(){
-        if(count($this->injections) > 0) {
+        if(count((array)$this->injections) > 0) {
             $this->includePreviewModal();
             if($this->ui == 1 || $this->ui == 3) {
                 $this->includeModuleTip();

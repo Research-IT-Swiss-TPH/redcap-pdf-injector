@@ -110,7 +110,7 @@ final class RequestHandlerTest extends BaseTest {
 
         $responseData = json_decode($response->getBody()->getContents())->fieldData;
 
-        $this->assertEquals(count($responseData), 8);
+        $this->assertEquals(count((array) $responseData), 8);
     }
 
     /**
@@ -140,8 +140,10 @@ final class RequestHandlerTest extends BaseTest {
 
     function testScanField_succeeds() {
 
+        $pid = self::getTestPID();
+
         //  We have to send pid
-        $requestURL = $this->base_url . "&action=fieldScann&pid=" . PROJECT_ID;
+        $requestURL = $this->base_url . "&action=fieldScann&pid=" . $pid;
 
         //  Test against fieldName that exists for sure: record_id
         $response = $this->http::request('post', $requestURL, [
