@@ -342,8 +342,9 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
                 $field_value = $result->fetch_object()->value;
 
-                //  Skip Injection if value is empty
+                //  Detect empty record values and set their field value to empty string
                 if (empty($field_value)) {
+                    $value= "";
                     continue;
                 }
 
