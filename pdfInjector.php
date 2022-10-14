@@ -317,9 +317,9 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             foreach ($fields as $key => &$value) {
 
                 //  Skip Injection if field is not mapped
-                // if($value == "") {
-                //     continue;
-                // }
+                if($value == "") {
+                    continue;
+                }
                
                 //  fetch variable value for each variable inside field
                 $field_name = $value["field_name"];
