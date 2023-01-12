@@ -683,8 +683,8 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         //  Flag files for deletion
         //  Actual deletion through (Cron) Jobs::RemoveTempAndDeletedFiles()
-        $deletedPDF = Files::deleteFileByDocId( $injection->get("document_id") );
-        $deletedThumbnail = Files::deleteFileByDocId( $injection->get("thumbnail_id") );
+        $deletedPDF = Files::deleteFileByDocId( $injection->get("document_id") , PROJECT_ID);
+        $deletedThumbnail = Files::deleteFileByDocId( $injection->get("thumbnail_id") , PROJECT_ID);
 
         //  Save updated injections data into module data base
         if($deletedPDF && $deletedThumbnail) {
