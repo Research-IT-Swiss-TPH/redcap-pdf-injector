@@ -3,17 +3,11 @@
  * Template file used via Ajax
  * 
  */
-
-function sanitize($arg) {
-    if (is_array($arg)) {
-        return array_map('sanitize', $arg);
-    }
-
-    return htmlentities($arg, ENT_QUOTES, 'UTF-8');
-}
+/** @var \STPH\pdfInjector\pdfInjector $module */
+namespace STPH\pdfInjector;
 
 $response = "";
-$fields = sanitize($_POST["fields"]);
+$fields = $module->escape($_POST["fields"]);
 
 foreach ($fields as $key => $field ) {
 
