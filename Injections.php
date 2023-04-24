@@ -15,7 +15,11 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 <!-- ALERTS TABLE -->
 <div style="width:950px;max-width:950px;">
 			<div class="mb-1 clearfix">
-				<button id='addNewInjection' type="button" class="btn btn-sm btn-success float-left" onclick="STPH_pdfInjector.editInjection()"><i class="fas fa-plus"></i> <?= $module->tt("injector_2") ?></button>				
+				<button 
+					id='addNewInjection' 
+					type="button" class="btn btn-sm btn-success float-left" 
+					onclick="STPH_pdfInjector.editInjection()"><i class="fas fa-plus"></i> <?= $module->tt("injector_2") ?>
+				</button>				
 				<div class="float-right mt-2 mr-1">
 				</div>
 			</div>
@@ -129,7 +133,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 	<!-- Create/Update Modal -->
 	<div class="col-md-12">
 		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" id="saveInjection">
-			<div class="modal fade" id="external-modules-configure-modal" name="external-modules-configure-modal" data-module="" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true">
+			<div class="modal fade" id="external-modules-configure-modal" name="external-modules-configure-modal" data-module="" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="true">
 				<div class="modal-dialog" role="document" style="max-width: 950px !important;">
 					<div class="modal-content">
 
@@ -158,13 +162,22 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 								<!-- File Input: if file has not been submitted yet or is not valid -->
 								<div class="form-group col-md-8">
 									<label class="fs14 boldish"><?=$module->tt("injector_8")?></label>
+
+
+									
 									<div class="custom-file mb-3">
+										<!-- Check Bootstrap Version 5 -->
+										<?php if($module->bs_v5()) : ?>
+										<input id="file" name="file" type="file" class="form-control">
+										<?php else : ?>
 										<input id="file" name="file" type="file" class="custom-file-input">
-										<input type="hidden" name="hasFileChanged" value="0">
 										<label id="fileLabel" class="custom-file-label" >Choose file...</label>
+										<?php endif ?>
+										<input type="hidden" name="hasFileChanged" value="0">
 										<div id="fpdm-error" class="invalid-feedback d-none mb-3"></div>
 										<div id="fpdm-success" class="valid-feedback">Test</div>
 									</div>
+
 									<label class="fs14 boldish"><?=$module->tt("injector_6")?></label>
 									<input type="text" name="title" class="form-control mb-3" placeholder="New Injection Title">									
 									<label class="fs14 boldish"><?=$module->tt("injector_7")?></label>

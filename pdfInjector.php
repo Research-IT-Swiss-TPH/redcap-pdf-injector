@@ -1269,6 +1269,19 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     //  ====    H O U S E K E E P I N G     ====
 
+    /**
+     * Check if we new Bootstrap
+     * 
+     * 
+     */
+    function bs_v5() {
+        if (\REDCap::versionCompare(REDCAP_VERSION, '13.4.6') >= 0) {
+            return true;
+        }
+        return false;
+    }
+
+
    /**
     *   Triggered when a module version is changed.
     *   @return void
