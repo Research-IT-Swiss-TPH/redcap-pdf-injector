@@ -30,7 +30,7 @@ final class InjectionsTest extends BaseTest {
         $expected = "New Injection";
         if (!class_exists("Injection")) include_once("classes/Injection.php");
         $injection = new Injection;
-        $injection->setValues( $expected, "Added for testing", [], 'filename', $this->rnd, $this->randNum+1);
+        $injection->setValues( $expected, "Added for testing", [], 'filename', $this->rnd, $this->rnd+1);
 
         $this->callPrivateMethod('saveInjection', [$injection]);
 
@@ -45,7 +45,10 @@ final class InjectionsTest extends BaseTest {
         $expected = "Old Injection";
         if (!class_exists("Injection")) include_once("classes/Injection.php");
         $injection = new Injection;
-        $injection->setValues( $expected, "Added for testing", [], 'filename', $this->rnd, $this->randNum+1);
+        $injection->setValues( $expected, "Added for testing", [], 'filename', $this->rnd, $this->rnd+1);
+
+        //  We need to set PORJECT_ID, otherwise deleteInjection:deleteFileByDocId will return false
+        define('PROJECT_ID', self::getTestPID());
 
         $this->callPrivateMethod('saveInjection', [$injection]);
         $this->callPrivateMethod('deleteInjection', [$injection]);
