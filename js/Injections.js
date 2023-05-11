@@ -65,7 +65,7 @@ STPH_pdfInjector.init = function() {
         $("#fpdm-error").addClass("d-none");
         $("#fileLabel").text("Choose file...");
         $("#file").removeClass("is-invalid").removeClass("is-valid");
-        $('[name=hasFileChanged').val(0);
+        $('[name=hasFileChanged]').val(0);
         //  Thumbnail
         $("#pdf-preview-img").remove();
         $('[name="thumbnail"]').val("");
@@ -268,7 +268,7 @@ STPH_pdfInjector.scanFile = function (file) {
         $("#fileLabel").text(fileName);
         $("section#step-2").removeClass("disabled");
         $("#pdf-preview-spinner").removeClass("d-none");
-        $('[name=hasFileChanged').val(1);
+        $('[name=hasFileChanged]').val(1);
         $("#btnModalsaveInjection").attr("disabled", false);
         $('[name=title]').val(title);
         $('[name=description]').val(description);
