@@ -730,8 +730,9 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         foreach ($o_arr_f as $field => $meta) {
 
-            $o_arr_f_n = $meta;
-            $n_arr_f_n = $n_arr_f[$field];
+            //  Typecast to array if is not array, otherwise array_diff_assoc will throw an exception
+            $o_arr_f_n = is_array($meta) ? $meta : (array) $meta;
+            $n_arr_f_n = is_array($n_arr_f[$field]) ? $n_arr_f[$field] : (array) $n_arr_f[$field];
 
             $diff_level_3 = !empty(array_diff_assoc($o_arr_f_n, $n_arr_f_n));
 
