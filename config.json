@@ -15,12 +15,7 @@
          }
      ],
 
-    "framework-version": 9,
-
-    "permissions": [
-        "redcap_every_page_top",
-        "redcap_module_system_change_version"
-    ],
+    "framework-version": 12,
 
     "enable-every-page-hooks-on-system-pages": false,
 
