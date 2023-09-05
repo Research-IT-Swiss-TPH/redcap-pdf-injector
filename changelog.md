@@ -26,3 +26,4 @@ v1.3.6  | Fix edoc storage options. Thx @jgardner-qha!
 v1.3.7  | Unit Tests for RequestHandler and PostHandlers. Added Validation for several cases.
 v1.3.8  | Fix critical bug introduced in 1.3.7 and add several unit tests.
 v2.0.0  | Upgrade to Module Framework version 9.
+v2.5.0  | Upgrade to Module Framework version 12. Several Fixes.
