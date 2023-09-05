@@ -1,0 +1,6 @@
+<testsuites>
+    <testsuite name="pdfInjector">
+        <directory >./tests/</directory>
+        <exclude>./tests/RequestHandlerTest.php</exclude>
+    </testsuite>
+</testsuites>

@@ -1,4 +1,4 @@
 <?php
 //  Run all tests with phpunit
-$output = shell_exec('.\vendor\bin\phpunit --testdox --colors tests');
+$output = shell_exec('.\vendor\bin\phpunit --testdox --colors  --testsuite pdfInjector');
 echo $output;

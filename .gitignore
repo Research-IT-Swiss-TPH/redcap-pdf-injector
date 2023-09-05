@@ -4,3 +4,4 @@ composer.phar
 .editorconfig
 .vsconfig
 psalm.xml
+.phpunit*
