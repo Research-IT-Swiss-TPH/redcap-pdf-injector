@@ -53,7 +53,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         //$this->injections = self::getProjectSetting("pdf-injections", PROJECT_ID);  
 
-        $this->enum = [];
+        #$this->enum = [];
     }
    
    /**
@@ -1103,7 +1103,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
         <div id="formSaveTip" style="position: fixed; left: 923px; display: block;">
             <div class="btn-group nowrap" style="display: block;">
-                <button class="btn btn btn-primaryrc btn-savedropdown dropdown-toggle" tabindex="0" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn btn-primaryrc btn-savedropdown dropdown-toggle" tabindex="0" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="fas fa-syringe" aria-hidden="true"></span> PDF Injection
                 </button>
                 <div class="dropdown-menu">          
@@ -1130,7 +1130,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     private function includePreviewModal() {
         ?>
         <!-- Preview Modal -->
-        <div class="modal fade" id="external-modules-configure-modal-preview" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
+        <div class="modal fade" id="external-modules-configure-modal-preview" tabindex="-1" role="dialog" data-bs-toggle="modal" data-bs-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
             <div class="modal-dialog" role="document" style="width: 800px">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -1162,7 +1162,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
     private function includeModalDataExport() {
         ?>
         <!-- Data Export Modal -->
-        <div class="modal fade" id="external-modules-configure-modal-data-export" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
+        <div class="modal fade" id="external-modules-configure-modal-data-export" tabindex="-1" role="dialog" data-bs-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
             <div class="modal-dialog" role="document" style="width: 800px">
                 <div class="modal-content">
                     <div class="modal-header">

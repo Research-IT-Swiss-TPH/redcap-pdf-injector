@@ -468,7 +468,8 @@ STPH_pdfInjector.observeReportLoad = function() {
 STPH_pdfInjector.insertReportBtn = function() {
     //  Remove button first, otherwise we will have too many :-S
     $("#pdfi-report-btn").remove();
-    let button = '<a id="pdfi-report-btn" onclick="STPH_pdfInjector.openModalExportData();" href="javascript:;" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
+    // BS5 Syntax change, using data-bs-*
+    let button = '<a id="pdfi-report-btn" data-bs-toggle="modal"  data-bs-target="#external-modules-configure-modal-data-export" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
     $(".report_btn").first().parent().prepend(button);
 }
 
