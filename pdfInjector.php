@@ -41,20 +41,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     const SUPPORTED_ACTIONTAGS = ['@TODAY'];
 
-   /**
-    *   Constructs the class
-    *   @return void
-    *   @since 1.0.0
-    *
-    */
-    public function __construct() {        
-        
-        parent::__construct();
-
-        //$this->injections = self::getProjectSetting("pdf-injections", PROJECT_ID);  
-
-        #$this->enum = [];
-    }
    
    /**
     *   Allows custom actions to be performed at the top of every page in REDCap 
