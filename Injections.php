@@ -103,7 +103,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 											<div class='float-left'><i class='fas fa-file-pdf'></i> PDF</div>
 											<div class=\"btn-group nowrap float-right\" role=\"group\">
 											<div class=\"btn-group\" role=\"group\">
-												<button id=\"btnGroupDrop2\" type=\"button\" class=\"btn btn-link fs12 p-0 dropdown-toggle\" data-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">
+												<button id=\"btnGroupDrop2\" type=\"button\" class=\"btn btn-link fs12 p-0 dropdown-toggle\" data-bs-toggle=\"dropdown\" aria-haspopup=\"true\" aria-expanded=\"false\">
 												{$lang['design_699']}
 												</button>
 												<div class=\"dropdown-menu\" aria-labelledby=\"btnGroupDrop2\">
@@ -133,7 +133,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 	<!-- Create/Update Modal -->
 	<div class="col-md-12">
 		<form class="form-horizontal" action="" method="post" enctype="multipart/form-data" id="saveInjection">
-			<div class="modal fade" id="external-modules-configure-modal" name="external-modules-configure-modal" data-module="" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="true">
+			<div class="modal fade" id="external-modules-configure-modal" name="external-modules-configure-modal" data-module="" tabindex="-1" role="dialog" data-bs-backdrop="static" data-keyboard="true">
 				<div class="modal-dialog" role="document" style="max-width: 950px !important;">
 					<div class="modal-content">
 
@@ -234,7 +234,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 	</div>
 
 	<!-- Delete Modal -->
-	<div class="modal fade" id="external-modules-configure-modal-delete-confirmation" name="external-modules-configure-modal-delete-confirmation" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
+	<div class="modal fade" id="external-modules-configure-modal-delete-confirmation" name="external-modules-configure-modal-delete-confirmation" tabindex="-1" role="dialog"data-bs-backdrop="static" data-bs-keyboard="true" aria-labelledby="Codes">
 		<form class="form-horizontal" action="" method="post" id='deleteForm'>
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">
@@ -262,7 +262,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 	</div>
 
 	<!-- Preview Modal -->
-	<div class="modal fade" id="external-modules-configure-modal-preview" tabindex="-1" role="dialog" data-toggle="modal" data-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
+	<div class="modal fade" id="external-modules-configure-modal-preview" tabindex="-1" role="dialog" data-bs-toggle="modal" data-bs-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
 		<div class="modal-dialog" role="document" style="width: 800px">
 			<div class="modal-content">
 				<div class="modal-header">
