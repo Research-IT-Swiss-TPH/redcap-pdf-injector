@@ -177,22 +177,29 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
      */
     private function getEnumData($project_id, $fields){
 
+       
+
         $field_names_array = [];
         foreach ($fields as $key => $field) {
-           if( !empty($field["field_name"])){
-            $field_names_array[] = '"'.$field["field_name"] . '"';
-           }
+            if( !empty($field["field_name"])){
+                $field_names_array[] = '"'.$field["field_name"] . '"';
+            }
         }
-        $field_names = implode(",", $field_names_array);
-        
-        //  Get all enums (affects types: radio, checkbox and select)
-        $sql = 'SELECT element_enum,field_name FROM redcap_metadata WHERE project_id = ? AND field_name IN('.$field_names.') AND element_enum IS NOT NULL';
-        $result = $this->query($sql, [ $project_id]);
 
         $enum_data = [];
-        while($row = $result->fetch_object()) {
-            //  use parseEnum 
-            $enum_data[$row->field_name] = parseEnum($row->element_enum);
+
+        if (!empty($field_names_array)) {
+            $field_names = implode(",", $field_names_array);
+
+        
+            //  Get all enums (affects types: radio, checkbox and select)
+            $sql = "SELECT element_enum,field_name FROM redcap_metadata WHERE project_id = ? AND field_name IN('.$field_names.') AND element_enum IS NOT NULL";
+            $result = $this->query($sql, [ $project_id]);
+    
+            while($row = $result->fetch_object()) {
+                //  use parseEnum 
+                $enum_data[$row->field_name] = parseEnum($row->element_enum);
+            }
         }
 
         return $enum_data;
@@ -214,20 +221,26 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             $field_names_array[] = '"'.$field["field_name"] . '"';
            }
         }
-        $field_names = implode(",", $field_names_array);
-
-        //  Gets all element validation types (Mainly to support date formats)
-        $sql = 'SELECT element_validation_type, field_name FROM redcap_metadata WHERE project_id = ? AND field_name IN('.$field_names.') AND element_validation_type IS NOT NULL';
-        $result = $this->query($sql, [ $project_id]);
 
         $validation_type_data = [];
-        while($row = $result->fetch_object()) {
-            $vDFormat = $this->getDateFormatDisplay($row->element_validation_type);
-            if($vDFormat) {
-                $validation_type_data[$row->field_name] = $vDFormat;
-            }
 
+        if(!empty($field_names_array)) {
+            $field_names = implode(",", $field_names_array);
+
+
+            //  Gets all element validation types (Mainly to support date formats)
+            $sql = 'SELECT element_validation_type, field_name FROM redcap_metadata WHERE project_id = ? AND field_name IN('.$field_names.') AND element_validation_type IS NOT NULL';
+            $result = $this->query($sql, [ $project_id]);
+    
+            while($row = $result->fetch_object()) {
+                $vDFormat = $this->getDateFormatDisplay($row->element_validation_type);
+                if($vDFormat) {
+                    $validation_type_data[$row->field_name] = $vDFormat;
+                }
+    
+            }
         }
+
 
         return $validation_type_data;
 
