@@ -15,7 +15,7 @@
          }
      ],
 
-    "framework-version": 12,
+    "framework-version": 15,
 
     "enable-every-page-hooks-on-system-pages": false,
 
@@ -98,7 +98,7 @@
     "crons": [],
 
     "compatibility": {
-        "php-version-min": "7.2.5",
-        "redcap-version-min": "12.0.4"
+        "php-version-min": "8.0.0",
+        "redcap-version-min": "14.0.2"
     }
  }
