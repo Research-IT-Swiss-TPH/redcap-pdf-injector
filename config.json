@@ -98,7 +98,6 @@
     "crons": [],
 
     "compatibility": {
-        "php-version-min": "8.0.0",
-        "redcap-version-min": "14.0.2"
+        "php-version-min": "8.0.0"
     }
  }
