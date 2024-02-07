@@ -330,7 +330,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 }
 
                 $element_type = $value["element_type"];
-                $sql = "SELECT value FROM redcap_data WHERE record = ? AND project_id = ? AND field_name = ? ORDER BY instance DESC LIMIT 1";
+
+                //  support multiple redcap_data tables
+                $data_table = method_exists('\REDCap', 'getDataTable') ? \REDCap::getDataTable($project_id) : "redcap_data";
+
+                $sql = "SELECT value FROM ".$data_table." WHERE record = ? AND project_id = ? AND field_name = ? ORDER BY instance DESC LIMIT 1";
                 $result = $this->query($sql, 
                     [
                         $record_id,
