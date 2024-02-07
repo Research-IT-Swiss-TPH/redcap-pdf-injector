@@ -57,19 +57,19 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             if($this->getUser()) {
                
                 //  Include Javascript and Styles on module page
-                if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
+                if( $this->isModulePage("Injections")) {  
                     $this->initBase();
                     $this->initModule();            
                 }
 
                 //  Include Button
-                if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
+                if ($this->isREDCapPage("DataEntry/record_home.php") && isset($_GET["id"]) && isset($_GET["pid"])) {
                     $this->initBase();
                     $this->initPageRecord();
                 }
 
                 //  Include Button on Data Export (Reports) page
-                if (PAGE === "DataExport/index.php" && isset($_GET["report_id"]) && isset($_GET["pid"]))  {
+                if ( $this->isREDCapPage("DataExport/index.php") && isset($_GET["report_id"]) && isset($_GET["pid"]))  {
                     $this->initBase();
                     $str = $this->getProjectSetting("reports-enabled");                    
                     $reportsEnabled = array_map('trim', explode(',', $str));
