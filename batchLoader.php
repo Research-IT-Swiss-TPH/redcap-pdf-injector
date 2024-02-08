@@ -16,6 +16,8 @@
         }
     }
 
+    $batchId = "";
+
     try {
 
         //simulate_memory_exhaust();
@@ -27,6 +29,8 @@
             "project_id" => htmlspecialchars($_GET["pid"]),
             "dl_format" => htmlspecialchars($_GET["dlf"])
         );
+
+        $batchId = hash('sha256', json_encode($params));
 
         #   Validate request parameters
 
@@ -214,10 +218,6 @@
                 'stack' => $th->getTrace()
             ),
         ));
-        //throw $th;
-        //header('Content-Type: application/json; charset=utf-8');
-        //echo $th->getMessage();
-        // http_response_code(500);
     }
     
    
