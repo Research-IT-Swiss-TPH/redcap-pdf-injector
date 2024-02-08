@@ -535,8 +535,101 @@ STPH_pdfInjector.closeModalExportData = function() {
 }
 
 STPH_pdfInjector.setDownload = function (value) {
-    $(".injection-report-download-button").addClass("d-none");
-    $("#report-injection-download-"+value).removeClass("d-none");    
+    $(".injection-report-download").addClass("d-none");
+    $("#report-injection-download-"+value).removeClass("d-none");
+}
+
+STPH_pdfInjector.loadBatch = function (did, rid, ) {
+
+    console.log("Starting batch load..")
+
+    //  show loading
+    $("#batch-load-spinner").removeClass("d-none");
+    $(".injection-report-download").addClass("d-none");
+    $("#batch-load-select").prop('disabled', 'disabled');
+
+
+    function handleError(xhr, status, error){
+
+        var errorData = "";
+
+        if(xhr.getResponseHeader('content-type') == 'application/json') {
+            var errorData = JSON.parse(xhr.responseText).error
+            var msg = '<div>Message: '+errorData.msg+'</div>';
+            var code = '<div>Code: '+errorData.code+'</div>';
+            var track = '<p><i>Check JavaScript console log for stack trace.</i></p>'
+
+            errorData = msg + code + track;
+            STPH_pdfInjector.log(error)
+        } else {
+            errorData = xhr;
+        }
+
+        $("#batch-load-error-name").text(error)
+        $("#batch-load-error-content").html(errorData)
+
+        $("#batch-load-spinner").addClass("d-none");
+        $("#batch-load-failure").removeClass("d-none");
+        $("#batch-load-error-name").removeClass("d-none");
+        $("#batch-load-error-content").removeClass("d-none");
+    }
+    
+
+    $.ajax({
+        url: STPH_pdfInjector.batchLoaderUrl + "&did=" + did + "&rid=" + rid,
+        type: 'get',
+        xhr: function() {
+            //  Adjust responseType based on our responseHeader
+            //  https://stackoverflow.com/a/55120956/3127170
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 2) {
+                    if (xhr.getResponseHeader('content-type') == 'application/zip') {
+                        xhr.responseType = "blob";
+                    } else {
+                        if (xhr.status == 200) {
+                            xhr.responseType = "text";
+                        } else {
+                            xhr.responseType = "text";
+                        }
+                    }
+                }
+            };
+            return xhr;
+        },
+        success: function(xhr, textStatus, request){
+
+            var headers = request.getAllResponseHeaders();
+            console.log(headers) 
+
+            var contentType = request.getResponseHeader('content-type')
+
+            //  If the response is not application/zip
+            //  we most probably have a REDCap Error
+            if(contentType !== 'application/zip') {
+                handleError(xhr, textStatus, new Error("REDCap Error"));
+                return;
+            }
+
+            //  In other cases we have a zip returend as blob
+
+            //  Get fileName
+            var fileName = request.getResponseHeader('content-disposition').split('filename=')[1].split(';')[0];
+
+            //  Download via JavaScript
+            //  https://stackoverflow.com/a/42830315/3127170
+            var link=document.createElement('a');
+            link.href=window.URL.createObjectURL(xhr);
+            link.download=fileName;
+            link.click();
+
+            $("#batch-load-spinner").addClass("d-none");
+            $("#batch-load-success").removeClass("d-none");
+
+        },
+        error: handleError
+     });
+ 
 }
 
 STPH_pdfInjector.quickfill = function () {

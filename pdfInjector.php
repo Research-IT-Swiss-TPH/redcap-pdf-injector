@@ -1013,6 +1013,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <script>
             STPH_pdfInjector.params = <?= json_encode($js_params) ?>;
             STPH_pdfInjector.requestHandlerUrl = "<?= $this->getUrl("requestHandler.php") ?>";
+            STPH_pdfInjector.batchLoaderUrl = "<?= $this->getUrl("batchLoader.php") ?>";
             STPH_pdfInjector.templateURL = "<?= $this->getUrl("template/field_variable_list.php") ?>";
             $(function() {
                 $(document).ready(function(){
@@ -1179,34 +1180,60 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     <div class="modal-body">
                         <div id="modal_message_preview" style="margin:0;width:100%;">
                         
-                        <select onChange="STPH_pdfInjector.setDownload(this.value)" class="custom-select">
-                        <option hidden>Choose an Injection</option>
-                        <?php
-                            //  To Do: Clean this up...
-                            foreach ($this->injections as $key => $injection) {
-                                $url = $this->getUrl("batch.php") . '&did=' . $injection["document_id"] . '&rid='. $this->report_id;
-                                $button = '<a target="_blank" href="'.$url.'" class="jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i>'.$injection["title"].'</a>';
-                                $option = '<option value="'.$injection["document_id"].'">'.$injection["title"].'</option>';
-                                echo $option;
-                            }
-                        ?>
-                        </select>
+                            <div class="mb-3">
+                                <select id="batch-load-select" onChange="STPH_pdfInjector.setDownload(this.value)" class="form-select">
+                                <option hidden>Choose an Injection</option>
+                                <?php
+                                    foreach ($this->injections as $key => $injection) {                         
+                                        $option = '<option value="'.$injection["document_id"].'">'.$injection["title"].'</option>';
+                                        echo $option;
+                                    }
+                                ?>
+                                </select>
+                            </div>
+
+                            <?php
+                        foreach ($this->injections as $key => $injection) {
+                            ?>                         
+                            <div 
+                                id="report-injection-download-<?= $injection["document_id"] ?>"
+                                class="mb-3 injection-report-download d-none">
+                                <span>Injection Title: <?= $injection["title"] ?></span><br>
+                                <span>Injection ID: <?= $injection["document_id"] ?></span><br><br>
+                                <div class="text-center">
+                                <button                                     
+                                    class="btn btn-rcgreen"
+                                    onClick="STPH_pdfInjector.loadBatch('<?= $injection["document_id"] ?>',<?= $this->report_id ?>)" type="button" 
+                                    class="btn btn-primary">
+                                    Download
+                                </button>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                        ?>      
+
                         </div>
+                        <div id="batch-load-spinner" class="text-center d-none">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                             Loading..
+                        </div>
+
+                        <div id="batch-load-success" class="d-none">Success</div>
+                        <div id="batch-load-failure" class="d-none">Failure</div>
+                        <div id="batch-load-error-name" class="d-none"></div>
+                        <div id="batch-load-error-content" class="d-none"></div>
+
                     </div>
                     <div class="modal-footer">
-                    <?php
-                        //  To Do: Clean this up...
-                        foreach ($this->injections as $key => $injection) {
-                            $url = $this->getUrl("batch.php") . '&did=' . $injection["document_id"] . '&rid='. $this->report_id;
-                            $button = '<a onClick="STPH_pdfInjector.closeModalExportData()" style="color:white;" id="report-injection-download-'.$injection["document_id"].'" href="'.$url.'" data-default-url="'.$url.'" type="button" class="btn btn-rcgreen injection-report-download-button d-none">Download</a>';
-                            echo $button;
-                        }
-                    ?>                                            
-                        <button type="button" class="btn btn-defaultrc" data-dismiss="modal">Close</button>
+                                      
+                    <button type="button" class="btn btn-defaultrc" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
-        </div>        
+        </div>
         <?php
     }
 
