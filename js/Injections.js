@@ -519,7 +519,7 @@ STPH_pdfInjector.loadBatch = function (did, rid) {
 
         var errorData = "";
 
-        if(xhr.getResponseHeader('content-type') == 'application/json') {
+        if(typeof xhr.getResponseHeader === "function" && xhr.getResponseHeader('content-type') == 'application/json') {
             var errorData = JSON.parse(xhr.responseText).error
             var msg = '<div>Message: '+errorData.msg+'</div>';
             var code = '<div>Code: '+errorData.code+'</div>';
@@ -545,7 +545,7 @@ STPH_pdfInjector.loadBatch = function (did, rid) {
 
 
     $.ajax({
-        url: STPH_pdfInjector.batchLoaderUrl + "&did=" + did + "&rid=" + rid + "&" + liveFilters.toString(),
+        url: STPH_pdfInjector.batchLoaderUrl + "&did=" + did + "&rid=" + rid +  liveFilters.toString(),
         type: 'get',
         xhr: function() {
             //  Adjust responseType based on our responseHeader
@@ -556,6 +556,8 @@ STPH_pdfInjector.loadBatch = function (did, rid) {
                     if (xhr.getResponseHeader('content-type') == 'application/zip') {
                         xhr.responseType = "blob";
                     } else {
+                        console.log("xhr")
+                        console.log(xhr)
                         if (xhr.status == 200) {
                             xhr.responseType = "text";
                         } else {
@@ -568,8 +570,8 @@ STPH_pdfInjector.loadBatch = function (did, rid) {
         },
         success: function(xhr, textStatus, request){
 
-            var headers = request.getAllResponseHeaders();
-            console.log(headers) 
+            //var headers = request.getAllResponseHeaders();
+            //console.log(headers) 
 
             var contentType = request.getResponseHeader('content-type')
 
