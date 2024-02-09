@@ -487,8 +487,6 @@ STPH_pdfInjector.openModalExportData = function() {
         lifeFiltersHTML += key + ": " + value + "<br>";
     })
 
-    console.log(liveFilters.toString() )
-
     if(liveFilters.toString() !== "") {
         $('#batch-load-livefilters').html("<div><b>Live Filters</b><br>"+lifeFiltersHTML+"</div>")
     }   
@@ -503,6 +501,8 @@ STPH_pdfInjector.closeModalExportData = function() {
     $('#batch-load-failure').addClass("d-none");
     $('#batch-load-error-name').addClass("d-none");
     $('#batch-load-error-content').addClass("d-none");
+    $("#batch-load-select").prop('disabled', '');
+
 
 
     $("#batch-load-select").prop('selectedIndex',0);
@@ -524,19 +524,34 @@ STPH_pdfInjector.loadBatch = function (did, rid) {
     $(".injection-report-download").addClass("d-none");
     $("#batch-load-select").prop('disabled', 'disabled');
 
+    function isJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }    
 
     function handleError(xhr, status, error){
 
         var errorData = "";
 
-        if(typeof xhr.getResponseHeader === "function" && xhr.getResponseHeader('content-type') == 'application/json') {
-            var errorData = JSON.parse(xhr.responseText).error
-            var msg = '<div>Message: '+errorData.msg+'</div>';
-            var code = '<div>Code: '+errorData.code+'</div>';
-            var track = '<p><i>Check JavaScript console log for stack trace.</i></p>'
+        console.log(xhr.responseText)
 
-            errorData = msg + code + track;
+        if(typeof xhr.getResponseHeader === "function" && xhr.getResponseHeader('content-type') == 'application/json' && xhr.responseText !== "" ) {
+            if(isJsonString(xhr.responseText)) {
+                var errorJSON = JSON.parse(xhr.responseText).error
+                var msg = '<div>Message: '+errorJSON.msg+'</div>';
+                var code = '<div>Code: '+errorJSON.code+'</div>';
+                var track = '<p><i>Check JavaScript console log for stack trace.</i></p>'
+    
+                errorData = msg + code + track;
+            } else {
+                errorData = "<div class='red'>"+xhr.responseText+"</div>"
+            }
             STPH_pdfInjector.log(error)
+
         } else {
             errorData = xhr;
         }
