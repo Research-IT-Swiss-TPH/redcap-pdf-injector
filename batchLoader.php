@@ -16,12 +16,12 @@
         }
     }
 
-    $batchId = "";
 
     try {
 
         //simulate_memory_exhaust();
 
+        $batchId = "";
         #  Retrieve and sanitize parameters
         $params = array(
             "document_id" => htmlspecialchars($_GET["did"]),
@@ -30,7 +30,8 @@
             "dl_format" => htmlspecialchars($_GET["dlf"])
         );
 
-        $batchId = hash('sha256', json_encode($params));
+        //  Create a unique hash everytime we start a batch, so that our temporary files can be structured better
+        $batchId = time() . "_" . substr(hash('sha256', json_encode($params)), 0, 20); ;
 
         #   Validate request parameters
 
@@ -129,8 +130,9 @@
             
             //  Create directory if not exists
             mkdir(__DIR__ . "/tmp");
+            mkdir(__DIR__ . "/tmp" . "/" . $batchId);
             //  Write pdf content into temporary file that is going to be deleted after the ZIP has been created
-            $path = __DIR__ . "/tmp". "/" . $lbl_ids . "-" . $lbl_names . "_" . $record . ".pdf";
+            $path = __DIR__ . "/tmp". "/". $batchId .  "/". $lbl_ids . "-" . $lbl_names . "_" . $record . ".pdf";
             $filename = $module->getSafePath($path);
             $fp = fopen($filename, 'x');
 
@@ -192,32 +194,43 @@
         //  Cleanup (since using basename() caused the .zip to be saved in the module folder)
         unlink($zipname);
 
-
-        # To Do: Serve PDF File as Download
-        //  header(..);
-
-        //  Cleanup
+        //  Cleanup files
         foreach ($records as $key => $record) {
-            $path = __DIR__ . "/tmp". "/".$lbl_ids."-".$lbl_names."_".$record.".pdf";
-            $filename = $module->getSafePath($path);
-            unlink($filename);
+            $path = __DIR__ . "/tmp". "/". $batchId . "/".$lbl_ids."-".$lbl_names."_".$record.".pdf";
+            if(file_exists($path)) {
+                $filename = $module->getSafePath($path);
+                unlink($filename);
+            }
+        }
+
+        //  Cleanup directory
+        if(is_dir(__DIR__ . "/tmp". "/". $batchId)) {
+            rmdir(__DIR__ . "/tmp". "/". $batchId);
         }
 
         //  Reset enum data
-        $module->enum[$pid] = [];        
-
+        $module->enum[$pid] = [];
 
         exit();
     } catch (\Throwable $th) {
         header('HTTP/1.0 500 Internal Server Error');
         header('Content-Type: application/json');
-        echo json_encode(array(
-            'error' => array(
-                'msg' => $th->getMessage(),
-                'code' => $th->getCode(),
-                'stack' => $th->getTrace()
-            ),
-        ));
+        $exceptionType = get_class($th);
+
+        echo get_class($th);
+
+        if($exceptionType === "TypeError") {
+            echo $th;
+        }
+         else {
+            echo json_encode(array(
+                'error' => array(
+                    'msg' => $th->getMessage(),
+                    'code' => $th->getCode(),
+                    'stack' => $th->getTrace()
+                ),
+            ));            
+         }
     }
     
    
