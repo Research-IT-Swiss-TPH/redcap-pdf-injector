@@ -1181,7 +1181,6 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                         <div id="modal_message_preview" style="margin:0;width:100%;">
                             <div class="mb-3">
                             <div id="batch-load-livefilters">
-                                None
                             </div>
                             </div>
                             <div class="mb-3">

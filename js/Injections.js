@@ -487,7 +487,9 @@ STPH_pdfInjector.openModalExportData = function() {
         lifeFiltersHTML += key + ": " + value + "<br>";
     })
 
-    $('#batch-load-livefilters').html("<div>Live Filters:<br>"+lifeFiltersHTML+"</div>")
+    if(liveFilters.length > 0) {
+        $('#batch-load-livefilters').html("<div>Live Filters:<br>"+lifeFiltersHTML+"</div>")
+    }   
     $('#external-modules-configure-modal-data-export').modal('show'); 
 }
 
@@ -545,7 +547,7 @@ STPH_pdfInjector.loadBatch = function (did, rid) {
 
 
     $.ajax({
-        url: STPH_pdfInjector.batchLoaderUrl + "&did=" + did + "&rid=" + rid +  liveFilters.toString(),
+        url: STPH_pdfInjector.batchLoaderUrl + "&did=" + did + "&rid=" + rid + "&" + liveFilters.toString(),
         type: 'get',
         xhr: function() {
             //  Adjust responseType based on our responseHeader
