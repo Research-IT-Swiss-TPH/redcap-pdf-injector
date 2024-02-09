@@ -416,11 +416,6 @@ STPH_pdfInjector.initPageDataExport = function() {
 
     //  Observe report_load_progress2 and insert markup when ready
     STPH_pdfInjector.observeReportLoad();
-
-    //  Re-Observe if live-filters change
-    $(document).on('change','select[id^="lf"]',function(){
-        STPH_pdfInjector.observeReportLoad();
-    });
 }
 
 STPH_pdfInjector.observeReportLoad = function() {
@@ -430,43 +425,35 @@ STPH_pdfInjector.observeReportLoad = function() {
     //  Source: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
 
     // Select the node that will be observed for mutations
-    const targetNode = document.getElementById('report_load_progress2');  
-
-    //  Set counter variable to count style mutations
-    //  In this case we know that i == 2 marks the end of the ajax request
-    let i = 0;
+    const targetNode = document.getElementById("report_parent_div");
 
     // Options for the observer (which mutations to observe)
-    const config = { attributes: true, childList: true, subtree: true };
+    const config = { attributes: false, childList: true, subtree: true };
 
     // Callback function to execute when mutations are observed
-    const callback = function(mutationsList, observer) {
-        // Use traditional 'for loops' for IE 11
-        for(const mutation of mutationsList) {
-            //  detect only style mutations
-            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                i = i+1;
-                if(i== 2) {
-                    observer.disconnect();
-                    STPH_pdfInjector.insertReportBtn();
-                }
+    const callback = (mutationList, observer) => {       
+        if(mutationList.length > 0) {
+            if(mutationList[0].target.id == "report_parent_div") {
+                STPH_pdfInjector.log("report_parent_div has been mutated.")
+                STPH_pdfInjector.insertReportBtn();
             }
         }
     };
-    
+
     // Create an observer instance linked to the callback function
     const observer = new MutationObserver(callback);
 
     // Start observing the target node for configured mutations
     observer.observe(targetNode, config);
 
-    // Later, you can stop observing
+    // We will not stop observing, because then changes in live filters or reset button won't trigger
     //observer.disconnect();
 }
 
 STPH_pdfInjector.insertReportBtn = function() {
+    STPH_pdfInjector.log("Inserting PDF Injector Button.")
     //  Remove button first, otherwise we will have too many :-S
-    $("#pdfi-report-btn").remove();
+    //$("#pdfi-report-btn").remove();
     // BS5 Syntax change, using data-bs-*
     // data-bs-target="#external-modules-configure-modal-data-export" data-bs-toggle="modal" 
     let button = '<a onClick="STPH_pdfInjector.openModalExportData()" id="pdfi-report-btn" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
