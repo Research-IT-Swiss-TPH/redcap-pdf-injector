@@ -487,19 +487,21 @@ STPH_pdfInjector.openModalExportData = function() {
         lifeFiltersHTML += key + ": " + value + "<br>";
     })
 
-    if(liveFilters.length > 0) {
-        $('#batch-load-livefilters').html("<div>Live Filters:<br>"+lifeFiltersHTML+"</div>")
+    console.log(liveFilters.toString() )
+
+    if(liveFilters.toString() !== "") {
+        $('#batch-load-livefilters').html("<div><b>Live Filters</b><br>"+lifeFiltersHTML+"</div>")
     }   
     $('#external-modules-configure-modal-data-export').modal('show'); 
 }
 
 STPH_pdfInjector.closeModalExportData = function() {
+
+    //  Reset Modal and Select
+    $(".injection-report-download").addClass("d-none");
+    $("#batch-load-select").prop('selectedIndex',0);
+  
     $('#external-modules-configure-modal-data-export').modal('hide');
-    //  Show some progress so that user knows download has started...
-    showProgress(true);
-    setTimeout(()=>{
-        showProgress(false);
-    }, 500);
 }
 
 STPH_pdfInjector.setDownload = function (value) {

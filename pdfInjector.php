@@ -1224,7 +1224,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                              Loading..
                         </div>
 
-                        <div id="batch-load-success" class="d-none">Success</div>
+                        <div id="batch-load-success" class="d-none">
+                        <div class="alert alert-success" role="alert">
+                                Success! PDF Injector has downloaded PDFs based on Report. You can safely close this dialog.
+                            </div>                            
+                        </div>
                         <div id="batch-load-failure" class="d-none">Failure</div>
                         <div id="batch-load-error-name" class="d-none"></div>
                         <div id="batch-load-error-content" class="d-none"></div>
@@ -1232,7 +1236,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     </div>
                     <div class="modal-footer">
                                       
-                    <button type="button" class="btn btn-defaultrc" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-defaultrc" onclick="STPH_pdfInjector.closeModalExportData()">Close</button>
                     </div>
                 </div>
             </div>
