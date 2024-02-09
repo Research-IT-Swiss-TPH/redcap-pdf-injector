@@ -71,7 +71,7 @@
             throw new Exception('Invalid Report Logic.');
         }
 
-        //  Build Live Filters
+        //  Build Live Filters (Obtain any dynamic filters selected from query string params, i.e. lf1, lf2, lf3)
         list ($liveFilterLogic, $liveFilterGroupId, $liveFilterEventId) = \DataExport::buildReportDynamicFilterLogic($params['report_id']);    
 
         // If a live filter is being used, then append it to our existing limiter logic from the report's attributes

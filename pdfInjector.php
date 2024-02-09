@@ -1179,7 +1179,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     </div>
                     <div class="modal-body">
                         <div id="modal_message_preview" style="margin:0;width:100%;">
-                        
+                            <div class="mb-3">
+                            <div id="batch-load-livefilters">
+                                None
+                            </div>
+                            </div>
                             <div class="mb-3">
                                 <select id="batch-load-select" onChange="STPH_pdfInjector.setDownload(this.value)" class="form-select">
                                 <option hidden>Choose an Injection</option>
