@@ -497,8 +497,14 @@ STPH_pdfInjector.openModalExportData = function() {
 
 STPH_pdfInjector.closeModalExportData = function() {
 
-    //  Reset Modal and Select
+    //  Reset modal
     $(".injection-report-download").addClass("d-none");
+    $('#batch-load-success').addClass("d-none");
+    $('#batch-load-failure').addClass("d-none");
+    $('#batch-load-error-name').addClass("d-none");
+    $('#batch-load-error-content').addClass("d-none");
+
+
     $("#batch-load-select").prop('selectedIndex',0);
   
     $('#external-modules-configure-modal-data-export').modal('hide');
