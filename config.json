@@ -95,6 +95,13 @@
         }
     ],
 
+    "action-tags": [
+        {
+            "tag": "@PDFI",
+            "description": "For a descriptive field, adds a download button targeting an injected PDF by `injection_id`."
+        }
+    ],
+
     "crons": [],
 
     "compatibility": {

@@ -43,8 +43,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						$injection_number++;
 						$fields = $attr["fields"];
 
-						$description = "{$attr['description']}</span>";
-						$fieldInfo = "<b class=\"fs14\"><i class=\"fa fa-th-list\"></i></b> <span class=\"boldish\">Number of fields: ".count($fields)."</span>";
+						$fieldCount = count($fields);
 						$fieldList= "";
 
 						foreach ($fields as $fieldKey => $field) {
@@ -67,7 +66,7 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 						
 						$injectionTitle = (trim($attr['title']) == '') ? '' : $lang['colon'].'<span class="font-weight-normal ml-1">'.\RCView::escape($attr['title']).'</span>';						
 						$formName = '<div class="clearfix" style="margin-left: -11px;">
-										<div style="max-width:340px;" class="card-header alert-num-box float-left text-truncate"><i class="fas fa-syringe fs13" style="margin-right:5px;"></i>PDF Injection #'.$injection_number.$injectionTitle.'</div>
+										<div style="max-width:340px;" class="card-header alert-num-box float-left text-truncate"><i class="fas fa-syringe fs13" style="margin-right:5px;"></i>PDF Injection #'.$injection_number.'</div>
 										<div class="btn-group nowrap float-left mb-1 ml-2" role="group">
 										  <button style="color:#0061b5;" type="button" class="btn btn-link fs13 py-1 pl-1 pr-2" onclick="STPH_pdfInjector.editInjection('.$key.', '.$injection_number.');">
 											<i class="fas fa-pencil-alt"></i> '.$lang['global_27'].'
@@ -84,11 +83,27 @@ print '<div style="width:950px;max-width:950px;" class="d-none d-md-block mt-3 m
 										".$formName."
 										<div class='card mt-3'>
 											<div class='card-body p-2'>
-												<div id=\"injection-description\" class=\"mb-1 trigger-descrip\">{$description}</div>
-												<div class=\"mt-1\" style=\"color:green;\">{$fieldInfo}</div>
-												<ol  class=\"mt-1\" style=\"padding-left:20px;\">".$fieldList."</ol>
+												<div class='boldish'><i class=\"fa-solid fa-circle-info\"></i> General</div>
+												<span><b>Title: </b>{$attr['title']}</span><br>
+												<span><b>Description: </b><i>{$attr['description']}</i></span><br>
+												<span><b>Fields: </b>{$fieldCount}</span>
 											</div>
-										</div>																
+										</div>										
+										<div class='card mt-3'>
+											<div class='card-body p-2'>
+											<div class='boldish'><i class=\"fa fa-th-list\"></i> Fields</div>
+												
+												<ol  class=\"mt-1\" style=\"padding-left:20px;\">
+													".$fieldList."
+												</ol>												
+											</div>
+										</div>
+										<div class='card mt-3'>
+											<div class='card-body p-2'>
+												<div class='boldish' style='color:#912B2B;'><i class=\"fa-solid fa-at\"></i> Action Tag</div>
+												<input onclick=\"this.select();\" style='cursor:pointer;color:#cf357c;' class=\"form-control-plaintext mt-3\" type=\"text\" value=\"@PDFI='{$attr["document_id"]}'\" aria-label=\"readonly input example\" readonly>
+											</div>
+										</div>
 										</td>";
 
 										/* Activity Box
