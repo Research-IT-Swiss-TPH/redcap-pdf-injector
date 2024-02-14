@@ -416,11 +416,6 @@ STPH_pdfInjector.initPageDataExport = function() {
 
     //  Observe report_load_progress2 and insert markup when ready
     STPH_pdfInjector.observeReportLoad();
-
-    //  Re-Observe if live-filters change
-    $(document).on('change','select[id^="lf"]',function(){
-        STPH_pdfInjector.observeReportLoad();
-    });
 }
 
 STPH_pdfInjector.observeReportLoad = function() {
@@ -430,113 +425,207 @@ STPH_pdfInjector.observeReportLoad = function() {
     //  Source: https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
 
     // Select the node that will be observed for mutations
-    const targetNode = document.getElementById('report_load_progress2');
-
-    //  Set counter variable to count style mutations
-    //  In this case we know that i == 2 marks the end of the ajax request
-    let i = 0;
+    const targetNode = document.getElementById("report_parent_div");
 
     // Options for the observer (which mutations to observe)
-    const config = { attributes: true, childList: true, subtree: true };
+    const config = { attributes: false, childList: true, subtree: true };
 
     // Callback function to execute when mutations are observed
-    const callback = function(mutationsList, observer) {
-        // Use traditional 'for loops' for IE 11
-        for(const mutation of mutationsList) {
-            //  detect only style mutations
-            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                i = i+1;
-                if(i== 2) {
-                    observer.disconnect();
-                    STPH_pdfInjector.insertReportBtn();
-                    STPH_pdfInjector.updateLiveFilters();                    
-                }
+    const callback = (mutationList, observer) => {       
+        if(mutationList.length > 0) {
+            if(mutationList[0].target.id == "report_parent_div") {
+                STPH_pdfInjector.log("report_parent_div has been mutated.")
+                STPH_pdfInjector.insertReportBtn();
             }
         }
     };
-    
+
     // Create an observer instance linked to the callback function
     const observer = new MutationObserver(callback);
 
     // Start observing the target node for configured mutations
     observer.observe(targetNode, config);
 
-    // Later, you can stop observing
+    // We will not stop observing, because then changes in live filters or reset button won't trigger
     //observer.disconnect();
 }
 
 STPH_pdfInjector.insertReportBtn = function() {
+    STPH_pdfInjector.log("Inserting PDF Injector Button.")
     //  Remove button first, otherwise we will have too many :-S
-    $("#pdfi-report-btn").remove();
+    //$("#pdfi-report-btn").remove();
     // BS5 Syntax change, using data-bs-*
-    let button = '<a id="pdfi-report-btn" data-bs-toggle="modal"  data-bs-target="#external-modules-configure-modal-data-export" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
+    // data-bs-target="#external-modules-configure-modal-data-export" data-bs-toggle="modal" 
+    let button = '<a onClick="STPH_pdfInjector.openModalExportData()" id="pdfi-report-btn" class="report_btn jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i> PDF Injector</a>';
     $(".report_btn").first().parent().prepend(button);
 }
 
-STPH_pdfInjector.updateLiveFilters = function() {
+STPH_pdfInjector.getLiveFilters = function() {
+    
+    const queryString = window.location.search;    
+    let searchParams  = new URLSearchParams(queryString);
+    let paramsDelete = [];
 
-    //  Array that stores all live filter querystrings
-    let qs_all_lf=[];
-
-    //  Loop over all Live Filter selections and add them too query strings array
-    $('select[id^="lf"]').each(function(index, element) {
-        if($(element).val()) {                
-            let id=index+1;
-            let value = $(element).val();
-            let qs_single_lf= "lf"+id+"="+value;
-            qs_all_lf.push(qs_single_lf);
-        } 
+    const liveFilterNames = ["lf1","lf2","lf3"];
+    searchParams.forEach( ( value, key ) => {
+        if(!liveFilterNames.includes(key)) {
+            paramsDelete.push(key)
+        }
     })
 
-    //  Loop over all Download Buttons and update url query parameters
-        $('.injection-report-download-button').each(function () {
-            let btn = $(this);
-            let href = btn.attr("href");
+    paramsDelete.forEach((param)=>{
+        searchParams.delete(param)
+    })
 
-            if(href) {
-                if( qs_all_lf.length > 0) {
-
-                    let url = new URL(href);
-                    let search_params = url.searchParams;
-                    search_params.delete('lf1');
-                    search_params.delete('lf2');
-                    search_params.delete('lf3');
-                    let url_with_all_lf = "";                   
-
-                    $(qs_all_lf).each(function(index, element){
-                        let param = element.split('=')[0];
-                        let paramVal = element.split('=')[1];
-    
-                        search_params.set(param, paramVal);
-                        url.search = search_params.toString();
-                        url_with_all_lf = url.toString();            
-                    });
-                    btn.attr("href", url_with_all_lf);
-                } else {
-                    //  Set url to default if there are no Live Filters
-                    let url_default = btn.data("default-url");
-                    btn.attr("href", url_default);
-                }
-            }
-        });  
+    return searchParams
 }
 
 STPH_pdfInjector.openModalExportData = function() {
+    var liveFilters = STPH_pdfInjector.getLiveFilters();
+    var lifeFiltersHTML = "";
+    liveFilters.forEach((value,key) => {
+        lifeFiltersHTML += key + ": " + value + "<br>";
+    })
+
+    if(liveFilters.toString() !== "") {
+        $('#batch-load-livefilters').html("<div><b>Live Filters</b><br>"+lifeFiltersHTML+"</div>")
+    }   
     $('#external-modules-configure-modal-data-export').modal('show'); 
 }
 
 STPH_pdfInjector.closeModalExportData = function() {
+
+    //  Reset modal
+    $(".injection-report-download").addClass("d-none");
+    $('#batch-load-success').addClass("d-none");
+    $('#batch-load-failure').addClass("d-none");
+    $('#batch-load-error-name').addClass("d-none");
+    $('#batch-load-error-content').addClass("d-none");
+    $("#batch-load-select").prop('disabled', '');
+
+
+
+    $("#batch-load-select").prop('selectedIndex',0);
+  
     $('#external-modules-configure-modal-data-export').modal('hide');
-    //  Show some progress so that user knows download has started...
-    showProgress(true);
-    setTimeout(()=>{
-        showProgress(false);
-    }, 500);
 }
 
 STPH_pdfInjector.setDownload = function (value) {
-    $(".injection-report-download-button").addClass("d-none");
-    $("#report-injection-download-"+value).removeClass("d-none");    
+    $(".injection-report-download").addClass("d-none");
+    $("#report-injection-download-"+value).removeClass("d-none");
+}
+
+STPH_pdfInjector.loadBatch = function (did, rid) {
+
+    console.log("Starting batch load..")
+
+    //  show loading
+    $("#batch-load-spinner").removeClass("d-none");
+    $(".injection-report-download").addClass("d-none");
+    $("#batch-load-select").prop('disabled', 'disabled');
+
+    function isJsonString(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }    
+
+    function handleError(xhr, status, error){
+
+        var errorData = "";
+
+        console.log(xhr.responseText)
+
+        if(typeof xhr.getResponseHeader === "function" && xhr.getResponseHeader('content-type') == 'application/json' && xhr.responseText !== "" ) {
+            if(isJsonString(xhr.responseText)) {
+                var errorJSON = JSON.parse(xhr.responseText).error
+                var msg = '<div>Message: '+errorJSON.msg+'</div>';
+                var code = '<div>Code: '+errorJSON.code+'</div>';
+                var track = '<p><i>Check JavaScript console log for stack trace.</i></p>'
+    
+                errorData = msg + code + track;
+            } else {
+                errorData = "<div class='red'>"+xhr.responseText+"</div>"
+            }
+            STPH_pdfInjector.log(error)
+
+        } else {
+            errorData = xhr;
+        }
+
+        $("#batch-load-error-name").text(error)
+        $("#batch-load-error-content").html(errorData)
+
+        $("#batch-load-spinner").addClass("d-none");
+        $("#batch-load-failure").removeClass("d-none");
+        $("#batch-load-error-name").removeClass("d-none");
+        $("#batch-load-error-content").removeClass("d-none");
+    }
+    
+    // Handle Live Filters
+    liveFilters = STPH_pdfInjector.getLiveFilters()
+
+
+    $.ajax({
+        url: STPH_pdfInjector.batchLoaderUrl + "&did=" + did + "&rid=" + rid + "&" + liveFilters.toString(),
+        type: 'get',
+        xhr: function() {
+            //  Adjust responseType based on our responseHeader
+            //  https://stackoverflow.com/a/55120956/3127170
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 2) {
+                    if (xhr.getResponseHeader('content-type') == 'application/zip') {
+                        xhr.responseType = "blob";
+                    } else {
+                        console.log("xhr")
+                        console.log(xhr)
+                        if (xhr.status == 200) {
+                            xhr.responseType = "text";
+                        } else {
+                            xhr.responseType = "text";
+                        }
+                    }
+                }
+            };
+            return xhr;
+        },
+        success: function(xhr, textStatus, request){
+
+            //var headers = request.getAllResponseHeaders();
+            //console.log(headers) 
+
+            var contentType = request.getResponseHeader('content-type')
+
+            //  If the response is not application/zip
+            //  we most probably have a REDCap Error
+            if(contentType !== 'application/zip') {
+                handleError(xhr, textStatus, new Error("REDCap Error"));
+                return;
+            }
+
+            //  In other cases we have a zip returend as blob
+
+            //  Get fileName
+            var fileName = request.getResponseHeader('content-disposition').split('filename=')[1].split(';')[0];
+
+            //  Download via JavaScript
+            //  https://stackoverflow.com/a/42830315/3127170
+            var link=document.createElement('a');
+            link.href=window.URL.createObjectURL(xhr);
+            link.download=fileName;
+            link.click();
+
+            $("#batch-load-spinner").addClass("d-none");
+            $("#batch-load-success").removeClass("d-none");
+
+        },
+        error: handleError
+     });
+ 
 }
 
 STPH_pdfInjector.quickfill = function () {

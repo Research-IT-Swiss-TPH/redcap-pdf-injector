@@ -11,11 +11,11 @@
         {
              "name": "Ekin Tertemiz",
              "email": "ekin.tertemiz@swisstph.ch",
-             "institution": "Swiss Tropical and Public Health Institute"
+             "institution": "Swiss Tropical and Public Health Institute (Swiss TPH)"
          }
      ],
 
-    "framework-version": 15,
+    "framework-version": 14,
 
     "enable-every-page-hooks-on-system-pages": false,
 
@@ -92,6 +92,13 @@
             "key": "disable-readme",
             "name": "<b>Disable Readme</b><br>Use this setting to not include a readme.txt into .zip file during Report Injection.",
             "type": "checkbox"
+        }
+    ],
+
+    "action-tags": [
+        {
+            "tag": "@PDFI",
+            "description": "For a descriptive field, adds a download button targeting an injected PDF by `injection_id`."
         }
     ],
 

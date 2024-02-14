@@ -12,34 +12,30 @@ namespace STPH\pdfInjector;
 
 require 'vendor/autoload.php';
 
-use \Exception;
-use \Files;
-use \Piping;
+use Exception;
+use Files;
+use Piping;
+use REDCap;
 
 class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
-    /** @var array */    
+    protected $isSurvey=false;
+    protected $taggedFields= [];
+
+    protected $lang;
+
     private $injections;
-
-    /** @var string */    
     private $report_id;
-
-    /** @var string */
     private $ui;
-
-    /** @var string */
     private $version;
-
-    /** @var string */
     private $old_version;
-
-    /** @var array */
     private $enum;
-
-    /** @var array */
     private $validation_type;
 
+
     const SUPPORTED_ACTIONTAGS = ['@TODAY'];
+
+    const ACTION_TAG = '@PDFI';
 
    
    /**
@@ -57,19 +53,19 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
             if($this->getUser()) {
                
                 //  Include Javascript and Styles on module page
-                if(PAGE == "ExternalModules/index.php" && $_GET["prefix"] == "pdf_injector") {  
+                if( $this->isModulePage("Injections")) {  
                     $this->initBase();
                     $this->initModule();            
                 }
 
-                //  Include Button
-                if (PAGE === "DataEntry/record_home.php" && isset($_GET["id"]) && isset($_GET["pid"])) {
+                //  Include Button on Record Home 
+                if ($this->isREDCapPage("DataEntry/record_home.php") && isset($_GET["id"]) && isset($_GET["pid"])) {
                     $this->initBase();
                     $this->initPageRecord();
                 }
 
                 //  Include Button on Data Export (Reports) page
-                if (PAGE === "DataExport/index.php" && isset($_GET["report_id"]) && isset($_GET["pid"]))  {
+                if ( $this->isREDCapPage("DataExport/index.php") && isset($_GET["report_id"]) && isset($_GET["pid"]))  {
                     $this->initBase();
                     $str = $this->getProjectSetting("reports-enabled");                    
                     $reportsEnabled = array_map('trim', explode(',', $str));
@@ -77,9 +73,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     if($isReportEnabled) {
                         $this->initPageDataExport();
                     }
-                    
-                } 
-
+                }
             }
         } catch(Exception $e) {
             //  Do nothing...
@@ -87,7 +81,17 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
 
     }
 
+    /**
+     *  Allows custom actions to be performed on a data entry form (excludes survey pages) 
+     * 
+     * @return void
+     * @since 3.0.0
+     */
+    function redcap_data_entry_form($project_id, $record, $instrument, $event_id, $group_id, $repeat_instance) {
+        $this->initPageDataEntry($project_id, $record);
+    }
 
+    
     //  ====    H A N D L E R S     ====
 
    /**  
@@ -330,7 +334,11 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                 }
 
                 $element_type = $value["element_type"];
-                $sql = "SELECT value FROM redcap_data WHERE record = ? AND project_id = ? AND field_name = ? ORDER BY instance DESC LIMIT 1";
+
+                //  support multiple redcap_data tables
+                $data_table = method_exists('\REDCap', 'getDataTable') ? \REDCap::getDataTable($project_id) : "redcap_data";
+
+                $sql = "SELECT value FROM ".$data_table." WHERE record = ? AND project_id = ? AND field_name = ? ORDER BY instance DESC LIMIT 1";
                 $result = $this->query($sql, 
                     [
                         $record_id,
@@ -568,6 +576,94 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         }
 
     }
+
+    //  Parse fields for @PDFI Action Tag
+    //  https://github.com/lsgs/redcap-instance-table/blob/54f46e874d91c9faed907562df520f41b071ee7b/InstanceTable.php#L126
+    private function setTaggedFields() {
+
+        $this->taggedFields = array();
+        $instrumentFields = REDCap::getDataDictionary('array', false, true, $this->instrument);
+
+        if(count($this->injections) === 0) return;
+
+        foreach ($instrumentFields as $fieldName => $fieldDetails) {
+            $matches = array();
+            //  check field_type and form_name
+            if ($fieldDetails['field_type']==='descriptive' && $fieldDetails['form_name'] == $_GET["page"]){
+                if( preg_match(
+                    "/".self::ACTION_TAG."\s*=\s*'?((\d+(,\d+)*))'?\s?/", 
+                    $fieldDetails['field_annotation'], 
+                    $matches
+                    )) {
+
+                    $injection_ids = explode(',', $matches[1]);
+
+                    $valid_injections = [];
+                    //  validate injection ids
+                    foreach ($injection_ids as $key => $injection_id) {
+                        $injection = $this->injections[$injection_id];
+                        //  skip if injection does not exist
+                        if(!$injection) continue;
+
+                        $valid_injections[] = $injection;
+                    }
+
+                    //  skip if no valid injections
+                    if(empty($valid_injections)) {
+                        continue;
+                    }                    
+
+                    $this->taggedFields[] = [
+                        "form_name"=> $fieldDetails["form_name"],
+                        "field_name" => $fieldDetails["field_name"],
+                        "injections" => $valid_injections
+                    ];
+                }
+            }
+        }
+    }
+
+    private function includeButtonJavaScript($project_id, $record) {
+
+        // Prepare parameter array to be passed to Javascript
+        $js_params = array (
+            "debug" => $this->getProjectSetting("javascript-debug") == true,
+            "project_id" => $project_id,
+            "record_id" => $record,
+            "tagged_fields" => $this->taggedFields
+        );
+
+        ?>
+        <link rel="stylesheet" href="<?= $this->getUrl('css/styles.css'); ?>">
+        <template id="pdfi-download-button">
+            <tr style="display:flex;">
+                <td class="col-7">
+                    <i class="fa-solid fa-cube text-info me-2"></i>
+                    <small style="font-weight:normal;">This field is modified by an external module: <b>PDF Injector</b></small>
+                </td>
+                <td class="data col-5">
+                    <div class="btn-group">
+                        <button style="font-size:13px;padding:6px 8px;" class="pdfi-download-button btn btn-defaultrc btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-syringe"></i> PDF Injection
+                        </button>
+                        <ul class="dropdown-menu">
+                        </ul>
+                    </div>
+                </td>                           
+            </tr>
+        </template>
+        <script src="<?php print $this->getUrl('js/Button.js'); ?>"></script>
+        <script>
+        STPH_pdfInjector.params = <?= json_encode($js_params) ?>;
+        STPH_pdfInjector.previewUrl = "<?= $this->getUrl("preview.php") ?>";
+        $(function() {
+            $(document).ready(function(){
+                STPH_pdfInjector.initButtons();
+            })
+        });
+        </script>
+        <?php
+    }
     
 
     //  ====    I N I T I A L I Z E R S    ====
@@ -625,6 +721,23 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $this->includeModalDataExport();
         $this->includePageJavascriptDataExport();
     }
+
+    /**
+     * Initializes module on Data Entry page
+     * 
+     * @return void
+     * @since 3.0.0
+     */
+    private function initPageDataEntry($project_id, $record) {
+        $this->setInjections();
+        $this->ui = self::getProjectSetting("ui-mode");
+
+        //  Check if any filed of type descriptive contains PDFI action tags
+        $this->setTaggedFields();
+        if(count($this->taggedFields)) {
+            $this->includeButtonJavaScript($project_id, $record);
+        }        
+    }    
 
 
     //  ====    I N J E C T I O N S   ====
@@ -1009,6 +1122,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         <script>
             STPH_pdfInjector.params = <?= json_encode($js_params) ?>;
             STPH_pdfInjector.requestHandlerUrl = "<?= $this->getUrl("requestHandler.php") ?>";
+            STPH_pdfInjector.batchLoaderUrl = "<?= $this->getUrl("batchLoader.php") ?>";
             STPH_pdfInjector.templateURL = "<?= $this->getUrl("template/field_variable_list.php") ?>";
             $(function() {
                 $(document).ready(function(){
@@ -1128,6 +1242,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
      *  @since 1.0.0
      */
     private function includePreviewModal() {
+        global $lang;
         ?>
         <!-- Preview Modal -->
         <div class="modal fade" id="external-modules-configure-modal-preview" tabindex="-1" role="dialog" data-bs-toggle="modal" data-bs-backdrop="static" data-keyboard="true" aria-labelledby="Codes">
@@ -1174,35 +1289,68 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
                     </div>
                     <div class="modal-body">
                         <div id="modal_message_preview" style="margin:0;width:100%;">
-                        
-                        <select onChange="STPH_pdfInjector.setDownload(this.value)" class="custom-select">
-                        <option hidden>Choose an Injection</option>
-                        <?php
-                            //  To Do: Clean this up...
-                            foreach ($this->injections as $key => $injection) {
-                                $url = $this->getUrl("batch.php") . '&did=' . $injection["document_id"] . '&rid='. $this->report_id;
-                                $button = '<a target="_blank" href="'.$url.'" class="jqbuttonmed ui-button ui-corner-all ui-widget" style="color:#34495e;font-size:12px;"><i class="fas fa-syringe"></i>'.$injection["title"].'</a>';
-                                $option = '<option value="'.$injection["document_id"].'">'.$injection["title"].'</option>';
-                                echo $option;
-                            }
-                        ?>
-                        </select>
+                            <div class="mb-3">
+                            <div id="batch-load-livefilters">
+                            </div>
+                            </div>
+                            <div class="mb-3">
+                                <select id="batch-load-select" onChange="STPH_pdfInjector.setDownload(this.value)" class="form-select">
+                                <option hidden>Choose an Injection</option>
+                                <?php
+                                    foreach ($this->injections as $key => $injection) {                         
+                                        $option = '<option value="'.$injection["document_id"].'">'.$injection["title"].'</option>';
+                                        echo $option;
+                                    }
+                                ?>
+                                </select>
+                            </div>
+
+                            <?php
+                        foreach ($this->injections as $key => $injection) {
+                            ?>                         
+                            <div 
+                                id="report-injection-download-<?= $injection["document_id"] ?>"
+                                class="mb-3 injection-report-download d-none">
+                                <span>Injection Title: <?= $injection["title"] ?></span><br>
+                                <span>Injection ID: <?= $injection["document_id"] ?></span><br><br>
+                                <div class="text-center">
+                                <button                                     
+                                    class="btn btn-rcgreen"
+                                    onClick="STPH_pdfInjector.loadBatch('<?= $injection["document_id"] ?>',<?= $this->report_id ?>)" type="button" 
+                                    class="btn btn-primary">
+                                    Download
+                                </button>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                        ?>      
+
                         </div>
+                        <div id="batch-load-spinner" class="text-center d-none">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                             Loading..
+                        </div>
+
+                        <div id="batch-load-success" class="d-none">
+                        <div class="alert alert-success" role="alert">
+                                Success! PDF Injector has downloaded PDFs based on Report. You can safely close this dialog.
+                            </div>                            
+                        </div>
+                        <div id="batch-load-failure" class="d-none">Failure</div>
+                        <div id="batch-load-error-name" class="d-none"></div>
+                        <div id="batch-load-error-content" class="d-none"></div>
+
                     </div>
                     <div class="modal-footer">
-                    <?php
-                        //  To Do: Clean this up...
-                        foreach ($this->injections as $key => $injection) {
-                            $url = $this->getUrl("batch.php") . '&did=' . $injection["document_id"] . '&rid='. $this->report_id;
-                            $button = '<a onClick="STPH_pdfInjector.closeModalExportData()" style="color:white;" id="report-injection-download-'.$injection["document_id"].'" href="'.$url.'" data-default-url="'.$url.'" type="button" class="btn btn-rcgreen injection-report-download-button d-none">Download</a>';
-                            echo $button;
-                        }
-                    ?>                                            
-                        <button type="button" class="btn btn-defaultrc" data-dismiss="modal">Close</button>
+                                      
+                    <button type="button" class="btn btn-defaultrc" onclick="STPH_pdfInjector.closeModalExportData()">Close</button>
                     </div>
                 </div>
             </div>
-        </div>        
+        </div>
         <?php
     }
 
