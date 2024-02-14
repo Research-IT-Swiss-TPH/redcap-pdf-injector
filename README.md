@@ -5,15 +5,15 @@ PDF Injector is a REDCap module that enables you to populate fillable PDFs with 
 
 [Read Documentation](https://research-it-swiss-tph.github.io/redcap-pdf-injector/)
 
-##  Roadmap
-- Improve custom field handling (Multi Checkbox)
-- Imrove Report Injection UI (Reset Live Filter)
-- Improve Injection Overview (Organizing Order, Categories)
-
 ## Developer Notice
 Pull Requests are welcome. When opening a Pull Request please add a new Branch.
 
 [Change Log](./changelog.md)
+
+**Run tests**
+```
+vendor\bin\phpunit
+```
 
 ## Author
 Ekin Tertemiz
