@@ -9,12 +9,12 @@
     global $Proj;
 
     //  Simulates memory exhaust error
-    function simulate_memory_exhaust() {
-        $a = 'x';
-        while (true) {
-            $a = $a.$a;
-        }
-    }
+    // function simulate_memory_exhaust() {
+    //     $a = 'x';
+    //     while (true) {
+    //         $a = $a.$a;
+    //     }
+    // }
 
 
     try {
@@ -220,7 +220,7 @@
         echo get_class($th);
 
         if($exceptionType === "TypeError") {
-            echo $th;
+            echo $module->escape($th);
         }
          else {
             echo json_encode(array(
