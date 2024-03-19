@@ -732,7 +732,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
         $this->setInjections();
         $this->ui = self::getProjectSetting("ui-mode");
 
-        //  Check if any filed of type descriptive contains PDFI action tags
+        //  Check if any field of type descriptive contains PDFI action tags
         $this->setTaggedFields();
         if(count($this->taggedFields)) {
             $this->includeButtonJavaScript($project_id, $record);
@@ -759,7 +759,7 @@ class pdfInjector extends \ExternalModules\AbstractExternalModule {
      * 
      */
     private function setInjections() {
-        $this->injections = self::getProjectSetting("pdf-injections");
+        $this->injections = self::getProjectSetting("pdf-injections") ?? [];
     }
 
     /**
